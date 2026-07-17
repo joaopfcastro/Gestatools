@@ -1,0 +1,6 @@
+{
+  "name": "GestaTools",
+  "description": "Calculadoras obstétricas avançadas e precisas para uso clínico: DUM, USG, Percentil Fetal (Hadlock e Barcelona) e ILA.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
