@@ -9,6 +9,7 @@ import { InfoBalloon } from './InfoBalloon';
 import { useShortcut } from '../hooks/useShortcut';
 import DateInput from './DateInput';
 import GestationalMilestones from './GestationalMilestones';
+import { triggerHaptic } from '../utils/haptics';
 
 interface UsgCalculatorProps {
   onSaveRecord: (record: Omit<HistoryRecord, 'id' | 'date'>) => void;
@@ -121,6 +122,7 @@ export default function UsgCalculator({ onSaveRecord }: UsgCalculatorProps) {
 
   const handleCalculate = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
+    triggerHaptic(50);
     
     if (errorMessage) return;
 
@@ -260,6 +262,7 @@ export default function UsgCalculator({ onSaveRecord }: UsgCalculatorProps) {
 
   const handleSave = () => {
     if (!result) return;
+    triggerHaptic([50, 50]);
     const finalName = patientName.trim() || 'Paciente Sem Nome';
 
     onSaveRecord({
@@ -743,7 +746,10 @@ export default function UsgCalculator({ onSaveRecord }: UsgCalculatorProps) {
         type="button"
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
-        onClick={handleReset}
+        onClick={() => {
+          triggerHaptic(50);
+          handleReset();
+        }}
         className="hidden md:flex fixed bottom-24 md:bottom-10 right-6 md:right-10 bg-surface text-on-surface shadow-[0_4px_20px_rgba(0,0,0,0.15)] dark:shadow-[0_4px_20px_rgba(0,0,0,0.4)] hover:bg-surface-variant transition-colors p-4 rounded-full items-center justify-center border border-surface-variant/50 z-40 group"
         title="Zerar formulário"
       >

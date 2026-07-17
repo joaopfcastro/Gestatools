@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { HistoryRecord } from '../types';
 import Icon from './Icon';
 import SwipeToDelete from './SwipeToDelete';
+import { triggerHaptic } from '../utils/haptics';
 
 interface HistoryPanelProps {
   records: HistoryRecord[];
@@ -46,6 +47,7 @@ export default function HistoryPanel({ records, onDeleteRecord, onClearAll, onCl
           {records.length > 0 && (
             <button
               onClick={() => {
+                triggerHaptic([100, 50, 100]);
                 if (window.confirm('Deseja realmente limpar todo o histórico?')) {
                   onClearAll();
                 }
@@ -115,7 +117,10 @@ export default function HistoryPanel({ records, onDeleteRecord, onClearAll, onCl
             });
 
             return (
-              <SwipeToDelete key={`${rec.id}-${index}`} onDelete={() => onDeleteRecord(rec.id)}>
+              <SwipeToDelete key={`${rec.id}-${index}`} onDelete={() => {
+                triggerHaptic(100);
+                onDeleteRecord(rec.id);
+              }}>
                 <div className="bg-surface border border-surface-variant rounded-xl p-4 flex justify-between items-start gap-3 transition-all hover:bg-surface-variant/50">
                   <div className="flex-grow flex flex-col gap-1.5">
                     <div className="flex items-center gap-2">
@@ -143,7 +148,10 @@ export default function HistoryPanel({ records, onDeleteRecord, onClearAll, onCl
                       <Icon name="star" filled={rec.isFavorite} className="text-[18px]" />
                     </button>
                     <button
-                      onClick={() => onDeleteRecord(rec.id)}
+                      onClick={() => {
+                        triggerHaptic(100);
+                        onDeleteRecord(rec.id);
+                      }}
                       className="p-1.5 rounded-xl text-secondary hover:text-error hover:bg-error/10 transition-all cursor-pointer active:scale-90"
                       title="Excluir Registro"
                     >

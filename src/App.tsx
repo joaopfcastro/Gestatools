@@ -12,6 +12,7 @@ import Icon from './components/Icon';
 import { motion, AnimatePresence } from 'motion/react';
 import { useShortcut } from './hooks/useShortcut';
 import { useKeyboardAwareScroll } from './hooks/useKeyboardAwareScroll';
+import { triggerHaptic } from './utils/haptics';
 
 const DEFAULT_SETTINGS: AppSettings = {
   defaultCycleLength: 28,
@@ -181,7 +182,10 @@ export default function App() {
         <div className="flex items-center gap-2 md:gap-4 relative">
           <div className="relative">
             <button 
-              onClick={() => window.dispatchEvent(new CustomEvent('clear-form'))}
+              onClick={() => {
+                triggerHaptic(50);
+                window.dispatchEvent(new CustomEvent('clear-form'));
+              }}
               className="pulse-hover text-primary hover:bg-primary/10 transition-colors cursor-pointer active:scale-95 p-2 rounded-full h-11 w-11 flex items-center justify-center group"
               title="Limpar formulário (Cmd/Ctrl + L)"
             >
