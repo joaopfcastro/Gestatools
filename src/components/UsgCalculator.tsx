@@ -26,6 +26,13 @@ export default function UsgCalculator({ onSaveRecord }: UsgCalculatorProps) {
     }
   });
 
+  const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
+    const target = e.target;
+    setTimeout(() => {
+      target.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    }, 300);
+  };
+
   const [calcMode, setCalcMode] = useState<UsgCalcMode>('report');
   
   // Mode 1: Report inputs
@@ -122,34 +129,41 @@ export default function UsgCalculator({ onSaveRecord }: UsgCalculatorProps) {
 
   const handleCalculate = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
-    triggerHaptic(50);
     
-    if (errorMessage) return;
+    if (errorMessage) {
+      triggerHaptic([60, 40, 60]);
+      return;
+    }
 
     if (!examDate || examDate.length !== 10) {
       setErrorMessage('Por favor, informe a data do exame de ultrassom.');
+      triggerHaptic([60, 40, 60]);
       return;
     }
 
     const examDateObj = parseDateString(examDate);
     if (!examDateObj) {
       setErrorMessage('A data do exame é inválida.');
+      triggerHaptic([60, 40, 60]);
       return;
     }
 
     const refDateObj = parseDateString(refDate);
     if (!refDateObj) {
       setErrorMessage('A data de referência é inválida.');
+      triggerHaptic([60, 40, 60]);
       return;
     }
 
     if (examDateObj > new Date()) {
       setErrorMessage('A data do exame não pode ser uma data futura.');
+      triggerHaptic([60, 40, 60]);
       return;
     }
 
     if (refDateObj < examDateObj) {
       setErrorMessage('A data de referência não pode ser anterior à data do exame.');
+      triggerHaptic([60, 40, 60]);
       return;
     }
 
@@ -163,10 +177,12 @@ export default function UsgCalculator({ onSaveRecord }: UsgCalculatorProps) {
       const d = Number(reportDays);
       if (reportWeeks === '' || w < 3 || w > 42) {
         setErrorMessage('A IG (Semanas) deve estar entre 3 e 42.');
+        triggerHaptic([60, 40, 60]);
         return;
       }
       if (reportDays === '' || d < 0 || d > 6) {
         setErrorMessage('A IG (Dias) deve estar entre 0 e 6.');
+        triggerHaptic([60, 40, 60]);
         return;
       }
       gaAtExamDays = w * 7 + d;
@@ -174,6 +190,7 @@ export default function UsgCalculator({ onSaveRecord }: UsgCalculatorProps) {
     } else if (calcMode === 'biometry_1t') {
       if (!ccn || ccn < 10 || ccn > 84) {
         setErrorMessage('CCN fora da faixa validada para esta fórmula (10–84 mm).');
+        triggerHaptic([60, 40, 60]);
         return;
       }
       // Robinson & Fleming Formula (1975)
@@ -215,6 +232,7 @@ export default function UsgCalculator({ onSaveRecord }: UsgCalculatorProps) {
 
       if (activeAges.length === 0) {
         setErrorMessage('Informe ao menos uma medida biométrica (DBP, CC, CA ou Fêmur).');
+        triggerHaptic([60, 40, 60]);
         return;
       }
 
@@ -257,6 +275,7 @@ export default function UsgCalculator({ onSaveRecord }: UsgCalculatorProps) {
       parametersUsed,
     });
     setMobileView('results');
+    triggerHaptic([25, 40, 25]);
     setSaved(false); setShimmer(false); }, 600);
   };
 
@@ -297,8 +316,8 @@ export default function UsgCalculator({ onSaveRecord }: UsgCalculatorProps) {
   };
 
   return (
-    <div className="w-full max-w-6xl mx-auto flex flex-col gap-3 md:gap-6 p-2 md:p-8">
-      <div className="pl-1 w-full">
+    <div className="w-full max-w-6xl mx-auto flex flex-col justify-between gap-2 md:gap-6 p-0.5 sm:p-4 md:p-8 h-full">
+      <div className="px-1 w-full">
         <h1 className="text-xl md:text-3xl font-bold text-on-surface leading-tight md:mb-1">
           Idade Gestacional USG
         </h1>
@@ -309,13 +328,16 @@ export default function UsgCalculator({ onSaveRecord }: UsgCalculatorProps) {
 
       {/* Mobile Segmented Control */}
       {result && (
-        <div className="lg:hidden flex p-1 bg-surface-variant/30 dark:bg-surface-variant/10 rounded-2xl w-full border border-surface-variant mb-1">
+        <div className="lg:hidden flex p-1 bg-surface-variant/50 dark:bg-surface-variant dark:bg-surface-variant/10 rounded-2xl w-full border border-surface-variant mb-1">
           <button
             type="button"
-            onClick={() => setMobileView('inputs')}
-            className={`flex-1 py-1.5 text-xs font-bold rounded-xl transition-all ${
+            onClick={() => {
+              triggerHaptic(15);
+              setMobileView('inputs');
+            }}
+            className={`flex-1 py-2 text-xs font-bold rounded-xl transition-all ${
               mobileView === 'inputs'
-                ? 'bg-surface text-on-surface shadow-sm border border-surface-variant/30'
+                ? 'bg-surface text-on-surface shadow-xs border border-surface-variant/30'
                 : 'text-secondary hover:text-on-surface'
             }`}
           >
@@ -323,10 +345,13 @@ export default function UsgCalculator({ onSaveRecord }: UsgCalculatorProps) {
           </button>
           <button
             type="button"
-            onClick={() => setMobileView('results')}
-            className={`flex-1 py-1.5 text-xs font-bold rounded-xl transition-all ${
+            onClick={() => {
+              triggerHaptic(15);
+              setMobileView('results');
+            }}
+            className={`flex-1 py-2 text-xs font-bold rounded-xl transition-all ${
               mobileView === 'results'
-                ? 'bg-surface text-on-surface shadow-sm border border-surface-variant/30'
+                ? 'bg-surface text-on-surface shadow-xs border border-surface-variant/30'
                 : 'text-secondary hover:text-on-surface'
             }`}
           >
@@ -335,235 +360,260 @@ export default function UsgCalculator({ onSaveRecord }: UsgCalculatorProps) {
         </div>
       )}
 
-      <div className="flex flex-col lg:flex-row gap-4 lg:gap-12 items-start w-full">
+      <div className="flex flex-col lg:flex-row gap-3 lg:gap-12 items-stretch w-full flex-initial md:flex-1 md:min-h-0">
         {/* Left Col: Inputs Form */}
         <motion.div 
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
-          className={`w-full lg:w-[45%] flex flex-col animate-card ${
+          className={`w-full lg:w-[45%] flex flex-col flex-initial md:flex-1 animate-card ${
             result && mobileView !== 'inputs' ? 'hidden lg:flex' : 'flex'
           }`}
         >
-          <form ref={formRef} onSubmit={handleCalculate} noValidate className="glass-panel p-3 md:p-8 rounded-[1.5rem] md:rounded-[2rem] flex flex-col gap-3 md:gap-5 border border-surface-variant/50 shadow-sm">
+          <form ref={formRef} onSubmit={handleCalculate} noValidate className="glass-panel p-3.5 sm:p-6 md:p-8 rounded-[1.25rem] md:rounded-[2rem] flex flex-col justify-start md:justify-between flex-initial md:flex-1 gap-3 sm:gap-4 md:gap-5 shadow-xs h-auto md:h-full relative pb-24 md:pb-8">
             {/* Calculation Mode Tabs */}
-            <div className="ios-toggle-bg p-1 rounded-2xl grid grid-cols-1 sm:grid-cols-3 w-full border border-surface-variant shadow-sm bg-white dark:bg-black mb-2">
-          <button
-            type="button"
-            onClick={() => { setCalcMode('report'); setResult(null); setErrorMessage(''); }}
-            className={`py-2 px-2 text-xs sm:text-sm font-bold rounded-xl cursor-pointer transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1 dark:focus-visible:ring-offset-surface ${
-              calcMode === 'report'
-                ? 'bg-surface text-on-surface shadow-sm border border-surface-variant'
-                : 'text-secondary hover:text-on-surface'
-            }`}
-          >
-            Laudo USG
-          </button>
-          <button
-            type="button"
-            onClick={() => { setCalcMode('biometry_1t'); setResult(null); setErrorMessage(''); }}
-            className={`py-2 px-2 text-xs sm:text-sm font-bold rounded-xl cursor-pointer transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1 dark:focus-visible:ring-offset-surface ${
-              calcMode === 'biometry_1t'
-                ? 'bg-surface text-on-surface shadow-sm border border-surface-variant'
-                : 'text-secondary hover:text-on-surface'
-            }`}
-          >
-            CCN (Medida)
-          </button>
-          <button
-            type="button"
-            onClick={() => { setCalcMode('biometry_23t'); setResult(null); setErrorMessage(''); }}
-            className={`py-2 px-2 text-xs sm:text-sm font-bold rounded-xl cursor-pointer transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1 dark:focus-visible:ring-offset-surface ${
-              calcMode === 'biometry_23t'
-                ? 'bg-surface text-on-surface shadow-sm border border-surface-variant'
-                : 'text-secondary hover:text-on-surface'
-            }`}
-          >
-            Hadlock (Medidas)
-          </button>
-        </div>
-
-        {errorMessage && (
-          <InfoBalloon variant="error" text={errorMessage} />
-        )}
-          {calcMode === 'report' && (
-            <div className="flex flex-col gap-4">
-              <InfoBalloon 
-                text="Duração recomendada por obstetras: Use a IG descrita no laudo do USG e a data em que o exame foi realizado."
-              />
-              
-              <div className="grid grid-cols-2 gap-4">
-                <div className="flex flex-col gap-2" title="Idade gestacional estimada descrita no laudo do exame de ultrassom.">
-                  <label className="font-body-sm text-secondary font-medium pl-1" htmlFor="report-weeks">
-                    IG (Semanas)
-                  </label>
-                  <input 
-                    id="report-weeks"
-                    type="number"
-                    min="3"
-                    max="42"
-                    required
-                    value={reportWeeks}
-                    onChange={(e) => setReportWeeks(clampValue(e.target.value, 42) as any)}
-                    className="ios-input w-full h-11 md:h-12 px-3 md:px-4 rounded-xl text-base text-on-surface"
-                  />
-                </div>
-
-                <div className="flex flex-col gap-2" title="Dias complementares à idade gestacional.">
-                  <label className="font-body-sm text-secondary font-medium pl-1" htmlFor="report-days">
-                    IG (Dias)
-                  </label>
-                  <input 
-                    id="report-days"
-                    type="number"
-                    min="0"
-                    max="6"
-                    required
-                    value={reportDays}
-                    onChange={(e) => setReportDays(clampValue(e.target.value, 6) as any)}
-                    className="ios-input w-full h-11 md:h-12 px-3 md:px-4 rounded-xl text-base text-on-surface"
-                  />
-                </div>
-              </div>
+            <div className="ios-toggle-bg p-1 rounded-2xl grid grid-cols-3 w-full border border-surface-variant shadow-xs bg-white dark:bg-black mb-1">
+              <button
+                type="button"
+                onClick={() => { triggerHaptic(15); setCalcMode('report'); setResult(null); setErrorMessage(''); }}
+                className={`py-2.5 md:py-2 px-1 sm:px-2 text-[11px] sm:text-xs md:text-sm font-bold rounded-xl cursor-pointer transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary min-h-[44px] md:min-h-0 flex items-center justify-center text-center text-nowrap ${
+                  calcMode === 'report'
+                    ? 'bg-surface text-on-surface shadow-xs border border-surface-variant'
+                    : 'text-secondary hover:text-on-surface'
+                }`}
+              >
+                Laudo USG
+              </button>
+              <button
+                type="button"
+                onClick={() => { triggerHaptic(15); setCalcMode('biometry_1t'); setResult(null); setErrorMessage(''); }}
+                className={`py-2.5 md:py-2 px-1 sm:px-2 text-[11px] sm:text-xs md:text-sm font-bold rounded-xl cursor-pointer transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary min-h-[44px] md:min-h-0 flex items-center justify-center text-center text-nowrap ${
+                  calcMode === 'biometry_1t'
+                    ? 'bg-surface text-on-surface shadow-xs border border-surface-variant'
+                    : 'text-secondary hover:text-on-surface'
+                }`}
+              >
+                CCN (Medida)
+              </button>
+              <button
+                type="button"
+                onClick={() => { triggerHaptic(15); setCalcMode('biometry_23t'); setResult(null); setErrorMessage(''); }}
+                className={`py-2.5 md:py-2 px-1 sm:px-2 text-[11px] sm:text-xs md:text-sm font-bold rounded-xl cursor-pointer transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary min-h-[44px] md:min-h-0 flex items-center justify-center text-center text-nowrap ${
+                  calcMode === 'biometry_23t'
+                    ? 'bg-surface text-on-surface shadow-xs border border-surface-variant'
+                    : 'text-secondary hover:text-on-surface'
+                }`}
+              >
+                Hadlock
+              </button>
             </div>
-          )}
 
-          {calcMode === 'biometry_1t' && (
-            <div className="flex flex-col gap-2" title="Comprimento Cabeça-Nádega. Melhor parâmetro para datar gestação no 1º trimestre (até 84mm).">
-              <div className="flex flex-col gap-2 mb-1">
-                <div className="flex justify-between items-center pl-1 pr-1">
-                  <label className="font-body-sm text-secondary font-medium" htmlFor="ccn-input">
-                    Comprimento Cabeça-Nádega (CCN)
-                  </label>
-                  <span className="text-[12px] text-on-surface-variant">10 a 84 mm</span>
+            {errorMessage && (
+              <InfoBalloon variant="error" text={errorMessage} />
+            )}
+
+            <div className="flex flex-col gap-3 flex-initial md:flex-1 justify-start md:justify-center">
+              {calcMode === 'report' && (
+                <div className="flex flex-col gap-3">
+                  <InfoBalloon 
+                    text="Use a IG descrita no laudo do USG e a data do exame."
+                  />
+                  
+                  <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
+                    <div className="flex flex-col gap-1.5" title="Idade gestacional estimada descrita no laudo do exame de ultrassom.">
+                      <label className="text-sm font-semibold text-on-surface pl-0.5" htmlFor="report-weeks">
+                        IG (Semanas)
+                      </label>
+                      <input 
+                        id="report-weeks"
+                        type="number"
+                        min="3"
+                        max="42"
+                        required
+                        enterKeyHint="next"
+                        value={reportWeeks}
+                        onChange={(e) => setReportWeeks(clampValue(e.target.value, 42) as any)}
+                        onFocus={handleFocus}
+                        className="ios-input w-full h-12 md:h-12 px-3.5 md:px-4 rounded-xl text-[16px] font-medium text-on-surface"
+                      />
+                    </div>
+
+                    <div className="flex flex-col gap-1.5" title="Dias complementares à idade gestacional.">
+                      <label className="text-sm font-semibold text-on-surface pl-0.5" htmlFor="report-days">
+                        IG (Dias)
+                      </label>
+                      <input 
+                        id="report-days"
+                        type="number"
+                        min="0"
+                        max="6"
+                        required
+                        enterKeyHint="next"
+                        value={reportDays}
+                        onChange={(e) => setReportDays(clampValue(e.target.value, 6) as any)}
+                        onFocus={handleFocus}
+                        className="ios-input w-full h-12 md:h-12 px-3.5 md:px-4 rounded-xl text-[16px] font-medium text-on-surface"
+                      />
+                    </div>
+                  </div>
                 </div>
-                <InfoBalloon 
-                  text="Insira o comprimento cabeça-nádega em milímetros (mm)."
-                  onClick={() => setHelpTopic('ccn')}
-                />
-              </div>
-              <input 
-                id="ccn-input"
-                type="number"
-                min="1"
-                max="150"
-                step="0.1"
+              )}
+
+              {calcMode === 'biometry_1t' && (
+                <div className="flex flex-col gap-1.5" title="Comprimento Cabeça-Nádega. Melhor parâmetro para datar gestação no 1º trimestre (até 84mm).">
+                  <div className="flex flex-col gap-1 mb-0.5">
+                    <div className="flex justify-between items-center pl-0.5 pr-0.5">
+                      <label className="text-sm font-semibold text-on-surface" htmlFor="ccn-input">
+                        Comprimento Cabeça-Nádega (CCN)
+                      </label>
+                      <span className="text-xs font-semibold text-secondary">10 a 84 mm</span>
+                    </div>
+                    <InfoBalloon 
+                      text="Insira o comprimento cabeça-nádega em milímetros (mm)."
+                      onClick={() => setHelpTopic('ccn')}
+                    />
+                  </div>
+                  <input 
+                    id="ccn-input"
+                    type="number"
+                    min="1"
+                    max="150"
+                    step="0.1"
+                    required
+                    enterKeyHint="next"
+                    placeholder="Ex: 45 mm"
+                    value={ccn || ''}
+                    onChange={(e) => setCcn(clampValue(e.target.value, 150, true) as any)}
+                    onFocus={handleFocus}
+                    className="ios-input w-full h-12 md:h-12 px-3.5 md:px-4 rounded-xl text-[16px] font-medium text-on-surface"
+                  />
+                </div>
+              )}
+
+              {calcMode === 'biometry_23t' && (
+                <div className="flex flex-col gap-2.5">
+                  <InfoBalloon 
+                    text="Insira medidas em milímetros (mm)."
+                    onClick={() => setHelpTopic('hadlock')}
+                  />
+
+                  <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
+                    <div className="flex flex-col gap-1" title="Diâmetro Biparietal (DBP).">
+                      <label className="text-xs font-semibold text-on-surface pl-0.5" htmlFor="bpd-input">
+                        DBP (mm)
+                      </label>
+                      <input 
+                        id="bpd-input"
+                        type="number"
+                        min="0"
+                        max="120"
+                        enterKeyHint="next"
+                        placeholder="Ex: 54"
+                        value={bpd || ''}
+                        onChange={(e) => setBpd(clampValue(e.target.value, 120, true) as any)}
+                        onFocus={handleFocus}
+                        className="ios-input w-full h-11 md:h-12 px-3 md:px-4 rounded-xl text-[16px] font-medium text-on-surface"
+                      />
+                    </div>
+
+                    <div className="flex flex-col gap-1" title="Circunferência Cefálica (CC).">
+                      <label className="text-xs font-semibold text-on-surface pl-0.5" htmlFor="hc-input">
+                        CC (mm)
+                      </label>
+                      <input 
+                        id="hc-input"
+                        type="number"
+                        min="0"
+                        max="400"
+                        enterKeyHint="next"
+                        placeholder="Ex: 210"
+                        value={hc || ''}
+                        onChange={(e) => setHc(clampValue(e.target.value, 400, true) as any)}
+                        onFocus={handleFocus}
+                        className="ios-input w-full h-11 md:h-12 px-3 md:px-4 rounded-xl text-[16px] font-medium text-on-surface"
+                      />
+                    </div>
+
+                    <div className="flex flex-col gap-1" title="Circunferência Abdominal (CA).">
+                      <label className="text-xs font-semibold text-on-surface pl-0.5" htmlFor="ac-input">
+                        CA (mm)
+                      </label>
+                      <input 
+                        id="ac-input"
+                        type="number"
+                        min="0"
+                        max="400"
+                        enterKeyHint="next"
+                        placeholder="Ex: 195"
+                        value={ac || ''}
+                        onChange={(e) => setAc(clampValue(e.target.value, 400, true) as any)}
+                        onFocus={handleFocus}
+                        className="ios-input w-full h-11 md:h-12 px-3 md:px-4 rounded-xl text-[16px] font-medium text-on-surface"
+                      />
+                    </div>
+
+                    <div className="flex flex-col gap-1" title="Comprimento do Fêmur (CF).">
+                      <label className="text-xs font-semibold text-on-surface pl-0.5" htmlFor="fl-input">
+                        Fêmur (mm)
+                      </label>
+                      <input 
+                        id="fl-input"
+                        type="number"
+                        min="0"
+                        max="100"
+                        enterKeyHint="next"
+                        placeholder="Ex: 42"
+                        value={fl || ''}
+                        onChange={(e) => setFl(clampValue(e.target.value, 100, true) as any)}
+                        onFocus={handleFocus}
+                        className="ios-input w-full h-11 md:h-12 px-3 md:px-4 rounded-xl text-[16px] font-medium text-on-surface"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <label className="text-sm font-semibold text-on-surface pl-0.5" htmlFor="exam-date">
+                Data de Realização do USG
+              </label>
+              <DateInput
+                id="exam-date"
                 required
-                placeholder="Ex: 45 mm"
-                value={ccn || ''}
-                onChange={(e) => setCcn(clampValue(e.target.value, 150, true) as any)}
-                className="ios-input w-full h-11 md:h-12 px-3 md:px-4 rounded-xl text-base text-on-surface"
+                enterKeyHint="next"
+                value={examDate}
+                onChange={setExamDate}
+                onFocus={handleFocus}
+                className="ios-input w-full h-12 md:h-12 px-3.5 md:px-4 rounded-xl text-[16px] font-medium text-on-surface"
               />
             </div>
-          )}
 
-          {calcMode === 'biometry_23t' && (
-            <div className="flex flex-col gap-4">
-              <InfoBalloon 
-                text="Insira medidas em milímetros (mm). Vazios são desconsiderados."
-                onClick={() => setHelpTopic('hadlock')}
+            <div className="flex flex-col gap-1.5">
+              <label className="text-sm font-semibold text-on-surface pl-0.5" htmlFor="ref-date">
+                Data de Referência (Hoje)
+              </label>
+              <DateInput
+                id="ref-date"
+                required
+                enterKeyHint="done"
+                value={refDate}
+                onChange={setRefDate}
+                onFocus={handleFocus}
+                className="ios-input w-full h-12 md:h-12 px-3.5 md:px-4 rounded-xl text-[16px] font-medium text-on-surface"
               />
-
-              <div className="grid grid-cols-2 gap-4">
-                <div className="flex flex-col gap-2" title="Diâmetro Biparietal (DBP). Distância entre os ossos parietais do feto.">
-                  <label className="font-body-sm text-secondary font-medium pl-1" htmlFor="bpd-input">
-                    DBP (mm)
-                  </label>
-                  <input 
-                    id="bpd-input"
-                    type="number"
-                    min="0"
-                    max="120"
-                    placeholder="Ex: 54"
-                    value={bpd || ''}
-                    onChange={(e) => setBpd(clampValue(e.target.value, 120, true) as any)}
-                    className="ios-input w-full h-11 md:h-12 px-3 md:px-4 rounded-xl text-base text-on-surface"
-                  />
-                </div>
-
-                <div className="flex flex-col gap-2" title="Circunferência Cefálica (CC). Medida do contorno da cabeça fetal.">
-                  <label className="font-body-sm text-secondary font-medium pl-1" htmlFor="hc-input">
-                    CC (mm)
-                  </label>
-                  <input 
-                    id="hc-input"
-                    type="number"
-                    min="0"
-                    max="400"
-                    placeholder="Ex: 210"
-                    value={hc || ''}
-                    onChange={(e) => setHc(clampValue(e.target.value, 400, true) as any)}
-                    className="ios-input w-full h-11 md:h-12 px-3 md:px-4 rounded-xl text-base text-on-surface"
-                  />
-                </div>
-
-                <div className="flex flex-col gap-2" title="Circunferência Abdominal (CA). Importante indicador do estado nutricional fetal.">
-                  <label className="font-body-sm text-secondary font-medium pl-1" htmlFor="ac-input">
-                    CA (mm)
-                  </label>
-                  <input 
-                    id="ac-input"
-                    type="number"
-                    min="0"
-                    max="400"
-                    placeholder="Ex: 195"
-                    value={ac || ''}
-                    onChange={(e) => setAc(clampValue(e.target.value, 400, true) as any)}
-                    className="ios-input w-full h-11 md:h-12 px-3 md:px-4 rounded-xl text-base text-on-surface"
-                  />
-                </div>
-
-                <div className="flex flex-col gap-2" title="Comprimento do Fêmur (CF). Medida do osso da coxa fetal.">
-                  <label className="font-body-sm text-secondary font-medium pl-1" htmlFor="fl-input">
-                    Fêmur (mm)
-                  </label>
-                  <input 
-                    id="fl-input"
-                    type="number"
-                    min="0"
-                    max="100"
-                    placeholder="Ex: 42"
-                    value={fl || ''}
-                    onChange={(e) => setFl(clampValue(e.target.value, 100, true) as any)}
-                    className="ios-input w-full h-11 md:h-12 px-3 md:px-4 rounded-xl text-base text-on-surface"
-                  />
-                </div>
-              </div>
             </div>
-          )}
 
-          <div className="flex flex-col gap-2">
-            <label className="font-body-sm text-secondary font-medium pl-1" htmlFor="exam-date">
-              Data de Realização do USG
-            </label>
-            <DateInput
-              id="exam-date"
-              required
-              value={examDate}
-              onChange={setExamDate}
-              className="ios-input w-full h-11 md:h-12 px-3 md:px-4 rounded-xl text-base text-on-surface"
-            />
-          </div>
-
-          <div className="flex flex-col gap-2">
-            <label className="font-body-sm text-secondary font-medium pl-1" htmlFor="ref-date">
-              Data de Referência (Hoje)
-            </label>
-            <DateInput
-              id="ref-date"
-              required
-              value={refDate}
-              onChange={setRefDate}
-              className="ios-input w-full h-11 md:h-12 px-3 md:px-4 rounded-xl text-base text-on-surface"
-            />
-          </div>
-
-          <button
-            type="submit"
-            className="calc-btn mt-2 md:mt-4 h-11 md:h-12 w-full bg-primary text-white font-title-md text-[17px] font-semibold rounded-xl"
-          >
-            Calcular
-          </button>
-        </form>
+            <div className="botao-calcular-container sticky bottom-0 md:static z-30 pt-3 pb-2 -mx-3.5 sm:-mx-6 px-3.5 sm:px-6 -mb-3.5 sm:-mb-6 mt-4 md:m-0 md:p-0 backdrop-blur-md bg-white/95 dark:bg-[#1C1C1E]/95 border-t border-black/5 dark:border-white/10 md:border-none md:bg-transparent md:backdrop-blur-none shadow-lg md:shadow-none transition-all rounded-b-[1.25rem] md:rounded-none">
+              <button
+                type="submit"
+                id="botao-calcular"
+                className="calc-btn h-12 md:h-12 min-h-[48px] w-full bg-primary hover:bg-primary/90 text-white font-bold text-[17px] md:text-[18px] rounded-xl shadow-md shadow-primary/25 active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center gap-2"
+              >
+                <Icon name="calculate" className="text-[22px]" />
+                Calcular
+              </button>
+            </div>
+          </form>
         </motion.div>
 
         {/* Right Col: Results View */}
@@ -576,7 +626,7 @@ export default function UsgCalculator({ onSaveRecord }: UsgCalculatorProps) {
             initial={{ opacity: 0, scale: 0.98 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ type: 'spring', stiffness: 100, damping: 15 }}
-            className={`glass-panel widget-gradient p-3 md:p-10 rounded-[1.5rem] md:rounded-[2rem] flex flex-col items-center justify-center text-center w-full min-h-[300px] md:min-h-[380px] relative overflow-hidden border border-surface-variant/30 shadow-lg ${shimmer ? 'shimmer-active' : ''}`}
+            className={`glass-panel widget-gradient p-3 md:p-10 rounded-[1.5rem] md:rounded-[2rem] flex flex-col items-center justify-center text-center w-full min-h-[300px] md:min-h-[380px] relative overflow-hidden  ${shimmer ? 'shimmer-active' : ''}`}
           >
             <div className="relative z-10 w-full flex flex-col items-center">
               {/* Main IG Section */}
@@ -584,13 +634,13 @@ export default function UsgCalculator({ onSaveRecord }: UsgCalculatorProps) {
                 <svg viewBox="0 0 220 220" className="w-[120px] h-[120px] md:w-[220px] md:h-[220px] -rotate-90">
                   <circle 
                     cx="110" cy="110" r="95"
-                    className="stroke-surface-variant fill-none opacity-50"
+                    className="stroke-surface-variant fill-none dark:opacity-100 opacity-50"
                     strokeWidth="6"
                   />
                   {!shimmer && result && (
                     <motion.circle 
                       cx="110" cy="110" r="95"
-                      className="stroke-primary fill-none drop-shadow-sm"
+                      className="stroke-primary fill-none drop-shadow-sm dark:drop-shadow-[0_0_8px_rgba(10,132,255,0.4)]"
                       strokeWidth="8"
                       strokeLinecap="round"
                       initial={{ strokeDashoffset: 2 * Math.PI * 95 }}
@@ -618,12 +668,12 @@ export default function UsgCalculator({ onSaveRecord }: UsgCalculatorProps) {
                       <span className="text-[7px] md:text-[10px] font-bold text-secondary uppercase tracking-wider md:tracking-widest mt-1 md:mt-2 text-center max-w-[90px] md:max-w-none leading-tight">Idade Gestacional</span>
                     </>
                   ) : (
-                    <span className="font-display-lg text-[32px] md:text-[56px] leading-none text-secondary opacity-30">--</span>
+                    <span className="font-display-lg text-[32px] md:text-[56px] leading-none text-secondary opacity-50">--</span>
                   )}
                 </div>
               </div>
 
-              <div className="bg-surface-variant/30 rounded-2xl md:rounded-3xl px-4 md:px-8 py-2 md:py-5 flex flex-col items-center border border-surface-variant/50 w-full max-w-[280px] md:max-w-[320px] shadow-sm mb-2 md:mb-4">
+              <div className="bg-surface-variant/50 dark:bg-surface-variant rounded-2xl md:rounded-3xl px-4 md:px-8 py-2 md:py-5 flex flex-col items-center border border-surface-variant/50 dark:border-transparent w-full max-w-[280px] md:max-w-[320px] shadow-sm mb-2 md:mb-4">
                 <p className="text-[9px] md:text-[10px] font-bold text-secondary uppercase tracking-widest mb-1">
                   Data Provável do Parto
                 </p>
@@ -645,20 +695,20 @@ export default function UsgCalculator({ onSaveRecord }: UsgCalculatorProps) {
                 animate={{ opacity: 1, y: 0 }}
                 className="w-full flex flex-col gap-4 mt-8 pt-6 border-t border-surface-variant text-left"
               >
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="flex flex-col gap-1 bg-surface-variant/30 p-4 rounded-xl">
+                <div className="grid grid-cols-2 gap-3 md:gap-4">
+                  <div className="flex flex-col gap-1 bg-surface-variant/50 dark:bg-surface-variant p-3 md:p-4 rounded-xl">
                     <span className="text-[10px] font-bold text-secondary uppercase tracking-wide">DUM Ajustada</span>
-                    <span className="text-sm font-semibold text-on-surface">{result.estimatedDum}</span>
+                    <span className="text-sm font-semibold text-on-surface break-words leading-snug">{result.estimatedDum}</span>
                   </div>
-                  <div className="flex flex-col gap-1 bg-surface-variant/30 p-4 rounded-xl">
+                  <div className="flex flex-col gap-1 bg-surface-variant/50 dark:bg-surface-variant p-3 md:p-4 rounded-xl">
                     <span className="text-[10px] font-bold text-secondary uppercase tracking-wide">IG no Exame</span>
-                    <span className="text-xs font-semibold text-on-surface">{result.weeksAtExam}s {result.daysAtExam}d</span>
+                    <span className="text-xs font-semibold text-on-surface break-words leading-snug">{result.weeksAtExam}s {result.daysAtExam}d</span>
                   </div>
                 </div>
 
-                <div className="flex flex-col gap-1.5 bg-surface-variant/30 p-4 rounded-xl">
+                <div className="flex flex-col gap-1.5 bg-surface-variant/50 dark:bg-surface-variant p-3 md:p-4 rounded-xl">
                   <span className="text-[10px] font-bold text-secondary uppercase tracking-wide">Método</span>
-                  <span className="text-xs font-semibold text-on-surface">
+                  <span className="text-xs font-semibold text-on-surface break-words leading-snug">
                     {result.methodDescription}
                   </span>
                   {result.parametersUsed && result.parametersUsed.length > 0 && (
@@ -686,18 +736,19 @@ export default function UsgCalculator({ onSaveRecord }: UsgCalculatorProps) {
                       placeholder="Identificação da paciente..."
                       value={patientName}
                       onChange={(e) => setPatientName(e.target.value)}
-                      className="ios-input flex-grow h-12 px-3 rounded-xl text-sm"
+                      onFocus={handleFocus}
+                      className="ios-input flex-grow h-12 px-3 rounded-xl text-base"
                     />
                     <button
                       type="button"
                       onClick={handleSave}
-                      className={`px-4 rounded-xl flex items-center justify-center gap-1.5 font-bold text-xs transition-all duration-150 cursor-pointer ${
+                      className={`px-4 rounded-xl inline-flex items-center justify-center gap-1.5 font-bold text-xs transition-all duration-150 cursor-pointer min-h-[48px] md:min-h-0 ${
                         saved
                           ? 'bg-primary text-white shadow-md'
                           : 'bg-surface-variant text-on-surface hover:bg-surface-variant/80'
                       }`}
                     >
-                      <Icon name={saved ? 'check_circle' : 'save'} className="text-[18px]" />
+                      <Icon name={saved ? 'check_circle' : 'save'} className="icon-inline" />
                       {saved ? 'Salvo' : 'Salvar'}
                     </button>
                   </div>

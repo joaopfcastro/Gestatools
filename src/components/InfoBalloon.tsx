@@ -13,17 +13,17 @@ export function InfoBalloon({ text, onClick, className = '', variant = 'info' }:
   
   const content = (
     <>
-      <Icon name="info" className="text-[18px] shrink-0" />
-      <span className="text-[12px] font-semibold flex-1 leading-normal mt-[1px]">
+      <Icon name="info" className="text-[16px] md:text-[18px] shrink-0" />
+      <span className="text-[11px] md:text-[12px] font-semibold flex-1 leading-normal mt-[1px]">
         {text}
       </span>
       {onClick && (
-        <Icon name="help" className="text-[18px] opacity-70 group-hover:opacity-100 transition-opacity shrink-0" />
+        <Icon name="help" className="text-[16px] md:text-[18px] opacity-70 group-hover:opacity-100 transition-opacity shrink-0" />
       )}
     </>
   );
 
-  const baseClasses = `w-full text-left py-2.5 px-3.5 rounded-xl flex items-center gap-2 border ${
+  const baseClasses = `w-full text-left py-1.5 md:py-2.5 px-2.5 md:px-3.5 rounded-xl inline-flex items-center gap-1 md:gap-1.5 border ${
     isError 
       ? 'bg-error/10 text-error border-error/20' 
       : 'bg-primary/10 text-primary border-primary/20'

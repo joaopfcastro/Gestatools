@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion, useAnimation, PanInfo } from 'motion/react';
 import Icon from './Icon';
+import { triggerHaptic } from '../utils/haptics';
 
 interface SwipeToDeleteProps {
   onDelete: () => void;
@@ -20,6 +21,7 @@ export default function SwipeToDelete({ onDelete, children }: SwipeToDeleteProps
 
     if (offset < -80 || velocity < -500) {
       setIsDeleting(true);
+      triggerHaptic(60);
       await controls.start({ x: -window.innerWidth, opacity: 0, transition: { duration: 0.2 } });
       onDelete();
     } else {

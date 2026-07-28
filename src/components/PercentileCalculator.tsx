@@ -26,6 +26,13 @@ export default function PercentileCalculator({ onSaveRecord }: PercentileCalcula
     }
   });
 
+  const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
+    const target = e.target;
+    setTimeout(() => {
+      target.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    }, 300);
+  };
+
   const [curve, setCurve] = useState<CurveType>('hadlock');
   const [inputMode, setInputMode] = useState<InputMode>('peso');
   
@@ -129,7 +136,6 @@ export default function PercentileCalculator({ onSaveRecord }: PercentileCalcula
 
   const handleCalculate = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
-    triggerHaptic(50);
     setErrorMessage('');
     
     const w = Number(weeks);
@@ -137,24 +143,27 @@ export default function PercentileCalculator({ onSaveRecord }: PercentileCalcula
     
     if (weeks === '' || w < 20 || w > 42) {
       setErrorMessage('A IG (Semanas) deve estar entre 20 e 42.');
+      triggerHaptic([60, 40, 60]);
       return;
     }
     if (days === '' || d < 0 || d > 6) {
       setErrorMessage('A IG (Dias) deve estar entre 0 e 6.');
+      triggerHaptic([60, 40, 60]);
       return;
     }
     if (inputMode === 'peso') {
       const p = Number(weight);
       if (weight === '' || p < 100 || p > 6000) {
         setErrorMessage('O peso deve estar entre 100g e 6000g.');
+        triggerHaptic([60, 40, 60]);
         return;
       }
     } else {
       const b = Number(bpd), h = Number(hc), a = Number(ac), f = Number(fl);
-      if (!b || b < 30 || b > 120) { setErrorMessage('DBP inválido (30-120mm)'); return; }
-      if (!h || h < 100 || h > 400) { setErrorMessage('CC inválida (100-400mm)'); return; }
-      if (!a || a < 100 || a > 400) { setErrorMessage('CA inválida (100-400mm)'); return; }
-      if (!f || f < 20 || f > 100) { setErrorMessage('Fêmur inválido (20-100mm)'); return; }
+      if (!b || b < 30 || b > 120) { setErrorMessage('DBP inválido (30-120mm)'); triggerHaptic([60, 40, 60]); return; }
+      if (!h || h < 100 || h > 400) { setErrorMessage('CC inválida (100-400mm)'); triggerHaptic([60, 40, 60]); return; }
+      if (!a || a < 100 || a > 400) { setErrorMessage('CA inválida (100-400mm)'); triggerHaptic([60, 40, 60]); return; }
+      if (!f || f < 20 || f > 100) { setErrorMessage('Fêmur inválido (20-100mm)'); triggerHaptic([60, 40, 60]); return; }
     }
     
     setShimmer(true); setTimeout(() => {
@@ -166,6 +175,7 @@ export default function PercentileCalculator({ onSaveRecord }: PercentileCalcula
 
     if (!calcResult) {
       setErrorMessage('Idade Gestacional fora do intervalo disponível (20 a 42 semanas).');
+      triggerHaptic([60, 40, 60]);
       setShimmer(false);
       return;
     }
@@ -209,6 +219,7 @@ export default function PercentileCalculator({ onSaveRecord }: PercentileCalcula
       decimalWeeks,
     });
     setMobileView('results');
+    triggerHaptic([25, 40, 25]);
     setSaved(false); setShimmer(false); }, 600);
   };
 
@@ -240,8 +251,8 @@ export default function PercentileCalculator({ onSaveRecord }: PercentileCalcula
   };
 
   return (
-    <div className="w-full max-w-6xl mx-auto flex flex-col gap-3 md:gap-6 p-2 md:p-8">
-      <div className="pl-1 w-full">
+    <div className="w-full max-w-6xl mx-auto flex flex-col justify-between gap-2 md:gap-6 p-0.5 sm:p-4 md:p-8 h-full">
+      <div className="px-1 w-full">
         <h1 className="text-xl md:text-3xl font-bold text-on-surface leading-tight md:mb-1">
           Percentil Fetal
         </h1>
@@ -252,13 +263,16 @@ export default function PercentileCalculator({ onSaveRecord }: PercentileCalcula
 
       {/* Mobile Segmented Control */}
       {result && (
-        <div className="lg:hidden flex p-1 bg-surface-variant/30 dark:bg-surface-variant/10 rounded-2xl w-full border border-surface-variant mb-1">
+        <div className="lg:hidden flex p-1 bg-surface-variant/50 dark:bg-surface-variant dark:bg-surface-variant/10 rounded-2xl w-full border border-surface-variant mb-1">
           <button
             type="button"
-            onClick={() => setMobileView('inputs')}
-            className={`flex-1 py-1.5 text-xs font-bold rounded-xl transition-all ${
+            onClick={() => {
+              triggerHaptic(15);
+              setMobileView('inputs');
+            }}
+            className={`flex-1 py-2 text-xs font-bold rounded-xl transition-all ${
               mobileView === 'inputs'
-                ? 'bg-surface text-on-surface shadow-sm border border-surface-variant/30'
+                ? 'bg-surface text-on-surface shadow-xs border border-surface-variant/30'
                 : 'text-secondary hover:text-on-surface'
             }`}
           >
@@ -266,10 +280,13 @@ export default function PercentileCalculator({ onSaveRecord }: PercentileCalcula
           </button>
           <button
             type="button"
-            onClick={() => setMobileView('results')}
-            className={`flex-1 py-1.5 text-xs font-bold rounded-xl transition-all ${
+            onClick={() => {
+              triggerHaptic(15);
+              setMobileView('results');
+            }}
+            className={`flex-1 py-2 text-xs font-bold rounded-xl transition-all ${
               mobileView === 'results'
-                ? 'bg-surface text-on-surface shadow-sm border border-surface-variant/30'
+                ? 'bg-surface text-on-surface shadow-xs border border-surface-variant/30'
                 : 'text-secondary hover:text-on-surface'
             }`}
           >
@@ -278,216 +295,237 @@ export default function PercentileCalculator({ onSaveRecord }: PercentileCalcula
         </div>
       )}
 
-      <div className="flex flex-col lg:flex-row gap-4 lg:gap-12 items-start w-full">
-      {/* Left Col: Inputs Form */}
-      <motion.div 
-        initial={{ opacity: 0, y: 15 }}
-        animate={{ opacity: 1, y: 0 }}
-        className={`w-full lg:w-[45%] flex flex-col animate-card ${
-          result && mobileView !== 'inputs' ? 'hidden lg:flex' : 'flex'
-        }`}
-      >
-        <form ref={formRef} onSubmit={handleCalculate} noValidate className="glass-panel p-3 md:p-8 rounded-[1.5rem] md:rounded-[2rem] flex flex-col gap-3 md:gap-3.5 md:gap-5 w-full border border-surface-variant/50 shadow-sm">
-        {/* Toggles for curve and input mode */}
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-3 w-full mb-2">
-          {/* Curve Selector */}
-          <div className="ios-toggle-bg p-1 rounded-2xl grid grid-cols-1 sm:grid-cols-2 border border-surface-variant shadow-sm bg-white dark:bg-black">
-            <button
-              type="button"
-              onClick={() => { setCurve('hadlock'); setResult(null); }}
-              className={`py-2 px-2 text-xs sm:text-sm font-bold rounded-xl cursor-pointer transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1 dark:focus-visible:ring-offset-surface ${
-                curve === 'hadlock'
-                  ? 'bg-surface text-on-surface shadow-sm border border-surface-variant'
-                  : 'text-secondary hover:text-on-surface'
-              }`}
-            >
-              Curva Hadlock
-            </button>
-            <button
-              type="button"
-              onClick={() => { setCurve('barcelona'); setResult(null); }}
-              className={`py-2 px-2 text-xs sm:text-sm font-bold rounded-xl cursor-pointer transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1 dark:focus-visible:ring-offset-surface ${
-                curve === 'barcelona'
-                  ? 'bg-surface text-on-surface shadow-sm border border-surface-variant'
-                  : 'text-secondary hover:text-on-surface'
-              }`}
-            >
-              Curva Barcelona
-            </button>
-          </div>
-
-          {/* Input Mode Selector */}
-          <div className="ios-toggle-bg p-1 rounded-2xl grid grid-cols-1 sm:grid-cols-2 border border-surface-variant shadow-sm bg-white dark:bg-black">
-            <button
-              type="button"
-              onClick={() => setInputMode('peso')}
-              className={`py-2 px-2 text-xs sm:text-sm font-bold rounded-xl cursor-pointer transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1 dark:focus-visible:ring-offset-surface ${
-                inputMode === 'peso'
-                  ? 'bg-surface text-on-surface shadow-sm border border-surface-variant'
-                  : 'text-secondary hover:text-on-surface'
-              }`}
-            >
-              Peso Direto
-            </button>
-            <button
-              type="button"
-              onClick={() => setInputMode('biometria')}
-              className={`py-2 px-2 text-xs sm:text-sm font-bold rounded-xl cursor-pointer transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1 dark:focus-visible:ring-offset-surface ${
-                inputMode === 'biometria'
-                  ? 'bg-surface text-on-surface shadow-sm border border-surface-variant'
-                  : 'text-secondary hover:text-on-surface'
-              }`}
-            >
-              Por Biometria
-            </button>
-          </div>
-        </div>
-
-        {errorMessage && (
-          <InfoBalloon variant="error" text={errorMessage} />
-        )}
-          {/* Gestational Age */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="flex flex-col gap-2" title="Idade Gestacional em semanas">
-              <label className="font-body-sm text-secondary font-medium pl-1" htmlFor="ga-weeks">
-                IG (Semanas)
-              </label>
-              <input 
-                id="ga-weeks"
-                type="number"
-                min="20"
-                max="42"
-                required
-                value={weeks}
-                onChange={(e) => setWeeks(clampValue(e.target.value, 42) as any)}
-                className="ios-input w-full h-11 md:h-12 px-3 md:px-4 rounded-xl text-base text-on-surface"
-              />
-            </div>
-            <div className="flex flex-col gap-2" title="Idade Gestacional em dias">
-              <label className="font-body-sm text-secondary font-medium pl-1" htmlFor="ga-days">
-                IG (Dias)
-              </label>
-              <input 
-                id="ga-days"
-                type="number"
-                min="0"
-                max="6"
-                required
-                value={days}
-                onChange={(e) => setDays(clampValue(e.target.value, 6) as any)}
-                className="ios-input w-full h-11 md:h-12 px-3 md:px-4 rounded-xl text-base text-on-surface"
-              />
-            </div>
-          </div>
-
-          {inputMode === 'peso' ? (
-            <div className="flex flex-col gap-2" title="Peso Fetal Estimado (em gramas)">
-              <div className="flex flex-col gap-2 mb-1">
-                <label className="font-body-sm text-secondary font-medium pl-1" htmlFor="weight-input">
-                  Peso Fetal Estimado (PFE / g)
-                </label>
-                <InfoBalloon 
-                  text="Insira o peso fetal estimado (PFE) em gramas."
-                  onClick={() => setHelpTopic('weight')}
-                />
+      <div className="flex flex-col lg:flex-row gap-3 lg:gap-12 items-stretch w-full flex-initial md:flex-1 md:min-h-0">
+        {/* Left Col: Inputs Form */}
+        <motion.div 
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          className={`w-full lg:w-[45%] flex flex-col flex-initial md:flex-1 animate-card ${
+            result && mobileView !== 'inputs' ? 'hidden lg:flex' : 'flex'
+          }`}
+        >
+          <form ref={formRef} onSubmit={handleCalculate} noValidate className="glass-panel p-3.5 sm:p-6 md:p-8 rounded-[1.25rem] md:rounded-[2rem] flex flex-col justify-start md:justify-between flex-initial md:flex-1 gap-3 sm:gap-4 md:gap-5 shadow-xs w-full h-auto md:h-full relative pb-24 md:pb-8">
+            {/* Toggles for curve and input mode */}
+            <div className="flex flex-col md:grid md:grid-cols-2 gap-2 w-full mb-1">
+              {/* Curve Selector */}
+              <div className="ios-toggle-bg p-1 rounded-2xl grid grid-cols-2 border border-surface-variant shadow-xs bg-white dark:bg-black w-full">
+                <button
+                  type="button"
+                  onClick={() => { triggerHaptic(15); setCurve('hadlock'); setResult(null); }}
+                  className={`py-2.5 md:py-2 px-2 text-xs font-bold rounded-xl cursor-pointer transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary min-h-[44px] md:min-h-0 flex items-center justify-center text-nowrap ${
+                    curve === 'hadlock'
+                      ? 'bg-surface text-on-surface shadow-xs border border-surface-variant'
+                      : 'text-secondary hover:text-on-surface'
+                  }`}
+                >
+                  Hadlock
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { triggerHaptic(15); setCurve('barcelona'); setResult(null); }}
+                  className={`py-2.5 md:py-2 px-2 text-xs font-bold rounded-xl cursor-pointer transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary min-h-[44px] md:min-h-0 flex items-center justify-center text-nowrap ${
+                    curve === 'barcelona'
+                      ? 'bg-surface text-on-surface shadow-xs border border-surface-variant'
+                      : 'text-secondary hover:text-on-surface'
+                  }`}
+                >
+                  Barcelona
+                </button>
               </div>
-              <input 
-                id="weight-input"
-                type="number"
-                min="100"
-                max="6000"
-                required
-                value={weight}
-                onChange={(e) => setWeight(clampValue(e.target.value, 6000) as any)}
-                className="ios-input w-full h-11 md:h-12 px-3 md:px-4 rounded-xl text-base text-on-surface"
-              />
-            </div>
-          ) : (
-            <div className="flex flex-col gap-4">
-              <InfoBalloon 
-                text="Calculando via Hadlock 4 Biometrias (DBP, CC, CA, FL)"
-                onClick={() => setHelpTopic('biometry')}
-              />
 
-              <div className="grid grid-cols-2 gap-4">
-                <div className="flex flex-col gap-2" title="Diâmetro Biparietal (DBP). Distância entre os ossos parietais do feto.">
-                  <label className="font-body-sm text-secondary font-medium pl-1" htmlFor="bpd-mm">
-                    DBP (mm)
+              {/* Input Mode Selector */}
+              <div className="ios-toggle-bg p-1 rounded-2xl grid grid-cols-2 border border-surface-variant shadow-xs bg-white dark:bg-black w-full">
+                <button
+                  type="button"
+                  onClick={() => { triggerHaptic(15); setInputMode('peso'); }}
+                  className={`py-2.5 md:py-2 px-2 text-xs font-bold rounded-xl cursor-pointer transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary min-h-[44px] md:min-h-0 flex items-center justify-center text-nowrap ${
+                    inputMode === 'peso'
+                      ? 'bg-surface text-on-surface shadow-xs border border-surface-variant'
+                      : 'text-secondary hover:text-on-surface'
+                  }`}
+                >
+                  Peso Direto
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { triggerHaptic(15); setInputMode('biometria'); }}
+                  className={`py-2.5 md:py-2 px-2 text-xs font-bold rounded-xl cursor-pointer transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary min-h-[44px] md:min-h-0 flex items-center justify-center text-nowrap ${
+                    inputMode === 'biometria'
+                      ? 'bg-surface text-on-surface shadow-xs border border-surface-variant'
+                      : 'text-secondary hover:text-on-surface'
+                  }`}
+                >
+                  Biometria
+                </button>
+              </div>
+            </div>
+
+            {errorMessage && (
+              <InfoBalloon variant="error" text={errorMessage} />
+            )}
+
+            <div className="flex flex-col gap-3 flex-initial md:flex-1 justify-start md:justify-center">
+              {/* Gestational Age */}
+              <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
+                <div className="flex flex-col gap-1.5" title="Idade Gestacional em semanas">
+                  <label className="text-sm font-semibold text-on-surface pl-0.5" htmlFor="ga-weeks">
+                    IG (Semanas)
                   </label>
                   <input 
-                    id="bpd-mm"
-                    type="number"
-                    min="30"
-                    max="110"
-                    required
-                    value={bpd}
-                    onChange={(e) => setBpd(clampValue(e.target.value, 120) as any)}
-                    className="ios-input w-full h-11 md:h-12 px-3 md:px-4 rounded-xl text-base text-on-surface"
-                  />
-                </div>
-                <div className="flex flex-col gap-2" title="Circunferência Cefálica (CC). Medida do contorno da cabeça fetal.">
-                  <label className="font-body-sm text-secondary font-medium pl-1" htmlFor="hc-mm">
-                    CC (mm)
-                  </label>
-                  <input 
-                    id="hc-mm"
-                    type="number"
-                    min="100"
-                    max="400"
-                    required
-                    value={hc}
-                    onChange={(e) => setHc(clampValue(e.target.value, 400) as any)}
-                    className="ios-input w-full h-11 md:h-12 px-3 md:px-4 rounded-xl text-base text-on-surface"
-                  />
-                </div>
-                <div className="flex flex-col gap-2" title="Circunferência Abdominal (CA). Importante indicador do estado nutricional fetal.">
-                  <label className="font-body-sm text-secondary font-medium pl-1" htmlFor="ac-mm">
-                    CA (mm)
-                  </label>
-                  <input 
-                    id="ac-mm"
-                    type="number"
-                    min="100"
-                    max="450"
-                    required
-                    value={ac}
-                    onChange={(e) => setAc(clampValue(e.target.value, 400) as any)}
-                    className="ios-input w-full h-11 md:h-12 px-3 md:px-4 rounded-xl text-base text-on-surface"
-                  />
-                </div>
-                <div className="flex flex-col gap-2" title="Comprimento do Fêmur (CF). Medida do osso da coxa fetal.">
-                  <label className="font-body-sm text-secondary font-medium pl-1" htmlFor="fl-mm">
-                    Fêmur (mm)
-                  </label>
-                  <input 
-                    id="fl-mm"
+                    id="ga-weeks"
                     type="number"
                     min="20"
-                    max="95"
+                    max="42"
                     required
-                    value={fl}
-                    onChange={(e) => setFl(clampValue(e.target.value, 100) as any)}
-                    className="ios-input w-full h-11 md:h-12 px-3 md:px-4 rounded-xl text-base text-on-surface"
+                    enterKeyHint="next"
+                    value={weeks}
+                    onChange={(e) => setWeeks(clampValue(e.target.value, 42) as any)}
+                    onFocus={handleFocus}
+                    className="ios-input w-full h-12 md:h-12 px-3.5 md:px-4 rounded-xl text-[16px] font-medium text-on-surface"
+                  />
+                </div>
+                <div className="flex flex-col gap-1.5" title="Idade Gestacional em dias">
+                  <label className="text-sm font-semibold text-on-surface pl-0.5" htmlFor="ga-days">
+                    IG (Dias)
+                  </label>
+                  <input 
+                    id="ga-days"
+                    type="number"
+                    min="0"
+                    max="6"
+                    required
+                    enterKeyHint={inputMode === 'peso' ? 'next' : 'next'}
+                    value={days}
+                    onChange={(e) => setDays(clampValue(e.target.value, 6) as any)}
+                    onFocus={handleFocus}
+                    className="ios-input w-full h-12 md:h-12 px-3.5 md:px-4 rounded-xl text-[16px] font-medium text-on-surface"
                   />
                 </div>
               </div>
 
-              {/* Display calculated weight dynamically inside form */}
-              <div className="bg-surface-variant/30 p-4 rounded-xl flex flex-row justify-between items-center text-xs mt-2 border border-surface-variant">
-                <span className="font-bold text-secondary uppercase tracking-wider">Peso Estimado:</span>
-                <span className="font-display font-extrabold text-lg text-primary">{weight} g</span>
-              </div>
-            </div>
-          )}
+              {inputMode === 'peso' ? (
+                <div className="flex flex-col gap-1.5" title="Peso Fetal Estimado (em gramas)">
+                  <div className="flex flex-col gap-1 mb-0.5">
+                    <label className="text-sm font-semibold text-on-surface pl-0.5" htmlFor="weight-input">
+                      Peso Fetal Estimado (PFE / g)
+                    </label>
+                    <InfoBalloon 
+                      text="Insira o peso fetal estimado (PFE) em gramas."
+                      onClick={() => setHelpTopic('weight')}
+                    />
+                  </div>
+                  <input 
+                    id="weight-input"
+                    type="number"
+                    min="100"
+                    max="6000"
+                    required
+                    enterKeyHint="done"
+                    value={weight}
+                    onChange={(e) => setWeight(clampValue(e.target.value, 6000) as any)}
+                    onFocus={handleFocus}
+                    className="ios-input w-full h-12 md:h-12 px-3.5 md:px-4 rounded-xl text-[16px] font-medium text-on-surface"
+                  />
+                </div>
+              ) : (
+                <div className="flex flex-col gap-2.5">
+                  <InfoBalloon 
+                    text="Hadlock 4 Biometrias (DBP, CC, CA, FL)"
+                    onClick={() => setHelpTopic('biometry')}
+                  />
 
-          <button
-            type="submit"
-            className="calc-btn mt-2 md:mt-4 h-11 md:h-12 w-full bg-primary text-white font-title-md text-[17px] font-semibold rounded-xl"
-          >
-            Calcular
-          </button>
-        </form>
-      </motion.div>
+                  <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
+                    <div className="flex flex-col gap-1" title="Diâmetro Biparietal (DBP).">
+                      <label className="text-xs font-semibold text-on-surface pl-0.5" htmlFor="bpd-mm">
+                        DBP (mm)
+                      </label>
+                      <input 
+                        id="bpd-mm"
+                        type="number"
+                        min="30"
+                        max="110"
+                        required
+                        enterKeyHint="next"
+                        value={bpd}
+                        onChange={(e) => setBpd(clampValue(e.target.value, 120) as any)}
+                        onFocus={handleFocus}
+                        className="ios-input w-full h-11 md:h-12 px-3 md:px-4 rounded-xl text-[16px] font-medium text-on-surface"
+                      />
+                    </div>
+                    <div className="flex flex-col gap-1" title="Circunferência Cefálica (CC).">
+                      <label className="text-xs font-semibold text-on-surface pl-0.5" htmlFor="hc-mm">
+                        CC (mm)
+                      </label>
+                      <input 
+                        id="hc-mm"
+                        type="number"
+                        min="100"
+                        max="400"
+                        required
+                        enterKeyHint="next"
+                        value={hc}
+                        onChange={(e) => setHc(clampValue(e.target.value, 400) as any)}
+                        onFocus={handleFocus}
+                        className="ios-input w-full h-11 md:h-12 px-3 md:px-4 rounded-xl text-[16px] font-medium text-on-surface"
+                      />
+                    </div>
+                    <div className="flex flex-col gap-1" title="Circunferência Abdominal (CA).">
+                      <label className="text-xs font-semibold text-on-surface pl-0.5" htmlFor="ac-mm">
+                        CA (mm)
+                      </label>
+                      <input 
+                        id="ac-mm"
+                        type="number"
+                        min="100"
+                        max="450"
+                        required
+                        enterKeyHint="next"
+                        value={ac}
+                        onChange={(e) => setAc(clampValue(e.target.value, 400) as any)}
+                        onFocus={handleFocus}
+                        className="ios-input w-full h-11 md:h-12 px-3 md:px-4 rounded-xl text-[16px] font-medium text-on-surface"
+                      />
+                    </div>
+                    <div className="flex flex-col gap-1" title="Comprimento do Fêmur (CF).">
+                      <label className="text-xs font-semibold text-on-surface pl-0.5" htmlFor="fl-mm">
+                        Fêmur (mm)
+                      </label>
+                      <input 
+                        id="fl-mm"
+                        type="number"
+                        min="20"
+                        max="95"
+                        required
+                        enterKeyHint="done"
+                        value={fl}
+                        onChange={(e) => setFl(clampValue(e.target.value, 100) as any)}
+                        onFocus={handleFocus}
+                        className="ios-input w-full h-11 md:h-12 px-3 md:px-4 rounded-xl text-[16px] font-medium text-on-surface"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Display calculated weight dynamically inside form */}
+                  <div className="bg-surface-variant/50 dark:bg-surface-variant p-2.5 md:p-3 rounded-xl flex flex-row justify-between items-center text-xs border border-surface-variant">
+                    <span className="font-bold text-secondary uppercase tracking-wider">Peso Estimado:</span>
+                    <span className="font-display font-extrabold text-base text-primary">{weight} g</span>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="botao-calcular-container sticky bottom-0 md:static z-30 pt-3 pb-2 -mx-3.5 sm:-mx-6 px-3.5 sm:px-6 -mb-3.5 sm:-mb-6 mt-4 md:m-0 md:p-0 backdrop-blur-md bg-white/95 dark:bg-[#1C1C1E]/95 border-t border-black/5 dark:border-white/10 md:border-none md:bg-transparent md:backdrop-blur-none shadow-lg md:shadow-none transition-all rounded-b-[1.25rem] md:rounded-none">
+              <button
+                type="submit"
+                id="botao-calcular"
+                className="calc-btn h-12 md:h-12 min-h-[48px] w-full bg-primary hover:bg-primary/90 text-white font-bold text-[17px] md:text-[18px] rounded-xl shadow-md shadow-primary/25 active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center gap-2"
+              >
+                <Icon name="calculate" className="text-[22px]" />
+                Calcular
+              </button>
+            </div>
+          </form>
+        </motion.div>
 
       {/* Right Col: Results View */}
       <div 
@@ -499,7 +537,7 @@ export default function PercentileCalculator({ onSaveRecord }: PercentileCalcula
           initial={{ opacity: 0, scale: 0.98 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ type: 'spring', stiffness: 100, damping: 15 }}
-          className={`glass-panel widget-gradient p-3 md:p-10 rounded-[1.5rem] md:rounded-[2rem] flex flex-col items-center justify-center text-center w-full min-h-[300px] md:min-h-[380px] relative overflow-hidden border border-surface-variant/30 shadow-lg ${shimmer ? 'shimmer-active' : ''}`}
+          className={`glass-panel widget-gradient p-3 md:p-10 rounded-[1.5rem] md:rounded-[2rem] flex flex-col items-center justify-center text-center w-full min-h-[300px] md:min-h-[380px] relative overflow-hidden  ${shimmer ? 'shimmer-active' : ''}`}
         >
           <div className="relative z-10 w-full flex flex-col items-center">
             {/* Main Percentile Section */}
@@ -513,13 +551,13 @@ export default function PercentileCalculator({ onSaveRecord }: PercentileCalcula
               <svg viewBox="0 0 200 200" className="w-[120px] h-[120px] md:w-[200px] md:h-[200px] -rotate-90">
                 <circle 
                   cx="100" cy="100" r="85"
-                  className="stroke-surface-variant fill-none opacity-50"
+                  className="stroke-surface-variant fill-none dark:opacity-100 opacity-50"
                   strokeWidth="8"
                 />
                 {!shimmer && result && (
                   <motion.circle 
                     cx="100" cy="100" r="85"
-                    className="stroke-primary fill-none drop-shadow-sm"
+                    className="stroke-primary fill-none drop-shadow-sm dark:drop-shadow-[0_0_8px_rgba(10,132,255,0.4)]"
                     strokeWidth="10"
                     strokeLinecap="round"
                     initial={{ strokeDashoffset: 2 * Math.PI * 85 }}
@@ -543,14 +581,14 @@ export default function PercentileCalculator({ onSaveRecord }: PercentileCalcula
                   </>
                 ) : (
                   <div className="flex items-baseline gap-1">
-                    <span className="font-title-md text-secondary opacity-50 text-2xl md:text-3xl">p</span>
-                    <span className="font-display-lg text-[36px] md:text-[64px] leading-none text-secondary opacity-30 tracking-tight">--</span>
+                    <span className="font-title-md text-secondary opacity-70 text-2xl md:text-3xl">p</span>
+                    <span className="font-display-lg text-[36px] md:text-[64px] leading-none text-secondary opacity-50 tracking-tight">--</span>
                   </div>
                 )}
               </div>
             </div>
 
-            <div className={`mt-2 py-3 px-6 rounded-3xl font-sans text-xs font-semibold leading-relaxed text-center w-full max-w-[320px] min-h-[48px] flex items-center justify-center shadow-sm ${result && !shimmer ? result.bgClassColor : 'bg-surface-variant/30 text-secondary border border-surface-variant/50'}`}>
+            <div className={`mt-2 py-3 px-6 rounded-3xl font-sans text-xs font-semibold leading-relaxed text-center w-full max-w-[320px] min-h-[48px] flex items-center justify-center shadow-sm ${result && !shimmer ? result.bgClassColor : 'bg-surface-variant/50 dark:bg-surface-variant text-secondary border border-surface-variant/50'}`}>
               {shimmer ? (
                 <Skeleton className="w-full h-4 rounded-full opacity-50" />
               ) : result ? (
@@ -567,13 +605,13 @@ export default function PercentileCalculator({ onSaveRecord }: PercentileCalcula
                 animate={{ opacity: 1, y: 0 }}
                 className="w-full flex flex-col gap-4 mt-8 pt-6 border-t border-surface-variant text-left"
               >
-                <div className="bg-surface-variant/30 p-4 rounded-xl flex flex-row justify-between items-center text-xs">
+                <div className="bg-surface-variant/50 dark:bg-surface-variant p-3 md:p-4 rounded-xl flex flex-row justify-between items-center text-xs">
                   <span className="font-bold text-secondary uppercase tracking-wide">Peso Fetal Estimado:</span>
                   <span className="font-display font-bold text-lg text-on-surface">{result.efw} g</span>
                 </div>
 
                 {/* Curve reference markers */}
-                <div className="bg-surface-variant/30 p-4 rounded-xl flex flex-col gap-3">
+                <div className="bg-surface-variant/50 dark:bg-surface-variant p-3 md:p-4 rounded-xl flex flex-col gap-3">
                   <span className="text-[10px] font-bold text-secondary uppercase tracking-widest pl-1">
                     Valores de Referência ({weeks}s e {days}d)
                   </span>
@@ -602,7 +640,7 @@ export default function PercentileCalculator({ onSaveRecord }: PercentileCalcula
                 </div>
 
                 {/* Horizontal sliding gauge/visual representation of weight */}
-                <div className="flex flex-col gap-2 bg-surface-variant/30 p-4 rounded-xl">
+                <div className="flex flex-col gap-2 bg-surface-variant/50 dark:bg-surface-variant p-3 md:p-4 rounded-xl">
                   <span className="text-[10px] font-bold text-secondary uppercase tracking-widest pl-1">
                     Distribuição de Frequência do Peso
                   </span>
@@ -644,18 +682,19 @@ export default function PercentileCalculator({ onSaveRecord }: PercentileCalcula
                       placeholder="Identificação da paciente..."
                       value={patientName}
                       onChange={(e) => setPatientName(e.target.value)}
-                      className="ios-input flex-grow h-12 px-3 rounded-xl text-sm"
+                      onFocus={handleFocus}
+                      className="ios-input flex-grow h-12 px-3 rounded-xl text-base"
                     />
                     <button
                       type="button"
                       onClick={handleSave}
-                      className={`px-4 rounded-xl flex items-center justify-center gap-1.5 font-bold text-xs transition-all duration-150 cursor-pointer ${
+                      className={`px-4 rounded-xl inline-flex items-center justify-center gap-1.5 font-bold text-xs transition-all duration-150 cursor-pointer min-h-[48px] md:min-h-0 ${
                         saved
                           ? 'bg-primary text-white shadow-md'
                           : 'bg-surface-variant text-on-surface hover:bg-surface-variant/80'
                       }`}
                     >
-                      <Icon name={saved ? 'check_circle' : 'save'} className="text-[18px]" />
+                      <Icon name={saved ? 'check_circle' : 'save'} className="icon-inline" />
                       {saved ? 'Salvo' : 'Salvar'}
                     </button>
                   </div>

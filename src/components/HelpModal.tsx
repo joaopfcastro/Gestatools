@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import Icon from './Icon';
 
@@ -10,7 +11,16 @@ interface HelpModalProps {
 }
 
 export default function HelpModal({ isOpen, onClose, title, children }: HelpModalProps) {
-  return (
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    return () => setMounted(false);
+  }, []);
+
+  if (!mounted) return null;
+
+  return createPortal(
     <AnimatePresence>
       {isOpen && (
         <>
@@ -19,29 +29,32 @@ export default function HelpModal({ isOpen, onClose, title, children }: HelpModa
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 z-[100] bg-black/40 backdrop-blur-sm"
+            className="fixed inset-0 z-[150] bg-black/40 backdrop-blur-sm"
           />
           <motion.div
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[110] w-[90%] max-w-md bg-surface rounded-[24px] shadow-xl overflow-hidden border border-surface-variant/50"
+            className="fixed bottom-0 md:bottom-auto left-0 md:left-1/2 md:top-1/2 md:-translate-x-1/2 md:-translate-y-1/2 z-[160] w-full md:w-[90%] md:max-w-md bg-surface rounded-t-[24px] md:rounded-[24px] shadow-xl overflow-hidden border-t md:border border-surface-variant/50 flex flex-col max-h-[85dvh] md:max-h-[80vh]"
           >
-            <div className="flex justify-between items-center p-5 border-b border-surface-variant/50">
+            <header className="flex justify-between items-center p-5 border-b border-surface-variant/50 shrink-0">
               <h3 className="font-title-md font-bold text-on-surface text-lg">{title}</h3>
               <button
                 onClick={onClose}
-                className="p-2 text-secondary hover:bg-surface-variant/30 rounded-full transition-colors cursor-pointer"
+                className="p-2 min-w-11 min-h-11 md:p-2 md:min-w-0 md:min-h-0 flex items-center justify-center text-secondary hover:bg-surface-variant/30 rounded-full transition-colors cursor-pointer"
               >
-                <Icon name="close" className="text-[24px]" />
+                <Icon name="close" className="icon-inline" />
               </button>
-            </div>
-            <div className="p-6 text-[15px] text-secondary leading-relaxed max-h-[calc(var(--vv-height,100dvh)-env(safe-area-inset-top)-env(safe-area-inset-bottom)-120px)] overflow-y-auto">
+            </header>
+            <div className="p-6 text-[15px] text-secondary leading-relaxed flex-1 min-h-0 overflow-y-auto overscroll-contain">
               {children}
             </div>
+            {/* Safe area spacing for mobile bottom sheet */}
+            <div className="md:hidden pb-[var(--safe-bottom,0px)] shrink-0 bg-surface"></div>
           </motion.div>
         </>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 }

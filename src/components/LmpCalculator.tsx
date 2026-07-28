@@ -25,6 +25,13 @@ export default function LmpCalculator({ onSaveRecord, defaultCycleLength }: LmpC
     }
   });
 
+  const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
+    const target = e.target;
+    setTimeout(() => {
+      target.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    }, 300);
+  };
+
   const [dum, setDum] = useState<string>('');
   const [refDate, setRefDate] = useState<string>(getTodayFormatted());
   const [cycle, setCycle] = useState<number | "">(defaultCycleLength);
@@ -101,40 +108,48 @@ export default function LmpCalculator({ onSaveRecord, defaultCycleLength }: LmpC
 
   const handleCalculate = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
-    triggerHaptic(50);
     
-    if (errorMessage) return; // Prevent calculation if reactive validation already caught an error.
+    if (errorMessage) {
+      triggerHaptic([60, 40, 60]);
+      return; // Prevent calculation if reactive validation already caught an error.
+    }
     
     if (!dum || dum.length !== 10) {
       setErrorMessage('Por favor, informe a Data da Última Menstruação.');
+      triggerHaptic([60, 40, 60]);
       return;
     }
 
     const dumObj = parseDateString(dum);
     if (!dumObj) {
       setErrorMessage('A data da DUM é inválida.');
+      triggerHaptic([60, 40, 60]);
       return;
     }
 
     if (dumObj > new Date()) {
       setErrorMessage('A data da DUM não pode ser uma data futura.');
+      triggerHaptic([60, 40, 60]);
       return;
     }
 
     const refObj = parseDateString(refDate);
     if (!refObj) {
       setErrorMessage('A data de referência é inválida.');
+      triggerHaptic([60, 40, 60]);
       return;
     }
 
     if (refObj < dumObj) {
       setErrorMessage('A data de referência não pode ser anterior à DUM.');
+      triggerHaptic([60, 40, 60]);
       return;
     }
     
     const c = Number(cycle);
     if (cycle === '' || c < 20 || c > 45) {
       setErrorMessage('A duração do ciclo deve estar entre 20 e 45 dias.');
+      triggerHaptic([60, 40, 60]);
       return;
     }
 
@@ -176,6 +191,7 @@ export default function LmpCalculator({ onSaveRecord, defaultCycleLength }: LmpC
       totalDays
     });
     setMobileView('results');
+    triggerHaptic([25, 40, 25]);
     setSaved(false); setShimmer(false); }, 600);
   };
 
@@ -207,8 +223,8 @@ export default function LmpCalculator({ onSaveRecord, defaultCycleLength }: LmpC
   };
 
   return (
-    <div className="w-full max-w-6xl mx-auto flex flex-col gap-3 md:gap-6 p-2 md:p-8">
-      <div className="pl-1 w-full">
+    <div className="w-full max-w-6xl mx-auto flex flex-col justify-between gap-2 md:gap-6 p-0.5 sm:p-4 md:p-8 h-full">
+      <div className="px-1 w-full">
         <h1 className="text-xl md:text-3xl font-bold text-on-surface leading-tight md:mb-1">
           Cálculo por DUM
         </h1>
@@ -219,13 +235,16 @@ export default function LmpCalculator({ onSaveRecord, defaultCycleLength }: LmpC
 
       {/* Mobile Segmented Control */}
       {result && (
-        <div className="lg:hidden flex p-1 bg-surface-variant/30 dark:bg-surface-variant/10 rounded-2xl w-full border border-surface-variant mb-1">
+        <div className="lg:hidden flex p-1 bg-surface-variant/50 dark:bg-surface-variant dark:bg-surface-variant/10 rounded-2xl w-full border border-surface-variant mb-1">
           <button
             type="button"
-            onClick={() => setMobileView('inputs')}
-            className={`flex-1 py-1.5 text-xs font-bold rounded-xl transition-all ${
+            onClick={() => {
+              triggerHaptic(15);
+              setMobileView('inputs');
+            }}
+            className={`flex-1 py-2 text-xs font-bold rounded-xl transition-all ${
               mobileView === 'inputs'
-                ? 'bg-surface text-on-surface shadow-sm border border-surface-variant/30'
+                ? 'bg-surface text-on-surface shadow-xs border border-surface-variant/30'
                 : 'text-secondary hover:text-on-surface'
             }`}
           >
@@ -233,10 +252,13 @@ export default function LmpCalculator({ onSaveRecord, defaultCycleLength }: LmpC
           </button>
           <button
             type="button"
-            onClick={() => setMobileView('results')}
-            className={`flex-1 py-1.5 text-xs font-bold rounded-xl transition-all ${
+            onClick={() => {
+              triggerHaptic(15);
+              setMobileView('results');
+            }}
+            className={`flex-1 py-2 text-xs font-bold rounded-xl transition-all ${
               mobileView === 'results'
-                ? 'bg-surface text-on-surface shadow-sm border border-surface-variant/30'
+                ? 'bg-surface text-on-surface shadow-xs border border-surface-variant/30'
                 : 'text-secondary hover:text-on-surface'
             }`}
           >
@@ -245,84 +267,97 @@ export default function LmpCalculator({ onSaveRecord, defaultCycleLength }: LmpC
         </div>
       )}
 
-      <div className="flex flex-col lg:flex-row gap-4 lg:gap-12 items-start w-full">
-      {/* Left Col: Inputs Form */}
-      <motion.div 
-        initial={{ opacity: 0, y: 15 }}
-        animate={{ opacity: 1, y: 0 }}
-        className={`w-full lg:w-[45%] flex flex-col animate-card ${
-          result && mobileView !== 'inputs' ? 'hidden lg:flex' : 'flex'
-        }`}
-      >
-        <form ref={formRef} onSubmit={handleCalculate} noValidate className="glass-panel p-3 md:p-8 rounded-[1.5rem] md:rounded-[2rem] flex flex-col gap-3 md:gap-5 border border-surface-variant/50 shadow-sm">
-          {errorMessage && (
-            <InfoBalloon variant="error" text={errorMessage} />
-          )}
-          <div className="flex flex-col gap-2" title="Primeiro dia de sangramento do último ciclo.">
-            <div className="flex flex-col gap-2 mb-1">
-              <label className="font-body-sm text-secondary font-medium pl-1" htmlFor="dum-date">
-                Data da Última Menstruação (DUM)
-              </label>
-              <InfoBalloon 
-                text="Primeiro dia de sangramento do último ciclo."
-                onClick={() => setHelpTopic('dum')}
-              />
-            </div>
-            <DateInput
-              id="dum-date"
-              required
-              value={dum}
-              onChange={setDum}
-              className="ios-input w-full h-11 md:h-12 px-3 md:px-4 rounded-xl text-base text-on-surface"
-            />
-          </div>
-
-          <div className="flex flex-col gap-2" title="Data para a qual a idade gestacional será calculada.">
-            <label className="font-body-sm text-secondary font-medium pl-1" htmlFor="ref-date">
-              Data de Referência (Hoje)
-            </label>
-            <DateInput
-              id="ref-date"
-              required
-              value={refDate}
-              onChange={setRefDate}
-              className="ios-input w-full h-11 md:h-12 px-3 md:px-4 rounded-xl text-base text-on-surface"
-            />
-          </div>
-
-          <div className="flex flex-col gap-2 mt-2" title="Duração média do ciclo menstrual (padrão: 28 dias). Afeta a estimativa da ovulação.">
-            <div className="flex flex-col gap-2 mb-1">
-              <div className="flex justify-between items-center pl-1 pr-1">
-                <label className="font-body-sm text-secondary font-medium" htmlFor="cycle-length">
-                  Duração do Ciclo (dias)
-                </label>
-                <span className="text-[12px] text-on-surface-variant">Padrão: 28</span>
+      <div className="flex flex-col lg:flex-row gap-3 lg:gap-12 items-stretch w-full flex-initial md:flex-1 md:min-h-0">
+        {/* Left Col: Inputs Form */}
+        <motion.div 
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          className={`w-full lg:w-[45%] flex flex-col flex-initial md:flex-1 animate-card ${
+            result && mobileView !== 'inputs' ? 'hidden lg:flex' : 'flex'
+          }`}
+        >
+          <form ref={formRef} onSubmit={handleCalculate} noValidate className="glass-panel p-3.5 sm:p-6 md:p-8 rounded-[1.25rem] md:rounded-[2rem] flex flex-col justify-start md:justify-between flex-initial md:flex-1 gap-3 sm:gap-4 md:gap-5 shadow-xs h-auto md:h-full relative pb-24 md:pb-8">
+            {errorMessage && (
+              <InfoBalloon variant="error" text={errorMessage} />
+            )}
+            
+            <div className="flex flex-col gap-3 flex-initial md:flex-1 justify-start md:justify-center">
+              <div className="flex flex-col gap-1.5" title="Primeiro dia de sangramento do último ciclo.">
+                <div className="flex flex-col gap-1 mb-0.5">
+                  <label className="text-sm font-semibold text-on-surface pl-0.5" htmlFor="dum-date">
+                    Data da Última Menstruação (DUM)
+                  </label>
+                  <InfoBalloon 
+                    text="Primeiro dia de sangramento do último ciclo."
+                    onClick={() => setHelpTopic('dum')}
+                  />
+                </div>
+                <DateInput
+                  id="dum-date"
+                  required
+                  enterKeyHint="next"
+                  value={dum}
+                  onChange={setDum}
+                  onFocus={handleFocus}
+                  className="ios-input w-full h-12 md:h-12 px-3.5 md:px-4 rounded-xl text-[16px] font-medium text-on-surface"
+                />
               </div>
-              <InfoBalloon 
-                text="Afeta a data estimada da ovulação."
-                onClick={() => setHelpTopic('cycle')}
-              />
-            </div>
-            <input 
-              id="cycle-length"
-              type="number"
-              min="20"
-              max="45"
-              required
-              value={cycle}
-              onChange={(e) => setCycle(clampValue(e.target.value, 45) as any)}
-              className="ios-input w-full h-11 md:h-12 px-3 md:px-4 rounded-xl text-base text-on-surface"
-            />
-          </div>
 
-          <button
-            type="submit"
-            className="calc-btn mt-2 md:mt-4 h-11 md:h-12 w-full bg-primary text-white font-title-md text-[17px] font-semibold rounded-xl"
-          >
-            Calcular
-          </button>
-        </form>
-      </motion.div>
+              <div className="flex flex-col gap-1.5" title="Data para a qual a idade gestacional será calculada.">
+                <label className="text-sm font-semibold text-on-surface pl-0.5" htmlFor="ref-date">
+                  Data de Referência (Hoje)
+                </label>
+                <DateInput
+                  id="ref-date"
+                  required
+                  enterKeyHint="next"
+                  value={refDate}
+                  onChange={setRefDate}
+                  onFocus={handleFocus}
+                  className="ios-input w-full h-12 md:h-12 px-3.5 md:px-4 rounded-xl text-[16px] font-medium text-on-surface"
+                />
+              </div>
+
+              <div className="flex flex-col gap-1.5" title="Duração média do ciclo menstrual (padrão: 28 dias). Afeta a estimativa da ovulação.">
+                <div className="flex flex-col gap-1 mb-0.5">
+                  <div className="flex justify-between items-center pl-0.5 pr-0.5">
+                    <label className="text-sm font-semibold text-on-surface" htmlFor="cycle-length">
+                      Duração do Ciclo (dias)
+                    </label>
+                    <span className="text-xs font-semibold text-secondary">Padrão: 28</span>
+                  </div>
+                  <InfoBalloon 
+                    text="Afeta a data estimada da ovulação."
+                    onClick={() => setHelpTopic('cycle')}
+                  />
+                </div>
+                <input 
+                  id="cycle-length"
+                  type="number"
+                  min="20"
+                  max="45"
+                  required
+                  enterKeyHint="done"
+                  value={cycle}
+                  onChange={(e) => setCycle(clampValue(e.target.value, 45) as any)}
+                  onFocus={handleFocus}
+                  className="ios-input w-full h-12 md:h-12 px-3.5 md:px-4 rounded-xl text-[16px] font-medium text-on-surface"
+                />
+              </div>
+            </div>
+
+            <div className="botao-calcular-container sticky bottom-0 md:static z-30 pt-3 pb-2 -mx-3.5 sm:-mx-6 px-3.5 sm:px-6 -mb-3.5 sm:-mb-6 mt-4 md:m-0 md:p-0 backdrop-blur-md bg-white/95 dark:bg-[#1C1C1E]/95 border-t border-black/5 dark:border-white/10 md:border-none md:bg-transparent md:backdrop-blur-none shadow-lg md:shadow-none transition-all rounded-b-[1.25rem] md:rounded-none">
+              <button
+                type="submit"
+                id="botao-calcular"
+                className="calc-btn h-12 md:h-12 min-h-[48px] w-full bg-primary hover:bg-primary/90 text-white font-bold text-[17px] md:text-[18px] rounded-xl shadow-md shadow-primary/25 active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center gap-2"
+              >
+                <Icon name="calculate" className="text-[22px]" />
+                Calcular
+              </button>
+            </div>
+          </form>
+        </motion.div>
 
       {/* Right Col: Results View */}
       <div 
@@ -334,7 +369,7 @@ export default function LmpCalculator({ onSaveRecord, defaultCycleLength }: LmpC
           initial={{ opacity: 0, scale: 0.98 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ type: 'spring', stiffness: 100, damping: 15 }}
-          className={`glass-panel widget-gradient p-3 md:p-10 rounded-[1.5rem] md:rounded-[2rem] flex flex-col items-center justify-center text-center w-full min-h-[300px] md:min-h-[380px] relative overflow-hidden border border-surface-variant/30 shadow-lg ${shimmer ? 'shimmer-active' : ''}`}
+          className={`glass-panel widget-gradient p-3 md:p-10 rounded-[1.5rem] md:rounded-[2rem] flex flex-col items-center justify-center text-center w-full min-h-[300px] md:min-h-[380px] relative overflow-hidden  ${shimmer ? 'shimmer-active' : ''}`}
         >
           <div className="relative z-10 w-full flex flex-col items-center">
             {/* Main IG Section */}
@@ -342,13 +377,13 @@ export default function LmpCalculator({ onSaveRecord, defaultCycleLength }: LmpC
               <svg viewBox="0 0 220 220" className="w-[120px] h-[120px] md:w-[220px] md:h-[220px] -rotate-90">
                 <circle 
                   cx="110" cy="110" r="95"
-                  className="stroke-surface-variant fill-none opacity-50"
+                  className="stroke-surface-variant fill-none dark:opacity-100 opacity-50"
                   strokeWidth="6"
                 />
                 {!shimmer && result && (
                   <motion.circle 
                     cx="110" cy="110" r="95"
-                    className="stroke-primary fill-none drop-shadow-sm"
+                    className="stroke-primary fill-none drop-shadow-sm dark:drop-shadow-[0_0_8px_rgba(10,132,255,0.4)]"
                     strokeWidth="8"
                     strokeLinecap="round"
                     initial={{ strokeDashoffset: 2 * Math.PI * 95 }}
@@ -376,12 +411,12 @@ export default function LmpCalculator({ onSaveRecord, defaultCycleLength }: LmpC
                     <span className="text-[7px] md:text-[10px] font-bold text-secondary uppercase tracking-wider md:tracking-widest mt-1 md:mt-2 text-center max-w-[90px] md:max-w-none leading-tight">Idade Gestacional</span>
                   </>
                 ) : (
-                  <span className="font-display-lg text-[32px] md:text-[56px] leading-none text-secondary opacity-30">--</span>
+                  <span className="font-display-lg text-[32px] md:text-[56px] leading-none text-secondary opacity-50">--</span>
                 )}
               </div>
             </div>
 
-            <div className="bg-surface-variant/30 rounded-2xl md:rounded-3xl px-4 md:px-8 py-2 md:py-5 flex flex-col items-center border border-surface-variant/50 w-full max-w-[280px] md:max-w-[320px] shadow-sm mb-2 md:mb-4">
+            <div className="bg-surface-variant/50 dark:bg-surface-variant rounded-2xl md:rounded-3xl px-4 md:px-8 py-2 md:py-5 flex flex-col items-center border border-surface-variant/50 dark:border-transparent w-full max-w-[280px] md:max-w-[320px] shadow-sm mb-2 md:mb-4">
               <p className="text-[9px] md:text-[10px] font-bold text-secondary uppercase tracking-widest mb-1">
                 Data Provável do Parto
               </p>
@@ -404,13 +439,13 @@ export default function LmpCalculator({ onSaveRecord, defaultCycleLength }: LmpC
                 className="w-full flex flex-col gap-3 md:gap-4 mt-4 md:mt-8 pt-4 md:pt-6 border-t border-surface-variant"
               >
                 <div className="grid grid-cols-2 gap-3 text-left">
-                  <div className="flex flex-col gap-1 bg-surface-variant/30 p-3 md:p-4 rounded-xl">
+                  <div className="flex flex-col gap-1 bg-surface-variant/50 dark:bg-surface-variant p-3 md:p-4 rounded-xl">
                     <span className="text-[9px] md:text-[10px] font-bold text-secondary uppercase tracking-wide">Concepção Estimada</span>
-                    <span className="text-xs md:text-sm font-semibold text-on-surface">{result.conceptionDate}</span>
+                    <span className="text-xs md:text-sm font-semibold text-on-surface break-words leading-snug">{result.conceptionDate}</span>
                   </div>
-                  <div className="flex flex-col gap-1 bg-surface-variant/30 p-3 md:p-4 rounded-xl">
+                  <div className="flex flex-col gap-1 bg-surface-variant/50 dark:bg-surface-variant p-3 md:p-4 rounded-xl">
                     <span className="text-[9px] md:text-[10px] font-bold text-secondary uppercase tracking-wide">USG Morfológico</span>
-                    <span className="text-[11px] md:text-xs font-semibold text-on-surface">{result.morphologicalMin} - {result.morphologicalMax}</span>
+                    <span className="text-[11px] md:text-xs font-semibold text-on-surface break-words leading-snug">{result.morphologicalMin} - {result.morphologicalMax}</span>
                   </div>
                 </div>
 
@@ -428,18 +463,19 @@ export default function LmpCalculator({ onSaveRecord, defaultCycleLength }: LmpC
                       placeholder="Identificação da paciente..."
                       value={patientName}
                       onChange={(e) => setPatientName(e.target.value)}
-                      className="ios-input flex-grow h-11 md:h-12 px-3 rounded-xl text-sm"
+                      onFocus={handleFocus}
+                      className="ios-input flex-grow h-10 md:h-12 px-3 rounded-xl text-base md:text-sm"
                     />
                     <button
                       type="button"
                       onClick={handleSave}
-                      className={`px-3 md:px-4 rounded-xl flex items-center justify-center gap-1 font-bold text-xs transition-all duration-150 cursor-pointer ${
+                      className={`px-3 md:px-4 rounded-xl inline-flex items-center justify-center gap-1.5 font-bold text-xs transition-all duration-150 cursor-pointer min-h-[48px] md:min-h-0 ${
                         saved
                           ? 'bg-primary text-white shadow-md'
                           : 'bg-surface-variant text-on-surface hover:bg-surface-variant/80'
                       }`}
                     >
-                      <Icon name={saved ? 'check_circle' : 'save'} className="text-[16px] md:text-[18px]" />
+                      <Icon name={saved ? 'check_circle' : 'save'} className="icon-inline" />
                       {saved ? 'Salvo' : 'Salvar'}
                     </button>
                   </div>

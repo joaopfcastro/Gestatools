@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bg-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#007AFF" />
+      <stop offset="100%" stop-color="#4630D2" />
+    </linearGradient>
+  </defs>
+
+  <!-- Background Squircle (Apple iOS Style) -->
+  <rect width="512" height="512" rx="115" fill="url(#bg-grad)" />
+
+  <!-- Main Icon Design (No filters for rendering compatibility) -->
+  <g transform="translate(0, 10)">
+    <!-- Stylized Mother Head -->
+    <circle cx="256" cy="135" r="32" fill="#FFFFFF" />
+    
+    <!-- Stylized elegant curve for the back, hips, and pregnant belly -->
+    <path d="M 256 185
+             C 210 200, 190 250, 190 310
+             C 190 375, 230 420, 280 420
+             C 325 420, 350 380, 350 340
+             C 350 290, 290 270, 290 240
+             C 290 215, 275 195, 256 185 Z" 
+          fill="#FFFFFF" />
+          
+    <!-- Stylized heart/embryo in the womb -->
+    <circle cx="270" cy="340" r="24" fill="#FFFFFF" opacity="0.3" />
+    <path d="M 270 325 
+             C 260 315, 250 325, 270 345
+             C 290 325, 280 315, 270 325 Z" 
+          fill="#FF2D55" />
+  </g>
+</svg>

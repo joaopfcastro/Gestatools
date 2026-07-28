@@ -3,13 +3,67 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-    <meta name="theme-color" content="#007AFF" />
+    <meta name="theme-color" id="theme-color-meta" content="#F2F2F7" />
+    <meta name="color-scheme" id="color-scheme-meta" content="dark" />
+    <meta name="supported-color-schemes" content="dark light" />
+    <meta name="darkreader-lock" />
+    <meta name="nightmode" content="disable" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-status-bar-style" id="status-bar-style-meta" content="default" />
     <meta name="apple-mobile-web-app-title" content="GestaTools" />
+    <script>
+      (function() {
+        const savedSettings = localStorage.getItem('gestatools_settings');
+        let isDark = false;
+        if (savedSettings) {
+          try {
+            const settings = JSON.parse(savedSettings);
+            if (settings.theme === 'dark') {
+              isDark = true;
+            } else if (settings.theme === 'system' || !settings.theme) {
+              isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            }
+          } catch (e) {}
+        } else {
+          isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        }
+        
+        const themeColor = isDark ? '#000000' : '#F2F2F7';
+        const statusBarStyle = isDark ? 'black-translucent' : 'default';
+
+        if (isDark) {
+          document.documentElement.classList.add('dark');
+          if (document.body) document.body.classList.add('dark');
+        } else {
+          document.documentElement.classList.remove('dark');
+          if (document.body) document.body.classList.remove('dark');
+        }
+
+        document.documentElement.style.colorScheme = 'dark';
+        document.documentElement.style.backgroundColor = themeColor;
+        
+        const themeMeta = document.getElementById('theme-color-meta');
+        if (themeMeta) themeMeta.setAttribute('content', themeColor);
+
+        const statusMeta = document.getElementById('status-bar-style-meta');
+        if (statusMeta) statusMeta.setAttribute('content', statusBarStyle);
+
+        const schemeMeta = document.getElementById('color-scheme-meta');
+        if (schemeMeta) schemeMeta.setAttribute('content', 'dark');
+      })();
+    </script>
+    
+    <!-- iOS Touch Icons -->
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-    <link rel="icon" type="image/png" href="/favicon.png" />
-    <link rel="manifest" href="/manifest.json" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/icon-180.png" />
+    <link rel="apple-touch-icon" sizes="152x152" href="/icon-192.png" />
+    <link rel="apple-touch-icon" sizes="167x167" href="/icon-192.png" />
+    <link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png" />
+
+    <!-- Favicons & Manifest -->
+    <link rel="icon" type="image/png" sizes="48x48" href="/favicon.png" />
+    <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+    <link rel="manifest" href="/manifest.json" crossorigin="use-credentials" />
     <title>GestaTools - Calculadoras Obstétricas</title>
     <!-- Fonts and Material Symbols -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -21,17 +75,88 @@
     <div id="root" class="h-full"></div>
     <script type="module" src="/src/main.tsx"></script>
     <script>
-      if ('serviceWorker' in navigator && window.location.hostname !== 'localhost') {
-        window.addEventListener('load', () => {
+      const isDevHost = window.location.hostname.includes('-dev-') || 
+                        window.location.hostname.includes('localhost') || 
+                        window.location.hostname.includes('127.0.0.1');
+
+      if ('serviceWorker' in navigator) {
+        if (isDevHost) {
+          // In development, unregister any service worker and clear caches to avoid stale bundles
           navigator.serviceWorker.getRegistrations().then(function(registrations) {
-            for(let registration of registrations) {
-              registration.update();
+            for (let registration of registrations) {
+              registration.unregister().then(() => {
+                console.log('SW unregistered in dev environment');
+              });
             }
           });
-          navigator.serviceWorker.register('/sw.js?v=4').catch(err => {
-            console.log('SW registration failed:', err);
+          if (window.caches) {
+            caches.keys().then(function(names) {
+              for (let name of names) {
+                caches.delete(name);
+              }
+            });
+          }
+        } else {
+          // Production PWA behavior
+          
+          // Force reload when a new service worker takes control
+          let refreshing = false;
+          navigator.serviceWorker.addEventListener('controllerchange', () => {
+            if (!refreshing) {
+              refreshing = true;
+              window.location.reload();
+            }
           });
-        });
+
+          // Check for SW updates when the app is resumed / focused (crucial for iOS PWA resume)
+          document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') {
+              navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                for (let registration of registrations) {
+                  registration.update().catch(() => {});
+                }
+              });
+            }
+          });
+
+          window.addEventListener('load', () => {
+            navigator.serviceWorker.getRegistrations().then(function(registrations) {
+              let hasLegacySW = false;
+              let unregisterPromises = [];
+
+              for (let registration of registrations) {
+                const activeWorker = registration.active || registration.installing || registration.waiting;
+                if (activeWorker && activeWorker.scriptURL.includes('?v=')) {
+                  hasLegacySW = true;
+                  unregisterPromises.push(registration.unregister());
+                } else {
+                  registration.update().catch(() => {});
+                }
+              }
+
+              const registerSW = () => {
+                navigator.serviceWorker.register('/sw.js').then(reg => {
+                  // Periodically check for service worker updates (every 5 minutes)
+                  setInterval(() => {
+                    reg.update().catch(() => {});
+                  }, 1000 * 60 * 5);
+                }).catch(err => {
+                  console.log('SW registration failed:', err);
+                });
+              };
+
+              if (hasLegacySW) {
+                Promise.all(unregisterPromises).then(registerSW);
+              } else {
+                registerSW();
+              }
+            }).catch(() => {
+              navigator.serviceWorker.register('/sw.js').catch(err => {
+                console.log('SW registration failed:', err);
+              });
+            });
+          });
+        }
       }
     </script>
   </body>

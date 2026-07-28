@@ -1,9 +1,15 @@
-const CACHE_NAME = 'gestatools-v4';
+const CACHE_NAME = 'gestatools-v6';
 
 const CORE_ASSETS = [
   '/',
   '/index.html',
-  '/manifest.json'
+  '/manifest.json',
+  '/favicon.png',
+  '/apple-touch-icon.png',
+  '/icon-180.png',
+  '/icon-192.png',
+  '/icon-512.png',
+  '/icon.svg'
 ];
 
 self.addEventListener('install', (e) => {

@@ -22,6 +22,13 @@ export default function AfiCalculator({ onSaveRecord }: AfiCalculatorProps) {
     }
   });
 
+  const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
+    const target = e.target;
+    setTimeout(() => {
+      target.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    }, 300);
+  };
+
   // Input Quadrants (in cm)
   const [q1, setQ1] = useState<number | "">(0);
   const [q2, setQ2] = useState<number | "">(0);
@@ -93,17 +100,18 @@ export default function AfiCalculator({ onSaveRecord }: AfiCalculatorProps) {
 
   const handleCalculate = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
-    triggerHaptic(50);
     setErrorMessage('');
     
     if (!onlyMbv) {
       if (q1 === undefined || q1 === '' || q2 === undefined || q2 === '' || q3 === undefined || q3 === '' || q4 === undefined || q4 === '') {
         setErrorMessage('Preencha os valores dos 4 quadrantes.');
+        triggerHaptic([60, 40, 60]);
         return;
       }
     } else {
       if (mbv === undefined || mbv === '') {
         setErrorMessage('Preencha o valor do Maior Bolso Vertical (MBV).');
+        triggerHaptic([60, 40, 60]);
         return;
       }
     }
@@ -163,6 +171,7 @@ export default function AfiCalculator({ onSaveRecord }: AfiCalculatorProps) {
       summary
     });
     setMobileView('results');
+    triggerHaptic([25, 40, 25]);
     setSaved(false); setShimmer(false); }, 600);
   };
 
@@ -196,8 +205,8 @@ export default function AfiCalculator({ onSaveRecord }: AfiCalculatorProps) {
   };
 
   return (
-    <div className="w-full max-w-6xl mx-auto flex flex-col gap-3 md:gap-6 p-2 md:p-8">
-      <div className="pl-1 w-full">
+    <div className="w-full max-w-6xl mx-auto flex flex-col justify-between gap-2 md:gap-6 p-0.5 sm:p-4 md:p-8 h-full">
+      <div className="px-1 w-full">
         <h1 className="text-xl md:text-3xl font-bold text-on-surface leading-tight md:mb-1">
           Líquido Amniótico
         </h1>
@@ -208,13 +217,16 @@ export default function AfiCalculator({ onSaveRecord }: AfiCalculatorProps) {
 
       {/* Mobile Segmented Control */}
       {result && (
-        <div className="lg:hidden flex p-1 bg-surface-variant/30 dark:bg-surface-variant/10 rounded-2xl w-full border border-surface-variant mb-1">
+        <div className="lg:hidden flex p-1 bg-surface-variant/50 dark:bg-surface-variant dark:bg-surface-variant/10 rounded-2xl w-full border border-surface-variant mb-1">
           <button
             type="button"
-            onClick={() => setMobileView('inputs')}
-            className={`flex-1 py-1.5 text-xs font-bold rounded-xl transition-all ${
+            onClick={() => {
+              triggerHaptic(15);
+              setMobileView('inputs');
+            }}
+            className={`flex-1 py-2 text-xs font-bold rounded-xl transition-all ${
               mobileView === 'inputs'
-                ? 'bg-surface text-on-surface shadow-sm border border-surface-variant/30'
+                ? 'bg-surface text-on-surface shadow-xs border border-surface-variant/30'
                 : 'text-secondary hover:text-on-surface'
             }`}
           >
@@ -222,10 +234,13 @@ export default function AfiCalculator({ onSaveRecord }: AfiCalculatorProps) {
           </button>
           <button
             type="button"
-            onClick={() => setMobileView('results')}
-            className={`flex-1 py-1.5 text-xs font-bold rounded-xl transition-all ${
+            onClick={() => {
+              triggerHaptic(15);
+              setMobileView('results');
+            }}
+            className={`flex-1 py-2 text-xs font-bold rounded-xl transition-all ${
               mobileView === 'results'
-                ? 'bg-surface text-on-surface shadow-sm border border-surface-variant/30'
+                ? 'bg-surface text-on-surface shadow-xs border border-surface-variant/30'
                 : 'text-secondary hover:text-on-surface'
             }`}
           >
@@ -234,154 +249,169 @@ export default function AfiCalculator({ onSaveRecord }: AfiCalculatorProps) {
         </div>
       )}
 
-      <div className="flex flex-col lg:flex-row gap-4 lg:gap-12 items-start w-full">
-      {/* Left Col: Inputs Form */}
-      <motion.div 
-        initial={{ opacity: 0, y: 15 }}
-        animate={{ opacity: 1, y: 0 }}
-        className={`w-full lg:w-[45%] flex flex-col animate-card ${
-          result && mobileView !== 'inputs' ? 'hidden lg:flex' : 'flex'
-        }`}
-      >
-        <form ref={formRef} onSubmit={handleCalculate} noValidate className="glass-panel p-3 md:p-8 rounded-[1.5rem] md:rounded-[2rem] flex flex-col gap-3 md:gap-3.5 md:gap-5 w-full border border-surface-variant/50 shadow-sm">
-        {/* Evaluation Method Selector */}
-        <div className="ios-toggle-bg p-1 rounded-2xl grid grid-cols-1 sm:grid-cols-2 w-full border border-surface-variant shadow-sm bg-white dark:bg-black mb-2">
-          <button
-            type="button"
-            onClick={() => { setOnlyMbv(false); setResult(null); }}
-            className={`py-2 px-2 text-xs sm:text-sm font-bold rounded-xl cursor-pointer transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1 dark:focus-visible:ring-offset-surface ${
-              !onlyMbv
-                ? 'bg-surface text-on-surface shadow-sm border border-surface-variant'
-                : 'text-secondary hover:text-on-surface'
-            }`}
-          >
-            Quatro Quadrantes (ILA)
-          </button>
-          <button
-            type="button"
-            onClick={() => { setOnlyMbv(true); setResult(null); }}
-            className={`py-2 px-2 text-xs sm:text-sm font-bold rounded-xl cursor-pointer transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1 dark:focus-visible:ring-offset-surface ${
-              onlyMbv
-                ? 'bg-surface text-on-surface shadow-sm border border-surface-variant'
-                : 'text-secondary hover:text-on-surface'
-            }`}
-          >
-            Apenas MBV
-          </button>
-        </div>
-
-        {errorMessage && (
-          <InfoBalloon variant="error" text={errorMessage} />
-        )}
-          {!onlyMbv ? (
-            <div className="flex flex-col gap-4">
-              <InfoBalloon 
-                text="Insira o valor vertical de cada quadrante em centímetros (cm)"
-                onClick={() => setHelpTopic('ila')}
-                className="mb-1"
-              />
-
-              <div className="grid grid-cols-2 gap-4">
-                <div className="flex flex-col gap-2" title="Medida vertical do bolsão de líquido livre no quadrante superior direito">
-                  <label className="font-body-sm text-secondary font-medium pl-1" htmlFor="q1-input">
-                    Quadrante 1 (cm)
-                  </label>
-                  <input 
-                    id="q1-input"
-                    type="number"
-                    min="0"
-                    max="15"
-                    step="0.1"
-                    required
-                    value={q1 || ''}
-                    onChange={(e) => setQ1(clampValue(e.target.value, 20, true) as any)}
-                    className="ios-input w-full h-11 md:h-12 px-3 md:px-4 rounded-xl text-base text-on-surface"
-                  />
-                </div>
-                <div className="flex flex-col gap-2" title="Medida vertical do bolsão de líquido livre no quadrante superior esquerdo">
-                  <label className="font-body-sm text-secondary font-medium pl-1" htmlFor="q2-input">
-                    Quadrante 2 (cm)
-                  </label>
-                  <input 
-                    id="q2-input"
-                    type="number"
-                    min="0"
-                    max="15"
-                    step="0.1"
-                    required
-                    value={q2 || ''}
-                    onChange={(e) => setQ2(clampValue(e.target.value, 20, true) as any)}
-                    className="ios-input w-full h-11 md:h-12 px-3 md:px-4 rounded-xl text-base text-on-surface"
-                  />
-                </div>
-                <div className="flex flex-col gap-2" title="Medida vertical do bolsão de líquido livre no quadrante inferior direito">
-                  <label className="font-body-sm text-secondary font-medium pl-1" htmlFor="q3-input">
-                    Quadrante 3 (cm)
-                  </label>
-                  <input 
-                    id="q3-input"
-                    type="number"
-                    min="0"
-                    max="15"
-                    step="0.1"
-                    required
-                    value={q3 || ''}
-                    onChange={(e) => setQ3(clampValue(e.target.value, 20, true) as any)}
-                    className="ios-input w-full h-11 md:h-12 px-3 md:px-4 rounded-xl text-base text-on-surface"
-                  />
-                </div>
-                <div className="flex flex-col gap-2" title="Medida vertical do bolsão de líquido livre no quadrante inferior esquerdo">
-                  <label className="font-body-sm text-secondary font-medium pl-1" htmlFor="q4-input">
-                    Quadrante 4 (cm)
-                  </label>
-                  <input 
-                    id="q4-input"
-                    type="number"
-                    min="0"
-                    max="15"
-                    step="0.1"
-                    required
-                    value={q4 || ''}
-                    onChange={(e) => setQ4(clampValue(e.target.value, 20, true) as any)}
-                    className="ios-input w-full h-11 md:h-12 px-3 md:px-4 rounded-xl text-base text-on-surface"
-                  />
-                </div>
-              </div>
+      <div className="flex flex-col lg:flex-row gap-3 lg:gap-12 items-stretch w-full flex-initial md:flex-1 md:min-h-0">
+        {/* Left Col: Inputs Form */}
+        <motion.div 
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          className={`w-full lg:w-[45%] flex flex-col flex-initial md:flex-1 animate-card ${
+            result && mobileView !== 'inputs' ? 'hidden lg:flex' : 'flex'
+          }`}
+        >
+          <form ref={formRef} onSubmit={handleCalculate} noValidate className="glass-panel p-3.5 sm:p-6 md:p-8 rounded-[1.25rem] md:rounded-[2rem] flex flex-col justify-start md:justify-between flex-initial md:flex-1 gap-3 sm:gap-4 md:gap-5 shadow-xs w-full h-auto md:h-full relative pb-24 md:pb-8">
+            {/* Evaluation Method Selector */}
+            <div className="ios-toggle-bg p-1 rounded-2xl grid grid-cols-2 w-full border border-surface-variant shadow-xs bg-white dark:bg-black mb-1">
+              <button
+                type="button"
+                onClick={() => { triggerHaptic(15); setOnlyMbv(false); setResult(null); }}
+                className={`py-2.5 md:py-2 px-2 text-xs font-bold rounded-xl cursor-pointer transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary min-h-[44px] md:min-h-0 flex items-center justify-center text-center text-nowrap ${
+                  !onlyMbv
+                    ? 'bg-surface text-on-surface shadow-xs border border-surface-variant'
+                    : 'text-secondary hover:text-on-surface'
+                }`}
+              >
+                4 Quadrantes (ILA)
+              </button>
+              <button
+                type="button"
+                onClick={() => { triggerHaptic(15); setOnlyMbv(true); setResult(null); }}
+                className={`py-2.5 md:py-2 px-2 text-xs font-bold rounded-xl cursor-pointer transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary min-h-[44px] md:min-h-0 flex items-center justify-center text-center text-nowrap ${
+                  onlyMbv
+                    ? 'bg-surface text-on-surface shadow-xs border border-surface-variant'
+                    : 'text-secondary hover:text-on-surface'
+                }`}
+              >
+                Apenas MBV
+              </button>
             </div>
-          ) : (
-            <div className="flex flex-col gap-4">
-              <InfoBalloon 
-                text="Insira a medida do maior bolsão vertical em centímetros (cm)"
-                onClick={() => setHelpTopic('mbv')}
-                className="mb-1"
-              />
-              <div className="flex flex-col gap-2" title="Bolsão único mais profundo livre de partes fetais e cordão umbilical. Normal entre 2 e 8 cm">
-                <label className="font-body-sm text-secondary font-medium pl-1" htmlFor="mbv-input">
-                  Maior Bolso Vertical - MBV (cm)
-                </label>
-                <input 
-                  id="mbv-input"
-                  type="number"
-                  min="0"
-                  max="25"
-                  step="0.1"
-                  required
-                  value={mbv || ''}
-                  onChange={(e) => setMbv(clampValue(e.target.value, 20, true) as any)}
-                  className="ios-input w-full h-11 md:h-12 px-3 md:px-4 rounded-xl text-base text-on-surface"
-                />
-              </div>
-            </div>
-          )}
 
-          <button
-            type="submit"
-            className="calc-btn mt-2 md:mt-4 h-11 md:h-12 w-full bg-primary text-white font-title-md text-[17px] font-semibold rounded-xl"
-          >
-            Analisar
-          </button>
-        </form>
-      </motion.div>
+            {errorMessage && (
+              <InfoBalloon variant="error" text={errorMessage} />
+            )}
+
+            <div className="flex flex-col gap-3 flex-initial md:flex-1 justify-start md:justify-center">
+              {!onlyMbv ? (
+                <div className="flex flex-col gap-3">
+                  <InfoBalloon 
+                    text="Insira o valor vertical de cada quadrante em centímetros (cm)"
+                    onClick={() => setHelpTopic('ila')}
+                  />
+
+                  <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
+                    <div className="flex flex-col gap-1" title="Medida vertical do bolsão no Q1">
+                      <label className="text-xs font-semibold text-on-surface pl-0.5" htmlFor="q1-input">
+                        Quadrante 1 (cm)
+                      </label>
+                      <input 
+                        id="q1-input"
+                        type="number"
+                        min="0"
+                        max="15"
+                        step="0.1"
+                        required
+                        enterKeyHint="next"
+                        value={q1 || ''}
+                        onChange={(e) => setQ1(clampValue(e.target.value, 20, true) as any)}
+                        onFocus={handleFocus}
+                        className="ios-input w-full h-12 md:h-12 px-3.5 md:px-4 rounded-xl text-[16px] font-medium text-on-surface"
+                      />
+                    </div>
+                    <div className="flex flex-col gap-1" title="Medida vertical do bolsão no Q2">
+                      <label className="text-xs font-semibold text-on-surface pl-0.5" htmlFor="q2-input">
+                        Quadrante 2 (cm)
+                      </label>
+                      <input 
+                        id="q2-input"
+                        type="number"
+                        min="0"
+                        max="15"
+                        step="0.1"
+                        required
+                        enterKeyHint="next"
+                        value={q2 || ''}
+                        onChange={(e) => setQ2(clampValue(e.target.value, 20, true) as any)}
+                        onFocus={handleFocus}
+                        className="ios-input w-full h-12 md:h-12 px-3.5 md:px-4 rounded-xl text-[16px] font-medium text-on-surface"
+                      />
+                    </div>
+                    <div className="flex flex-col gap-1" title="Medida vertical do bolsão no Q3">
+                      <label className="text-xs font-semibold text-on-surface pl-0.5" htmlFor="q3-input">
+                        Quadrante 3 (cm)
+                      </label>
+                      <input 
+                        id="q3-input"
+                        type="number"
+                        min="0"
+                        max="15"
+                        step="0.1"
+                        required
+                        enterKeyHint="next"
+                        value={q3 || ''}
+                        onChange={(e) => setQ3(clampValue(e.target.value, 20, true) as any)}
+                        onFocus={handleFocus}
+                        className="ios-input w-full h-12 md:h-12 px-3.5 md:px-4 rounded-xl text-[16px] font-medium text-on-surface"
+                      />
+                    </div>
+                    <div className="flex flex-col gap-1" title="Medida vertical do bolsão no Q4">
+                      <label className="text-xs font-semibold text-on-surface pl-0.5" htmlFor="q4-input">
+                        Quadrante 4 (cm)
+                      </label>
+                      <input 
+                        id="q4-input"
+                        type="number"
+                        min="0"
+                        max="15"
+                        step="0.1"
+                        required
+                        enterKeyHint="done"
+                        value={q4 || ''}
+                        onChange={(e) => setQ4(clampValue(e.target.value, 20, true) as any)}
+                        onFocus={handleFocus}
+                        className="ios-input w-full h-12 md:h-12 px-3.5 md:px-4 rounded-xl text-[16px] font-medium text-on-surface"
+                      />
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex flex-col gap-3">
+                  <InfoBalloon 
+                    text="Insira a medida do maior bolsão vertical em centímetros (cm)"
+                    onClick={() => setHelpTopic('mbv')}
+                  />
+                  <div className="flex flex-col gap-1.5" title="Maior Bolsão Vertical (MBV)">
+                    <label className="text-sm font-semibold text-on-surface pl-0.5" htmlFor="mbv-input">
+                      Maior Bolso Vertical - MBV (cm)
+                    </label>
+                    <input 
+                      id="mbv-input"
+                      type="number"
+                      min="0"
+                      max="25"
+                      step="0.1"
+                      required
+                      enterKeyHint="done"
+                      value={mbv || ''}
+                      onChange={(e) => setMbv(clampValue(e.target.value, 20, true) as any)}
+                      onFocus={handleFocus}
+                      className="ios-input w-full h-12 md:h-12 px-3.5 md:px-4 rounded-xl text-[16px] font-medium text-on-surface"
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="botao-calcular-container sticky bottom-0 md:static z-30 pt-3 pb-2 -mx-3.5 sm:-mx-6 px-3.5 sm:px-6 -mb-3.5 sm:-mb-6 mt-4 md:m-0 md:p-0 backdrop-blur-md bg-white/95 dark:bg-[#1C1C1E]/95 border-t border-black/5 dark:border-white/10 md:border-none md:bg-transparent md:backdrop-blur-none shadow-lg md:shadow-none transition-all rounded-b-[1.25rem] md:rounded-none">
+              <button
+                type="submit"
+                id="botao-calcular"
+                className="calc-btn h-12 md:h-12 min-h-[48px] w-full bg-primary hover:bg-primary/90 text-white font-bold text-[17px] md:text-[18px] rounded-xl shadow-md shadow-primary/25 active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center gap-2"
+              >
+                <Icon name="calculate" className="text-[22px]" />
+                Analisar
+              </button>
+            </div>
+          </form>
+        </motion.div>
 
       {/* Right Col: Results View */}
       <div 
@@ -393,7 +423,7 @@ export default function AfiCalculator({ onSaveRecord }: AfiCalculatorProps) {
           initial={{ opacity: 0, scale: 0.98 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ type: 'spring', stiffness: 100, damping: 15 }}
-          className={`glass-panel widget-gradient p-3 md:p-10 rounded-[1.5rem] md:rounded-[2rem] flex flex-col items-center justify-center text-center w-full min-h-[300px] md:min-h-[380px] relative overflow-hidden border border-surface-variant/30 shadow-lg ${shimmer ? 'shimmer-active' : ''}`}
+          className={`glass-panel widget-gradient p-3 md:p-10 rounded-[1.5rem] md:rounded-[2rem] flex flex-col items-center justify-center text-center w-full min-h-[300px] md:min-h-[380px] relative overflow-hidden  ${shimmer ? 'shimmer-active' : ''}`}
         >
           <div className="relative z-10 w-full flex flex-col items-center">
             {/* Main Amniotic Evaluation Section */}
@@ -403,7 +433,7 @@ export default function AfiCalculator({ onSaveRecord }: AfiCalculatorProps) {
 
             <div className={`grid gap-3 md:gap-4 w-full mt-2 md:mt-4 ${onlyMbv ? 'grid-cols-1 max-w-sm mx-auto' : 'grid-cols-2'}`}>
               {!onlyMbv && (
-                <div className="bg-surface-variant/30 rounded-3xl p-4 md:p-6 flex flex-col items-center justify-center border border-surface-variant/50 shadow-sm relative overflow-hidden">
+                <div className="bg-surface-variant/50 dark:bg-surface-variant rounded-3xl p-4 md:p-6 flex flex-col items-center justify-center  relative overflow-hidden">
                   <span className="text-[9px] md:text-[10px] font-bold text-secondary uppercase tracking-widest mb-1 z-10">Índice (ILA)</span>
                   <div className="flex items-baseline gap-1 z-10">
                     <span className="font-display-lg text-[28px] md:text-[48px] leading-none text-primary tracking-tight">
@@ -417,7 +447,7 @@ export default function AfiCalculator({ onSaveRecord }: AfiCalculatorProps) {
                 </div>
               )}
               
-              <div className="bg-surface-variant/30 rounded-3xl p-4 md:p-6 flex flex-col items-center justify-center border border-surface-variant/50 shadow-sm relative overflow-hidden">
+              <div className="bg-surface-variant/50 dark:bg-surface-variant rounded-3xl p-4 md:p-6 flex flex-col items-center justify-center  relative overflow-hidden">
                 <span className="text-[9px] md:text-[10px] font-bold text-secondary uppercase tracking-widest mb-1 z-10">Maior Bolso (MBV)</span>
                 <div className="flex items-baseline gap-1 z-10">
                   <span className="font-display-lg text-[28px] md:text-[48px] leading-none text-tertiary tracking-tight">
@@ -440,7 +470,7 @@ export default function AfiCalculator({ onSaveRecord }: AfiCalculatorProps) {
               >
                 {/* ILA Range Visual Guide */}
                 {!onlyMbv && (
-                  <div className="bg-surface-variant/30 p-4 rounded-xl flex flex-col gap-2 border border-surface-variant/50">
+                  <div className="bg-surface-variant/50 dark:bg-surface-variant p-3 md:p-4 rounded-xl flex flex-col gap-2 border border-surface-variant/50">
                     <div className="flex justify-between items-center text-[10px] font-bold text-secondary uppercase tracking-widest pl-1">
                       <span>Posicionamento ILA ({result.ilaValue.toFixed(1)} cm)</span>
                     </div>
@@ -464,7 +494,7 @@ export default function AfiCalculator({ onSaveRecord }: AfiCalculatorProps) {
                 )}
 
                 {/* MBV Range Visual Guide */}
-                <div className="bg-surface-variant/30 p-4 rounded-xl flex flex-col gap-2 border border-surface-variant/50">
+                <div className="bg-surface-variant/50 dark:bg-surface-variant p-3 md:p-4 rounded-xl flex flex-col gap-2 border border-surface-variant/50">
                   <div className="flex justify-between items-center text-[10px] font-bold text-secondary uppercase tracking-widest pl-1">
                     <span>Posicionamento MBV ({result.mbvValue.toFixed(1)} cm)</span>
                   </div>
@@ -497,18 +527,19 @@ export default function AfiCalculator({ onSaveRecord }: AfiCalculatorProps) {
                       placeholder="Identificação da paciente..."
                       value={patientName}
                       onChange={(e) => setPatientName(e.target.value)}
-                      className="ios-input flex-grow h-12 px-3 rounded-xl text-sm"
+                      onFocus={handleFocus}
+                      className="ios-input flex-grow h-12 px-3 rounded-xl text-base"
                     />
                     <button
                       type="button"
                       onClick={handleSave}
-                      className={`px-4 rounded-xl flex items-center justify-center gap-1.5 font-bold text-xs transition-all duration-150 cursor-pointer ${
+                      className={`px-4 rounded-xl inline-flex items-center justify-center gap-1.5 font-bold text-xs transition-all duration-150 cursor-pointer min-h-[48px] md:min-h-0 ${
                         saved
                           ? 'bg-primary text-white shadow-md'
                           : 'bg-surface-variant text-on-surface hover:bg-surface-variant/80'
                       }`}
                     >
-                      <Icon name={saved ? 'check_circle' : 'save'} className="text-[18px]" />
+                      <Icon name={saved ? 'check_circle' : 'save'} className="icon-inline" />
                       {saved ? 'Salvo' : 'Salvar'}
                     </button>
                   </div>

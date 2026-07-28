@@ -9,7 +9,7 @@ interface SidebarProps {
 export default function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
   const menuItems = [
     { id: 'dum' as TabType, label: 'Idade Gestacional DUM', icon: 'calendar_today' },
-    { id: 'usg' as TabType, label: 'Idade Gestacional USG', icon: 'image_search' },
+    { id: 'usg' as TabType, label: 'Idade Gestacional USG', icon: 'monitor_heart' },
     { id: 'peso' as TabType, label: 'Peso Fetal / Percentil', icon: 'monitor_weight' },
     { id: 'ila' as TabType, label: 'ILA / MBV', icon: 'water_drop' },
   ];
@@ -36,7 +36,7 @@ export default function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
             >
               <button
                 onClick={() => setActiveTab(item.id)}
-                className={`nav-btn w-full text-left rounded-xl cursor-pointer px-4 py-3 mb-1 flex items-center gap-3 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 dark:focus-visible:ring-offset-surface ${
+                className={`nav-btn w-full text-left rounded-xl cursor-pointer px-4 py-3 mb-1 inline-flex items-center gap-1.5 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 dark:focus-visible:ring-offset-surface ${
                   isActive
                     ? 'bg-primary text-white font-medium shadow-sm'
                     : 'text-on-surface hover:bg-surface-variant'
@@ -46,7 +46,7 @@ export default function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
                 <Icon
                   name={item.icon}
                   filled={isActive}
-                  className={isActive ? 'text-white' : 'text-primary'}
+                  className={`icon-nav ${isActive ? 'text-white' : 'text-primary'}`}
                 />
                 {item.label}
               </button>

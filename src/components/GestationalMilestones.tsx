@@ -47,7 +47,7 @@ export default function GestationalMilestones({ dumDate, currentDays }: Gestatio
   else month = 9;
 
   return (
-    <div className="flex flex-col gap-2 bg-surface-variant/20 rounded-xl overflow-hidden border border-surface-variant/50 mt-2 text-left">
+    <div className="flex flex-col gap-2 bg-surface-variant/50 dark:bg-surface-variant rounded-xl overflow-hidden border border-surface-variant/50 mt-2 text-left">
       <button 
         type="button" 
         onClick={() => setExpanded(!expanded)}
@@ -59,7 +59,7 @@ export default function GestationalMilestones({ dumDate, currentDays }: Gestatio
             {month}º Mês de Gestação
           </span>
         </div>
-        <div className="flex items-center gap-1 md:gap-2 shrink-0">
+        <div className="inline-flex items-center gap-1.5 shrink-0">
           <span className="hidden sm:inline-block text-xs font-medium text-primary bg-primary/10 px-2 py-1 rounded-md">
             Ver datas importantes
           </span>
@@ -78,7 +78,7 @@ export default function GestationalMilestones({ dumDate, currentDays }: Gestatio
             exit={{ height: 0, opacity: 0 }}
             className="overflow-hidden"
           >
-            <div className="p-4 pt-0 flex flex-col gap-3">
+            <div className="p-3 sm:p-4 pt-0 flex flex-col gap-2.5">
               {milestones.map((m, idx) => {
                 const isPast = currentWeeks > m.weekMax;
                 const isCurrent = currentWeeks >= m.weekMin && currentWeeks <= m.weekMax;
@@ -86,13 +86,22 @@ export default function GestationalMilestones({ dumDate, currentDays }: Gestatio
                 return (
                   <div 
                     key={idx} 
-                    className={`flex justify-between items-center text-xs md:text-sm border-t border-surface-variant/40 pt-2 first:border-0 first:pt-0 ${isPast ? 'opacity-50' : ''} ${isCurrent ? 'font-semibold text-primary' : ''}`}
+                    className={`flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-2 text-xs md:text-sm border-t border-surface-variant/40 pt-2.5 pb-0.5 first:border-0 first:pt-0 ${isPast ? 'opacity-50' : ''}`}
                   >
-                    <span className={`${isCurrent ? 'text-primary' : 'text-secondary'}`}>
-                      {m.label}
-                      {isCurrent && <span className="ml-2 inline-block w-1.5 h-1.5 rounded-full bg-primary" />}
+                    <div className="flex items-center gap-1.5 flex-wrap min-w-0 pr-1">
+                      <span className={`leading-snug ${isCurrent ? 'text-primary font-bold' : 'text-secondary font-medium'}`}>
+                        {m.label}
+                      </span>
+                      {isCurrent && (
+                        <span className="inline-flex items-center gap-1 text-[10px] font-bold text-primary bg-primary/10 px-1.5 py-0.5 rounded-full shrink-0">
+                          <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+                          Atual
+                        </span>
+                      )}
+                    </div>
+                    <span className={`text-xs md:text-sm font-semibold whitespace-nowrap self-start sm:self-auto shrink-0 ${isCurrent ? 'text-primary' : 'text-on-surface'}`}>
+                      {m.date}
                     </span>
-                    <span className={`${isCurrent ? 'text-primary' : 'text-on-surface'} font-medium`}>{m.date}</span>
                   </div>
                 );
               })}

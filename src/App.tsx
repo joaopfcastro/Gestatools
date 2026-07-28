@@ -21,6 +21,7 @@ const DEFAULT_SETTINGS: AppSettings = {
 };
 
 export default function App() {
+  useKeyboardAwareScroll();
   const [activeTab, setActiveTab] = useState<TabType>('usg');
   const [settings, setSettings] = useState<AppSettings>(DEFAULT_SETTINGS);
   const [records, setRecords] = useState<HistoryRecord[]>([]);
@@ -55,31 +56,6 @@ export default function App() {
 
     setSettings(currentSettings);
     
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    
-    const updateTheme = (theme: AppSettings['theme']) => {
-      const isDark = theme === 'system' ? mediaQuery.matches : theme === 'dark';
-      setIsDarkMode(isDark);
-      if (isDark) {
-        document.documentElement.classList.add('dark');
-      } else {
-        document.documentElement.classList.remove('dark');
-      }
-    };
-
-    updateTheme(currentSettings.theme);
-
-    const handleSystemThemeChange = () => {
-      setSettings(prev => {
-        if (prev.theme === 'system') {
-          updateTheme('system');
-        }
-        return prev;
-      });
-    };
-
-    mediaQuery.addEventListener('change', handleSystemThemeChange);
-
     const savedRecords = localStorage.getItem('gestatools_history');
     if (savedRecords) {
       try {
@@ -106,6 +82,71 @@ export default function App() {
       }
     }
   }, []);
+
+  // Sync theme based on settings.theme and system preferences
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    
+    const updateTheme = () => {
+      const isDark = settings.theme === 'system' ? mediaQuery.matches : settings.theme === 'dark';
+      setIsDarkMode(isDark);
+      
+      const themeColor = isDark ? '#000000' : '#F2F2F7';
+      const statusBarStyle = isDark ? 'black-translucent' : 'default';
+      
+      // 1. Dynamically replace theme-color meta tag
+      const existingThemeColorMetas = document.querySelectorAll('meta[name="theme-color"]');
+      existingThemeColorMetas.forEach((tag) => tag.remove());
+      
+      const newThemeMeta = document.createElement('meta');
+      newThemeMeta.name = 'theme-color';
+      newThemeMeta.id = 'theme-color-meta';
+      newThemeMeta.content = themeColor;
+      document.head.appendChild(newThemeMeta);
+
+      // 2. Dynamically replace apple-mobile-web-app-status-bar-style meta tag
+      const existingStatusBarMetas = document.querySelectorAll('meta[name="apple-mobile-web-app-status-bar-style"]');
+      existingStatusBarMetas.forEach((tag) => tag.remove());
+
+      const newStatusMeta = document.createElement('meta');
+      newStatusMeta.name = 'apple-mobile-web-app-status-bar-style';
+      newStatusMeta.id = 'status-bar-style-meta';
+      newStatusMeta.content = statusBarStyle;
+      document.head.appendChild(newStatusMeta);
+
+      // 3. Dynamically replace color-scheme meta tag
+      const existingColorSchemeMetas = document.querySelectorAll('meta[name="color-scheme"]');
+      existingColorSchemeMetas.forEach((tag) => tag.remove());
+
+      const newColorSchemeMeta = document.createElement('meta');
+      newColorSchemeMeta.name = 'color-scheme';
+      newColorSchemeMeta.id = 'color-scheme-meta';
+      newColorSchemeMeta.content = 'dark';
+      document.head.appendChild(newColorSchemeMeta);
+      
+      // 4. Update element background colors, colorScheme, and dark class
+      if (isDark) {
+        document.documentElement.classList.add('dark');
+        if (document.body) document.body.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+        if (document.body) document.body.classList.remove('dark');
+      }
+
+      document.documentElement.style.colorScheme = 'dark';
+      document.documentElement.style.backgroundColor = themeColor;
+      if (document.body) {
+        document.body.style.colorScheme = 'dark';
+        document.body.style.backgroundColor = themeColor;
+      }
+    };
+
+    updateTheme();
+    mediaQuery.addEventListener('change', updateTheme);
+    return () => {
+      mediaQuery.removeEventListener('change', updateTheme);
+    };
+  }, [settings.theme]);
 
   // Save records when updated
   const saveRecordsToStorage = (updatedRecords: HistoryRecord[]) => {
@@ -159,23 +200,13 @@ export default function App() {
   const handleSaveSettings = (updatedSettings: AppSettings) => {
     setSettings(updatedSettings);
     localStorage.setItem('gestatools_settings', JSON.stringify(updatedSettings));
-    
-    // Immediate theme update when settings change
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    const isDark = updatedSettings.theme === 'system' ? mediaQuery.matches : updatedSettings.theme === 'dark';
-    setIsDarkMode(isDark);
-    if (isDark) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
   };
 
   return (
     <div className={`h-[var(--vv-height,100dvh)] md:h-screen flex overflow-hidden bg-background text-on-surface transition-colors duration-300 ${isDarkMode ? 'dark' : ''}`}>
       
       {/* TopAppBar */}
-      <header className="glass-nav-top text-on-surface font-title-md fixed top-0 w-full z-50 flex justify-between items-center h-[calc(56px+env(safe-area-inset-top))] pt-[env(safe-area-inset-top)] px-gutter md:px-margin-desktop max-w-full left-0 transition-all">
+      <header className="glass-nav-top text-on-surface font-title-md fixed top-0 w-full z-50 flex justify-between items-center h-[calc(48px+env(safe-area-inset-top))] md:h-[calc(56px+env(safe-area-inset-top))] pt-[env(safe-area-inset-top)] px-3 md:px-margin-desktop max-w-full left-0 transition-all">
         <div className="flex items-center gap-2">
           <span className="font-headline-lg text-[22px] md:text-title-md font-bold text-on-surface tracking-tight">GestaTools</span>
         </div>
@@ -226,10 +257,10 @@ export default function App() {
       <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
 
       {/* Main Content Area */}
-      <main className="flex-grow px-2 py-0 md:p-margin-desktop overflow-y-auto md:overflow-y-auto z-10 relative pt-[calc(56px+env(safe-area-inset-top))] md:pt-20 md:pl-72 w-full h-[var(--vv-height,100dvh)] md:h-screen pb-[calc(110px+env(safe-area-inset-bottom))] md:pb-6">
+      <main className="flex-1 min-h-0 px-1.5 sm:px-4 py-0 md:p-margin-desktop overflow-y-auto overscroll-contain md:overflow-y-auto z-10 relative pt-[calc(48px+env(safe-area-inset-top))] md:pt-20 md:pl-72 w-full md:h-screen pb-[calc(60px+env(safe-area-inset-bottom))] md:pb-6">
         
-        <div className="max-w-6xl mx-auto min-h-full md:min-h-[calc(100vh-160px)] flex flex-col justify-between">
-          <div className="w-full tab-content active flex-1 flex flex-col pt-2 md:pt-0">
+        <div className="max-w-6xl mx-auto h-auto md:h-auto md:min-h-[calc(100vh-160px)] flex flex-col justify-start md:justify-between">
+          <div className="w-full tab-content active flex-initial md:flex-1 flex flex-col pt-0.5 md:pt-0 h-auto md:h-full">
             {activeTab === 'usg' && (
               <UsgCalculator onSaveRecord={handleSaveRecord} />
             )}
@@ -248,7 +279,7 @@ export default function App() {
           </div>
 
           {/* Disclaimer Footer */}
-          <footer className="text-secondary text-[11px] w-full py-4 px-3 md:px-margin-desktop mt-auto relative z-10 flex flex-col md:flex-row justify-between items-center text-center gap-2 max-w-7xl mx-auto opacity-70">
+          <footer className="hidden md:flex text-secondary text-[11px] w-full py-4 px-3 md:px-margin-desktop mt-auto relative z-10 md:flex-row justify-between items-center text-center gap-2 max-w-7xl mx-auto opacity-70">
             <p className="font-semibold text-on-surface hidden md:block">Ferramenta destinada exclusivamente a apoio de decisão clínica.</p>
             <div className="flex gap-4 md:gap-6 justify-center">
               <button onClick={() => setIsSettingsOpen(true)} className="hover:text-primary transition-colors cursor-pointer text-[11px] md:text-xs">
@@ -288,7 +319,7 @@ export default function App() {
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
             transition={{ type: 'spring', damping: 20, stiffness: 200 }}
-            className="fixed right-0 top-0 h-[var(--vv-height,100dvh)] w-full sm:w-[420px] glass-nav-top border-b-0 border-l shadow-2xl z-50 overflow-hidden flex flex-col"
+            className="fixed right-0 top-0 h-[var(--vv-height,100dvh)] w-full sm:w-[420px] glass-nav-top border-b-0 border-l border-surface-variant/50 dark:border-white/5 shadow-2xl z-50 overflow-hidden flex flex-col"
           >
             <HistoryPanel
               records={records}
@@ -308,7 +339,7 @@ export default function App() {
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
             transition={{ type: 'spring', damping: 20, stiffness: 200 }}
-            className="fixed right-0 top-0 h-[var(--vv-height,100dvh)] w-full sm:w-[420px] glass-nav-top border-b-0 border-l shadow-2xl z-50 overflow-hidden flex flex-col"
+            className="fixed right-0 top-0 h-[var(--vv-height,100dvh)] w-full sm:w-[420px] glass-nav-top border-b-0 border-l border-surface-variant/50 dark:border-white/5 shadow-2xl z-50 overflow-hidden flex flex-col"
           >
             <SettingsPanel
               settings={settings}

@@ -107,26 +107,26 @@
 
 .dark {
   --color-surface: #1c1c1e;
-  --color-on-surface: #fefcff;
+  --color-on-surface: #ffffff;
   --color-background: #000000;
-  --color-on-background: #fefcff;
+  --color-on-background: #ffffff;
   --color-surface-variant: #2c2c2e;
-  --color-on-surface-variant: #98989d;
+  --color-on-surface-variant: rgba(235, 235, 245, 0.6);
   --color-primary: #0a84ff;
   --color-on-primary: #ffffff;
-  --color-secondary: #98989d;
-  --color-outline: #8e8e93;
-  --color-outline-variant: #3a3a3c;
+  --color-secondary: rgba(235, 235, 245, 0.6);
+  --color-outline: #38383a;
+  --color-outline-variant: #38383a;
   --color-surface-container: #1c1c1e;
   --color-surface-container-high: #2c2c2e;
   --color-surface-container-highest: #3a3a3c;
   --color-error: #ff453a;
-  --color-error-container: #3b1111;
-  --color-on-error-container: #ffdad6;
+  --color-error-container: rgba(255, 69, 58, 0.2);
+  --color-on-error-container: #ff453a;
   --color-primary-container: #0a84ff;
   --color-on-primary-container: #ffffff;
   --color-surface-container-lowest: #000000;
-  --color-surface-container-low: #151515;
+  --color-surface-container-low: #1c1c1e;
 }
 
 @font-face {
@@ -183,12 +183,8 @@ body {
 }
 
 .dark body {
-  background-color: #000;
-  background-image: 
-      radial-gradient(at 0% 0%, hsla(210, 100%, 15%, 0.8) 0px, transparent 50%),
-      radial-gradient(at 100% 0%, hsla(200, 100%, 10%, 0.6) 0px, transparent 50%),
-      radial-gradient(at 100% 100%, hsla(220, 100%, 12%, 0.7) 0px, transparent 50%),
-      radial-gradient(at 0% 100%, hsla(190, 100%, 15%, 0.8) 0px, transparent 50%);
+  background-color: #000000;
+  background-image: none;
 }
 
 /* Apple-style Glassmorphism */
@@ -201,8 +197,9 @@ body {
 }
 
 .dark .glass-panel {
-  background: rgba(28, 28, 30, 0.65);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #1C1C1E;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  box-shadow: none;
 }
 
 .glass-nav {
@@ -213,8 +210,8 @@ body {
 }
 
 .dark .glass-nav {
-  background: rgba(28, 28, 30, 0.75);
-  border-right: 1px solid rgba(255, 255, 255, 0.05);
+  background: #000000;
+  border-right: 1px solid rgba(255, 255, 255, 0.04);
 }
 
 .glass-nav-top {
@@ -225,8 +222,10 @@ body {
 }
 
 .dark .glass-nav-top {
-  background: rgba(28, 28, 30, 0.75);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(40px) saturate(200%);
+  -webkit-backdrop-filter: blur(40px) saturate(200%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
 }
 
 .glass-nav-bottom {
@@ -234,11 +233,46 @@ body {
   backdrop-filter: blur(30px) saturate(180%);
   -webkit-backdrop-filter: blur(30px) saturate(180%);
   border-top: 1px solid rgba(0, 0, 0, 0.05);
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease;
 }
 
 .dark .glass-nav-bottom {
   background: rgba(28, 28, 30, 0.85);
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(40px) saturate(200%);
+  -webkit-backdrop-filter: blur(40px) saturate(200%);
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+body.keyboard-open .glass-nav-bottom,
+html.keyboard-open .glass-nav-bottom {
+  transform: translateY(100%);
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Mobile Keyboard & Floating Calculate Button */
+.botao-calcular-container {
+  position: sticky;
+  bottom: env(keyboard-inset-bottom, 0px);
+  z-index: 30;
+  transition: bottom 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+@supports not (bottom: env(keyboard-inset-bottom)) {
+  .botao-calcular-container {
+    bottom: 0px;
+  }
+}
+
+body.keyboard-open .botao-calcular-container,
+html.keyboard-open .botao-calcular-container {
+  bottom: env(keyboard-inset-bottom, 0px);
+  box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.dark body.keyboard-open .botao-calcular-container,
+.dark html.keyboard-open .botao-calcular-container {
+  box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.4);
 }
 
 /* iOS Input styling */
@@ -250,9 +284,9 @@ body {
 }
 
 .dark .ios-input, .dark .clinical-input {
-  background: rgba(44, 44, 46, 0.9);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  color: #fff;
+  background: #2C2C2E;
+  border: 1px solid transparent;
+  color: #ffffff;
 }
 
 .ios-input:hover, .clinical-input:hover {
@@ -260,7 +294,7 @@ body {
 }
 
 .dark .ios-input:hover, .dark .clinical-input:hover {
-  border-color: rgba(255, 255, 255, 0.3);
+  background: #3A3A3C;
 }
 
 .ios-input:focus, .clinical-input:focus {
@@ -271,9 +305,9 @@ body {
 }
 
 .dark .ios-input:focus, .dark .clinical-input:focus {
-  background: #1c1c1e;
-  border-color: rgba(10, 132, 255, 0.6);
-  box-shadow: 0 0 0 4px rgba(10, 132, 255, 0.2);
+  background: #2C2C2E;
+  border-color: #0A84FF;
+  box-shadow: 0 0 0 1px #0A84FF;
 }
 
 /* Widget Result Area Gradient */
@@ -283,7 +317,7 @@ body {
   overflow: hidden;
 }
 .dark .widget-gradient {
-  background: linear-gradient(145deg, #1c1c1e 0%, #151e2b 100%);
+  background: #1c1c1e;
 }
 
 .widget-gradient::before {
@@ -295,6 +329,9 @@ body {
   height: 200%;
   background: radial-gradient(circle at center, rgba(0, 122, 255, 0.03) 0%, transparent 60%);
   pointer-events: none;
+}
+.dark .widget-gradient::before {
+  display: none;
 }
 
 /* Animations */
@@ -373,8 +410,25 @@ body {
   transform: translateX(-100%);
   pointer-events: none;
 }
+.dark .shimmer-container::after { background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.06) 50%, rgba(255,255,255,0) 100%); }
+
 .shimmer-active::after {
   animation: shimmer 1s ease-out;
+}
+
+@media (max-width: 768px) {
+  body {
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  input, textarea, button, select, .ios-input, .clinical-input {
+    -webkit-user-select: auto;
+    user-select: auto;
+    scroll-margin-bottom: 100px;
+  }
+  form, .glass-panel {
+    scroll-padding-bottom: 90px;
+  }
 }
 
 html, body, #root {
@@ -386,4 +440,63 @@ html, body, #root {
 
 :root {
   --vv-height: 100dvh;
+  color-scheme: dark;
+  supported-color-schemes: dark light;
+}
+
+/* Fix for Samsung Internet / Chromium Force Dark Mode in Light Mode */
+html:not(.dark),
+body:not(.dark) {
+  color-scheme: dark !important;
+  forced-color-adjust: none !important;
+  -webkit-forced-color-adjust: none !important;
+  background-color: #F2F2F7 !important;
+  background-image: linear-gradient(to bottom, #F2F2F7, #F2F2F7) !important;
+  color: #1a1c1d !important;
+}
+
+html.dark,
+body.dark {
+  color-scheme: dark !important;
+  background-color: #000000 !important;
+  background-image: none !important;
+  color: #ffffff !important;
+}
+
+/* Prevent Samsung Internet Auto Dark from inverting surface backgrounds in light mode */
+html:not(.dark) .bg-white {
+  background-image: linear-gradient(to bottom, #ffffff, #ffffff) !important;
+  forced-color-adjust: none !important;
+  -webkit-forced-color-adjust: none !important;
+}
+
+html:not(.dark) .bg-surface {
+  background-image: linear-gradient(to bottom, #f9f9fb, #f9f9fb) !important;
+  forced-color-adjust: none !important;
+  -webkit-forced-color-adjust: none !important;
+}
+
+html:not(.dark) .bg-surface-variant {
+  background-image: linear-gradient(to bottom, #e2e2e4, #e2e2e4) !important;
+  forced-color-adjust: none !important;
+  -webkit-forced-color-adjust: none !important;
+}
+
+@utility icon-inline {
+  @apply text-[20px] md:text-[18px];
+}
+
+@utility icon-nav {
+  @apply text-[24px] md:text-[24px];
+}
+
+@utility icon-small {
+  @apply text-[18px] md:text-[16px];
+}
+
+.ios-input::placeholder, .clinical-input::placeholder {
+  color: #6b7280;
+}
+.dark .ios-input::placeholder, .dark .clinical-input::placeholder {
+  color: #9ca3af;
 }
