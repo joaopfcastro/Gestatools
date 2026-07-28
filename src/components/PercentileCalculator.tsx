@@ -27,10 +27,7 @@ export default function PercentileCalculator({ onSaveRecord }: PercentileCalcula
   });
 
   const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
-    const target = e.target;
-    setTimeout(() => {
-      target.scrollIntoView({ block: 'center', behavior: 'smooth' });
-    }, 300);
+    e.target.scrollIntoView({ block: 'center', behavior: 'smooth' });
   };
 
   const [curve, setCurve] = useState<CurveType>('hadlock');
@@ -304,7 +301,7 @@ export default function PercentileCalculator({ onSaveRecord }: PercentileCalcula
             result && mobileView !== 'inputs' ? 'hidden lg:flex' : 'flex'
           }`}
         >
-          <form ref={formRef} onSubmit={handleCalculate} noValidate className="glass-panel p-3.5 sm:p-6 md:p-8 rounded-[1.25rem] md:rounded-[2rem] flex flex-col justify-start md:justify-between flex-initial md:flex-1 gap-3 sm:gap-4 md:gap-5 shadow-xs w-full h-auto md:h-full relative pb-24 md:pb-8">
+          <form ref={formRef} onSubmit={handleCalculate} noValidate className="glass-panel p-3.5 sm:p-6 md:p-8 rounded-[1.25rem] md:rounded-[2rem] flex flex-col justify-start md:justify-between flex-initial md:flex-1 gap-3 sm:gap-4 md:gap-5 shadow-xs w-full h-auto md:h-full relative pb-20 md:pb-8">
             {/* Toggles for curve and input mode */}
             <div className="flex flex-col md:grid md:grid-cols-2 gap-2 w-full mb-1">
               {/* Curve Selector */}
@@ -514,10 +511,9 @@ export default function PercentileCalculator({ onSaveRecord }: PercentileCalcula
               )}
             </div>
 
-            <div className="botao-calcular-container sticky bottom-0 md:static z-30 pt-3 pb-2 -mx-3.5 sm:-mx-6 px-3.5 sm:px-6 -mb-3.5 sm:-mb-6 mt-4 md:m-0 md:p-0 backdrop-blur-md bg-white/95 dark:bg-[#1C1C1E]/95 border-t border-black/5 dark:border-white/10 md:border-none md:bg-transparent md:backdrop-blur-none shadow-lg md:shadow-none transition-all rounded-b-[1.25rem] md:rounded-none">
+            <div className="sticky bottom-0 md:static z-20 pt-3 pb-1 -mx-3.5 sm:-mx-6 px-3.5 sm:px-6 -mb-3.5 sm:-mb-6 mt-4 md:m-0 md:p-0 backdrop-blur-md bg-white/90 dark:bg-[#1C1C1E]/90 border-t border-black/5 dark:border-white/10 md:border-none md:bg-transparent md:backdrop-blur-none shadow-lg md:shadow-none transition-all rounded-b-[1.25rem] md:rounded-none">
               <button
                 type="submit"
-                id="botao-calcular"
                 className="calc-btn h-12 md:h-12 min-h-[48px] w-full bg-primary hover:bg-primary/90 text-white font-bold text-[17px] md:text-[18px] rounded-xl shadow-md shadow-primary/25 active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center gap-2"
               >
                 <Icon name="calculate" className="text-[22px]" />

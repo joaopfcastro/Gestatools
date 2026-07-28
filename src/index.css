@@ -233,7 +233,6 @@ body {
   backdrop-filter: blur(30px) saturate(180%);
   -webkit-backdrop-filter: blur(30px) saturate(180%);
   border-top: 1px solid rgba(0, 0, 0, 0.05);
-  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease;
 }
 
 .dark .glass-nav-bottom {
@@ -241,38 +240,6 @@ body {
   backdrop-filter: blur(40px) saturate(200%);
   -webkit-backdrop-filter: blur(40px) saturate(200%);
   border-top: 1px solid rgba(255, 255, 255, 0.04);
-}
-
-body.keyboard-open .glass-nav-bottom,
-html.keyboard-open .glass-nav-bottom {
-  transform: translateY(100%);
-  opacity: 0;
-  pointer-events: none;
-}
-
-/* Mobile Keyboard & Floating Calculate Button */
-.botao-calcular-container {
-  position: sticky;
-  bottom: env(keyboard-inset-bottom, 0px);
-  z-index: 30;
-  transition: bottom 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-@supports not (bottom: env(keyboard-inset-bottom)) {
-  .botao-calcular-container {
-    bottom: 0px;
-  }
-}
-
-body.keyboard-open .botao-calcular-container,
-html.keyboard-open .botao-calcular-container {
-  bottom: env(keyboard-inset-bottom, 0px);
-  box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.15);
-}
-
-.dark body.keyboard-open .botao-calcular-container,
-.dark html.keyboard-open .botao-calcular-container {
-  box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.4);
 }
 
 /* iOS Input styling */
@@ -440,46 +407,38 @@ html, body, #root {
 
 :root {
   --vv-height: 100dvh;
-  color-scheme: dark;
-  supported-color-schemes: dark light;
+  color-scheme: light dark;
+  supported-color-schemes: light dark;
 }
 
-/* Fix for Samsung Internet / Chromium Force Dark Mode in Light Mode */
-html:not(.dark),
+html {
+  color-scheme: light dark !important;
+  forced-color-adjust: none !important;
+}
+
+html:not(.dark) {
+  background-color: #F2F2F7;
+  color: #1a1c1d;
+}
+
+html.dark {
+  background-color: #000000;
+  color: #ffffff;
+}
+
+body {
+  color-scheme: light dark !important;
+  forced-color-adjust: none !important;
+}
+
 body:not(.dark) {
-  color-scheme: dark !important;
-  forced-color-adjust: none !important;
-  -webkit-forced-color-adjust: none !important;
-  background-color: #F2F2F7 !important;
-  background-image: linear-gradient(to bottom, #F2F2F7, #F2F2F7) !important;
-  color: #1a1c1d !important;
+  background-color: #F2F2F7;
+  color: #1a1c1d;
 }
 
-html.dark,
 body.dark {
-  color-scheme: dark !important;
-  background-color: #000000 !important;
-  background-image: none !important;
-  color: #ffffff !important;
-}
-
-/* Prevent Samsung Internet Auto Dark from inverting surface backgrounds in light mode */
-html:not(.dark) .bg-white {
-  background-image: linear-gradient(to bottom, #ffffff, #ffffff) !important;
-  forced-color-adjust: none !important;
-  -webkit-forced-color-adjust: none !important;
-}
-
-html:not(.dark) .bg-surface {
-  background-image: linear-gradient(to bottom, #f9f9fb, #f9f9fb) !important;
-  forced-color-adjust: none !important;
-  -webkit-forced-color-adjust: none !important;
-}
-
-html:not(.dark) .bg-surface-variant {
-  background-image: linear-gradient(to bottom, #e2e2e4, #e2e2e4) !important;
-  forced-color-adjust: none !important;
-  -webkit-forced-color-adjust: none !important;
+  background-color: #000000;
+  color: #ffffff;
 }
 
 @utility icon-inline {

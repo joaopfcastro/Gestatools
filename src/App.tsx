@@ -21,7 +21,6 @@ const DEFAULT_SETTINGS: AppSettings = {
 };
 
 export default function App() {
-  useKeyboardAwareScroll();
   const [activeTab, setActiveTab] = useState<TabType>('usg');
   const [settings, setSettings] = useState<AppSettings>(DEFAULT_SETTINGS);
   const [records, setRecords] = useState<HistoryRecord[]>([]);
@@ -93,6 +92,7 @@ export default function App() {
       
       const themeColor = isDark ? '#000000' : '#F2F2F7';
       const statusBarStyle = isDark ? 'black-translucent' : 'default';
+      const colorScheme = 'light dark';
       
       // 1. Dynamically replace theme-color meta tag
       const existingThemeColorMetas = document.querySelectorAll('meta[name="theme-color"]');
@@ -121,7 +121,7 @@ export default function App() {
       const newColorSchemeMeta = document.createElement('meta');
       newColorSchemeMeta.name = 'color-scheme';
       newColorSchemeMeta.id = 'color-scheme-meta';
-      newColorSchemeMeta.content = 'dark';
+      newColorSchemeMeta.content = 'light dark';
       document.head.appendChild(newColorSchemeMeta);
       
       // 4. Update element background colors, colorScheme, and dark class
@@ -133,10 +133,10 @@ export default function App() {
         if (document.body) document.body.classList.remove('dark');
       }
 
-      document.documentElement.style.colorScheme = 'dark';
+      document.documentElement.style.colorScheme = 'light dark';
       document.documentElement.style.backgroundColor = themeColor;
       if (document.body) {
-        document.body.style.colorScheme = 'dark';
+        document.body.style.colorScheme = 'light dark';
         document.body.style.backgroundColor = themeColor;
       }
     };
