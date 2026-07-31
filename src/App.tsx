@@ -259,7 +259,7 @@ export default function App() {
       <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
 
       {/* Main Content Area */}
-      <main className="flex-1 min-h-0 min-w-0 px-1.5 sm:px-4 md:p-5 min-[1024px]:p-6 min-[1366px]:p-margin-desktop overflow-y-auto overscroll-contain z-10 relative pt-[calc(48px+env(safe-area-inset-top))] md:pt-16 min-[1366px]:pt-20 w-full md:pl-[224px] min-[1366px]:pl-72 pb-[calc(60px+env(safe-area-inset-bottom))] md:pb-6">
+      <main className="flex-1 min-h-0 min-w-0 w-full md:w-auto md:ml-sidebar-tablet min-[1366px]:ml-sidebar-desktop px-1.5 sm:px-4 md:px-5 min-[1024px]:px-6 min-[1366px]:px-margin-desktop overflow-y-auto overscroll-contain z-10 relative pt-[calc(48px+env(safe-area-inset-top))] md:pt-16 min-[1366px]:pt-20 pb-[calc(60px+env(safe-area-inset-bottom))] md:pb-6 min-[1366px]:pb-margin-desktop">
         
         <div className="max-w-6xl min-[1366px]:max-w-7xl mx-auto h-auto min-w-0 flex flex-col justify-start">
           <div className="w-full tab-content active flex-initial flex flex-col pt-0.5 md:pt-0 h-auto min-w-0">

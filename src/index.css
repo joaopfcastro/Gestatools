@@ -58,6 +58,8 @@
   --spacing-stack-lg: 48px;
   --spacing-gutter: 24px;
   --spacing-margin-mobile: 24px;
+  --spacing-sidebar-tablet: 224px;
+  --spacing-sidebar-desktop: 18rem;
 
   --font-body-sm: "Inter", "SF Pro Text", system-ui, sans-serif;
   --font-body-lg: "Inter", "SF Pro Text", system-ui, sans-serif;
@@ -410,6 +412,7 @@ html, body, #root {
   --app-height: 100dvh;
   --app-header-height: calc(56px + env(safe-area-inset-top));
   --sidebar-width-tablet: 224px;
+  --sidebar-width-desktop: 18rem;
   --page-padding-tablet: clamp(16px, 2vw, 24px);
   --card-padding-tablet: clamp(16px, 2vw, 24px);
   --column-gap-tablet: clamp(16px, 2vw, 24px);
