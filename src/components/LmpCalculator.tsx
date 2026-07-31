@@ -220,19 +220,19 @@ export default function LmpCalculator({ onSaveRecord, defaultCycleLength }: LmpC
   };
 
   return (
-    <div className="w-full max-w-6xl mx-auto flex flex-col justify-between gap-2 md:gap-6 p-0.5 sm:p-4 md:p-8 h-full">
+    <div className="w-full max-w-6xl min-[1366px]:max-w-7xl mx-auto flex flex-col justify-start gap-3 min-[1024px]:gap-5 p-0 sm:p-2 min-[1366px]:p-4 h-auto min-w-0">
       <div className="px-1 w-full">
-        <h1 className="text-xl md:text-3xl font-bold text-on-surface leading-tight md:mb-1">
+        <h1 className="text-xl md:text-2xl min-[1366px]:text-3xl font-bold text-on-surface leading-tight md:mb-1">
           Cálculo por DUM
         </h1>
-        <p className="font-body-sm text-secondary hidden md:block">
+        <p className="font-body-sm text-secondary hidden md:block text-xs min-[1366px]:text-sm">
           Datação obstétrica profissional baseada na data da última menstruação
         </p>
       </div>
 
-      {/* Mobile Segmented Control */}
+      {/* Mobile / Narrow Tablet Segmented Control */}
       {result && (
-        <div className="lg:hidden flex p-1 bg-surface-variant/50 dark:bg-surface-variant dark:bg-surface-variant/10 rounded-2xl w-full border border-surface-variant mb-1">
+        <div className="min-[1024px]:hidden flex p-1 bg-surface-variant/50 dark:bg-surface-variant dark:bg-surface-variant/10 rounded-2xl w-full border border-surface-variant mb-1">
           <button
             type="button"
             onClick={() => {
@@ -264,21 +264,21 @@ export default function LmpCalculator({ onSaveRecord, defaultCycleLength }: LmpC
         </div>
       )}
 
-      <div className="flex flex-col lg:flex-row gap-3 lg:gap-12 items-stretch w-full flex-initial md:flex-1 md:min-h-0">
+      <div className="grid grid-cols-1 min-[1024px]:grid-cols-[minmax(320px,0.88fr)_minmax(0,1.12fr)] min-[1366px]:flex min-[1366px]:flex-row gap-4 min-[1024px]:gap-6 min-[1366px]:gap-12 items-start w-full min-w-0">
         {/* Left Col: Inputs Form */}
         <motion.div 
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
-          className={`w-full lg:w-[45%] flex flex-col flex-initial md:flex-1 animate-card ${
-            result && mobileView !== 'inputs' ? 'hidden lg:flex' : 'flex'
+          className={`w-full min-[1366px]:w-[45%] flex flex-col animate-card min-w-0 ${
+            result && mobileView !== 'inputs' ? 'hidden min-[1024px]:flex' : 'flex'
           }`}
         >
-          <form ref={formRef} onSubmit={handleCalculate} noValidate className="glass-panel p-3.5 sm:p-6 md:p-8 rounded-[1.25rem] md:rounded-[2rem] flex flex-col justify-start md:justify-between flex-initial md:flex-1 gap-3 sm:gap-4 md:gap-5 shadow-xs h-auto md:h-full relative pb-20 md:pb-8">
+          <form ref={formRef} onSubmit={handleCalculate} noValidate className="glass-panel p-3.5 sm:p-5 min-[1024px]:p-6 min-[1366px]:p-8 rounded-[1.25rem] md:rounded-[2rem] flex flex-col justify-start min-[1366px]:justify-between gap-3 sm:gap-4 shadow-xs h-auto min-[1366px]:h-full relative pb-16 min-[1024px]:pb-6">
             {errorMessage && (
               <InfoBalloon variant="error" text={errorMessage} />
             )}
             
-            <div className="flex flex-col gap-3 flex-initial md:flex-1 justify-start md:justify-center">
+            <div className="flex flex-col gap-3 justify-start">
               <div className="flex flex-col gap-1.5" title="Primeiro dia de sangramento do último ciclo.">
                 <div className="flex flex-col gap-1 mb-0.5">
                   <label className="text-sm font-semibold text-on-surface pl-0.5" htmlFor="dum-date">
@@ -343,10 +343,10 @@ export default function LmpCalculator({ onSaveRecord, defaultCycleLength }: LmpC
               </div>
             </div>
 
-            <div className="sticky bottom-0 md:static z-20 pt-3 pb-1 -mx-3.5 sm:-mx-6 px-3.5 sm:px-6 -mb-3.5 sm:-mb-6 mt-4 md:m-0 md:p-0 backdrop-blur-md bg-white/90 dark:bg-[#1C1C1E]/90 border-t border-black/5 dark:border-white/10 md:border-none md:bg-transparent md:backdrop-blur-none shadow-lg md:shadow-none transition-all rounded-b-[1.25rem] md:rounded-none">
+            <div className="sticky bottom-0 min-[1024px]:static z-20 pt-3 pb-1 -mx-3.5 sm:-mx-5 min-[1024px]:-mx-6 px-3.5 sm:px-5 min-[1024px]:px-6 -mb-3.5 sm:-mb-5 min-[1024px]:-mb-6 mt-4 min-[1024px]:m-0 min-[1024px]:p-0 backdrop-blur-md bg-white/90 dark:bg-[#1C1C1E]/90 border-t border-black/5 dark:border-white/10 min-[1024px]:border-none min-[1024px]:bg-transparent min-[1024px]:backdrop-blur-none shadow-lg min-[1024px]:shadow-none transition-all rounded-b-[1.25rem] min-[1024px]:rounded-none">
               <button
                 type="submit"
-                className="calc-btn h-12 md:h-12 min-h-[48px] w-full bg-primary hover:bg-primary/90 text-white font-bold text-[17px] md:text-[18px] rounded-xl shadow-md shadow-primary/25 active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center gap-2"
+                className="calc-btn h-12 min-h-[48px] w-full bg-primary hover:bg-primary/90 text-white font-bold text-[17px] md:text-[18px] rounded-xl shadow-md shadow-primary/25 active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center gap-2"
               >
                 <Icon name="calculate" className="text-[22px]" />
                 Calcular
@@ -357,20 +357,20 @@ export default function LmpCalculator({ onSaveRecord, defaultCycleLength }: LmpC
 
       {/* Right Col: Results View */}
       <div 
-        className={`w-full lg:w-[55%] flex flex-col animate-results lg:sticky lg:top-6 ${
-          !result || mobileView !== 'results' ? 'hidden lg:flex' : 'flex'
+        className={`w-full min-[1366px]:w-[55%] flex flex-col animate-results min-[1024px]:sticky min-[1024px]:top-20 min-w-0 ${
+          !result || mobileView !== 'results' ? 'hidden min-[1024px]:flex' : 'flex'
         }`}
       >
         <motion.div
           initial={{ opacity: 0, scale: 0.98 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ type: 'spring', stiffness: 100, damping: 15 }}
-          className={`glass-panel widget-gradient p-3 md:p-10 rounded-[1.5rem] md:rounded-[2rem] flex flex-col items-center justify-center text-center w-full min-h-[300px] md:min-h-[380px] relative overflow-hidden  ${shimmer ? 'shimmer-active' : ''}`}
+          className={`glass-panel widget-gradient p-4 min-[1024px]:p-6 min-[1366px]:p-10 rounded-[1.5rem] md:rounded-[2rem] flex flex-col items-center justify-center text-center w-full min-h-[300px] md:min-h-[360px] relative overflow-hidden ${shimmer ? 'shimmer-active' : ''}`}
         >
-          <div className="relative z-10 w-full flex flex-col items-center">
+          <div className="relative z-10 w-full flex flex-col items-center min-w-0">
             {/* Main IG Section */}
             <div className="relative flex justify-center items-center mb-2 md:mb-4 mt-1 md:mt-2">
-              <svg viewBox="0 0 220 220" className="w-[120px] h-[120px] md:w-[220px] md:h-[220px] -rotate-90">
+              <svg viewBox="0 0 220 220" className="w-[120px] h-[120px] md:w-[180px] md:h-[180px] min-[1366px]:w-[220px] min-[1366px]:h-[220px] -rotate-90">
                 <circle 
                   cx="110" cy="110" r="95"
                   className="stroke-surface-variant fill-none dark:opacity-100 opacity-50"
@@ -395,11 +395,11 @@ export default function LmpCalculator({ onSaveRecord, defaultCycleLength }: LmpC
                 ) : result ? (
                   <>
                     <div className="flex items-baseline gap-1">
-                      <span className="font-display-lg text-[32px] md:text-[56px] leading-none text-primary tracking-tight">
+                      <span className="font-display-lg text-[32px] md:text-[44px] min-[1366px]:text-[56px] leading-none text-primary tracking-tight">
                         {result.weeks < 0 ? '--' : result.weeks}
                       </span>
                       <span className="font-title-md text-primary opacity-80 text-lg md:text-xl">s</span>
-                      <span className="font-display-lg text-[24px] md:text-[40px] leading-none text-tertiary tracking-tight ml-1">
+                      <span className="font-display-lg text-[24px] md:text-[32px] min-[1366px]:text-[40px] leading-none text-tertiary tracking-tight ml-1">
                         {result.weeks < 0 ? '--' : result.days}
                       </span>
                       <span className="font-title-md text-tertiary opacity-80 text-lg md:text-xl">d</span>
@@ -412,11 +412,11 @@ export default function LmpCalculator({ onSaveRecord, defaultCycleLength }: LmpC
               </div>
             </div>
 
-            <div className="bg-surface-variant/50 dark:bg-surface-variant rounded-2xl md:rounded-3xl px-4 md:px-8 py-2 md:py-5 flex flex-col items-center border border-surface-variant/50 dark:border-transparent w-full max-w-[280px] md:max-w-[320px] shadow-sm mb-2 md:mb-4">
+            <div className="bg-surface-variant/50 dark:bg-surface-variant rounded-2xl md:rounded-3xl px-4 md:px-8 py-2 md:py-4 flex flex-col items-center border border-surface-variant/50 dark:border-transparent w-full max-w-[280px] md:max-w-[320px] shadow-sm mb-2 md:mb-4">
               <p className="text-[9px] md:text-[10px] font-bold text-secondary uppercase tracking-widest mb-1">
                 Data Provável do Parto
               </p>
-              <span className="font-headline-lg text-xl md:text-[28px] font-semibold text-on-surface tracking-tight">
+              <span className="font-headline-lg text-xl md:text-[24px] min-[1366px]:text-[28px] font-semibold text-on-surface tracking-tight">
                 {shimmer ? (
                   <Skeleton className="w-32 md:w-40 h-[24px] md:h-[32px] rounded-lg mt-1" />
                 ) : result ? (
@@ -432,14 +432,14 @@ export default function LmpCalculator({ onSaveRecord, defaultCycleLength }: LmpC
               <motion.div 
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="w-full flex flex-col gap-3 md:gap-4 mt-4 md:mt-8 pt-4 md:pt-6 border-t border-surface-variant"
+                className="w-full flex flex-col gap-3 md:gap-4 mt-3 md:mt-6 pt-3 md:pt-5 border-t border-surface-variant min-w-0"
               >
-                <div className="grid grid-cols-2 gap-3 text-left">
-                  <div className="flex flex-col gap-1 bg-surface-variant/50 dark:bg-surface-variant p-3 md:p-4 rounded-xl">
+                <div className="grid grid-cols-2 gap-2.5 sm:gap-3 text-left">
+                  <div className="flex flex-col gap-1 bg-surface-variant/50 dark:bg-surface-variant p-2.5 sm:p-3.5 rounded-xl min-w-0">
                     <span className="text-[9px] md:text-[10px] font-bold text-secondary uppercase tracking-wide">Concepção Estimada</span>
                     <span className="text-xs md:text-sm font-semibold text-on-surface break-words leading-snug">{result.conceptionDate}</span>
                   </div>
-                  <div className="flex flex-col gap-1 bg-surface-variant/50 dark:bg-surface-variant p-3 md:p-4 rounded-xl">
+                  <div className="flex flex-col gap-1 bg-surface-variant/50 dark:bg-surface-variant p-2.5 sm:p-3.5 rounded-xl min-w-0">
                     <span className="text-[9px] md:text-[10px] font-bold text-secondary uppercase tracking-wide">USG Morfológico</span>
                     <span className="text-[11px] md:text-xs font-semibold text-on-surface break-words leading-snug">{result.morphologicalMin} - {result.morphologicalMax}</span>
                   </div>
@@ -460,12 +460,12 @@ export default function LmpCalculator({ onSaveRecord, defaultCycleLength }: LmpC
                       value={patientName}
                       onChange={(e) => setPatientName(e.target.value)}
                       onFocus={handleFocus}
-                      className="ios-input flex-grow h-10 md:h-12 px-3 rounded-xl text-base md:text-sm"
+                      className="ios-input flex-grow h-10 md:h-12 px-3 rounded-xl text-base md:text-sm min-w-0"
                     />
                     <button
                       type="button"
                       onClick={handleSave}
-                      className={`px-3 md:px-4 rounded-xl inline-flex items-center justify-center gap-1.5 font-bold text-xs transition-all duration-150 cursor-pointer min-h-[48px] md:min-h-0 ${
+                      className={`px-3 md:px-4 rounded-xl inline-flex items-center justify-center gap-1.5 font-bold text-xs transition-all duration-150 cursor-pointer min-h-[44px] ${
                         saved
                           ? 'bg-primary text-white shadow-md'
                           : 'bg-surface-variant text-on-surface hover:bg-surface-variant/80'
@@ -501,12 +501,12 @@ export default function LmpCalculator({ onSaveRecord, defaultCycleLength }: LmpC
           <p>
             A <strong>duração do ciclo</strong> afeta o momento da ovulação. Em um ciclo padrão de 28 dias, a ovulação ocorre no 14º dia. 
             Se o ciclo for mais longo ou mais curto, a data provável da concepção e, consequentemente, a idade gestacional real, 
-            precisam ser ajustadas (regra de Naegele modificada).
+            precisam ser adjusted (regra de Naegele modificada).
           </p>
         )}
       </HelpModal>
 
-      {/* Floating Action Button for Reset */}
+      {/* Floating Action Button for Reset - Only on wide desktop (>= 1366px) */}
       <motion.button
         type="button"
         whileHover={{ scale: 1.05 }}
@@ -515,7 +515,7 @@ export default function LmpCalculator({ onSaveRecord, defaultCycleLength }: LmpC
           triggerHaptic(50);
           handleReset();
         }}
-        className="hidden md:flex fixed bottom-24 md:bottom-10 right-6 md:right-10 bg-surface text-on-surface shadow-[0_4px_20px_rgba(0,0,0,0.15)] dark:shadow-[0_4px_20px_rgba(0,0,0,0.4)] hover:bg-surface-variant transition-colors p-4 rounded-full items-center justify-center border border-surface-variant/50 z-40 group"
+        className="hidden min-[1366px]:flex fixed bottom-10 right-10 bg-surface text-on-surface shadow-[0_4px_20px_rgba(0,0,0,0.15)] dark:shadow-[0_4px_20px_rgba(0,0,0,0.4)] hover:bg-surface-variant transition-colors p-4 rounded-full items-center justify-center border border-surface-variant/50 z-40 group"
         title="Zerar formulário"
       >
         <Icon name="refresh" className="text-[24px] group-hover:-rotate-180 transition-transform duration-500" />

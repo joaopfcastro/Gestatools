@@ -3,13 +3,13 @@ import { useEffect, RefObject } from 'react';
 export function useKeyboardAwareScroll(containerRef?: RefObject<HTMLElement | null>) {
   useEffect(() => {
     const handleFocusIn = (e: Event) => {
-      // Only apply on mobile devices (prevents altering desktop layout)
-      if (window.innerWidth >= 768) return;
-
       const target = e.target as HTMLElement;
       
       if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT') {
-        // Delay ensures the virtual keyboard has animated into view
+        // Only scroll into view if on coarse pointer or small/constrained viewport
+        const isTouch = window.matchMedia('(pointer: coarse)').matches || window.innerHeight < 700;
+        if (!isTouch) return;
+
         setTimeout(() => {
           target.scrollIntoView({
             behavior: 'smooth',
@@ -29,11 +29,11 @@ export function useKeyboardAwareScroll(containerRef?: RefObject<HTMLElement | nu
   }, [containerRef]);
 
   useEffect(() => {
-    if (window.innerWidth >= 768) return;
-
     const updateVv = () => {
       if (window.visualViewport) {
-        document.documentElement.style.setProperty('--vv-height', `${window.visualViewport.height}px`);
+        const height = `${window.visualViewport.height}px`;
+        document.documentElement.style.setProperty('--vv-height', height);
+        document.documentElement.style.setProperty('--app-height', height);
       }
     };
     
@@ -41,12 +41,20 @@ export function useKeyboardAwareScroll(containerRef?: RefObject<HTMLElement | nu
     
     if (window.visualViewport) {
       window.visualViewport.addEventListener('resize', updateVv);
+      window.visualViewport.addEventListener('scroll', updateVv);
     }
+
+    window.addEventListener('resize', updateVv);
+    window.addEventListener('orientationchange', updateVv);
     
     return () => {
       if (window.visualViewport) {
         window.visualViewport.removeEventListener('resize', updateVv);
+        window.visualViewport.removeEventListener('scroll', updateVv);
       }
+      window.removeEventListener('resize', updateVv);
+      window.removeEventListener('orientationchange', updateVv);
     };
   }, []);
 }
+

@@ -21,6 +21,8 @@ const DEFAULT_SETTINGS: AppSettings = {
 };
 
 export default function App() {
+  useKeyboardAwareScroll();
+
   const [activeTab, setActiveTab] = useState<TabType>('usg');
   const [settings, setSettings] = useState<AppSettings>(DEFAULT_SETTINGS);
   const [records, setRecords] = useState<HistoryRecord[]>([]);
@@ -203,12 +205,12 @@ export default function App() {
   };
 
   return (
-    <div className={`h-[var(--vv-height,100dvh)] md:h-screen flex overflow-hidden bg-background text-on-surface transition-colors duration-300 ${isDarkMode ? 'dark' : ''}`}>
+    <div className={`h-[var(--vv-height,100dvh)] min-h-[var(--vv-height,100dvh)] flex overflow-hidden bg-background text-on-surface transition-colors duration-300 ${isDarkMode ? 'dark' : ''}`}>
       
       {/* TopAppBar */}
-      <header className="glass-nav-top text-on-surface font-title-md fixed top-0 w-full z-50 flex justify-between items-center h-[calc(48px+env(safe-area-inset-top))] md:h-[calc(56px+env(safe-area-inset-top))] pt-[env(safe-area-inset-top)] px-3 md:px-margin-desktop max-w-full left-0 transition-all">
+      <header className="glass-nav-top text-on-surface font-title-md fixed top-0 w-full z-50 flex justify-between items-center h-[calc(48px+env(safe-area-inset-top))] md:h-[calc(56px+env(safe-area-inset-top))] pt-[env(safe-area-inset-top)] px-3 md:px-6 min-[1366px]:px-margin-desktop max-w-full left-0 transition-all">
         <div className="flex items-center gap-2">
-          <span className="font-headline-lg text-[22px] md:text-title-md font-bold text-on-surface tracking-tight">GestaTools</span>
+          <span className="font-headline-lg text-[20px] md:text-title-md font-bold text-on-surface tracking-tight">GestaTools</span>
         </div>
         <div className="flex items-center gap-2 md:gap-4 relative">
           <div className="relative">
@@ -253,14 +255,14 @@ export default function App() {
         </div>
       </header>
 
-      {/* Sidebar for Desktop */}
+      {/* Sidebar for Desktop & Tablet */}
       <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
 
       {/* Main Content Area */}
-      <main className="flex-1 min-h-0 px-1.5 sm:px-4 py-0 md:p-margin-desktop overflow-y-auto overscroll-contain md:overflow-y-auto z-10 relative pt-[calc(48px+env(safe-area-inset-top))] md:pt-20 md:pl-72 w-full md:h-screen pb-[calc(60px+env(safe-area-inset-bottom))] md:pb-6">
+      <main className="flex-1 min-h-0 min-w-0 px-1.5 sm:px-4 md:p-5 min-[1024px]:p-6 min-[1366px]:p-margin-desktop overflow-y-auto overscroll-contain z-10 relative pt-[calc(48px+env(safe-area-inset-top))] md:pt-16 min-[1366px]:pt-20 w-full md:pl-[224px] min-[1366px]:pl-72 pb-[calc(60px+env(safe-area-inset-bottom))] md:pb-6">
         
-        <div className="max-w-6xl mx-auto h-auto md:h-auto md:min-h-[calc(100vh-160px)] flex flex-col justify-start md:justify-between">
-          <div className="w-full tab-content active flex-initial md:flex-1 flex flex-col pt-0.5 md:pt-0 h-auto md:h-full">
+        <div className="max-w-6xl min-[1366px]:max-w-7xl mx-auto h-auto min-w-0 flex flex-col justify-start">
+          <div className="w-full tab-content active flex-initial flex flex-col pt-0.5 md:pt-0 h-auto min-w-0">
             {activeTab === 'usg' && (
               <UsgCalculator onSaveRecord={handleSaveRecord} />
             )}

@@ -407,6 +407,12 @@ html, body, #root {
 
 :root {
   --vv-height: 100dvh;
+  --app-height: 100dvh;
+  --app-header-height: calc(56px + env(safe-area-inset-top));
+  --sidebar-width-tablet: 224px;
+  --page-padding-tablet: clamp(16px, 2vw, 24px);
+  --card-padding-tablet: clamp(16px, 2vw, 24px);
+  --column-gap-tablet: clamp(16px, 2vw, 24px);
   color-scheme: light dark;
   supported-color-schemes: light dark;
 }
