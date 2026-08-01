@@ -11,7 +11,15 @@ export function useShortcut(
         return;
       }
       
-      if (e.key === key || e.code === key) {
+      const targetKey = key.toLowerCase();
+      const eventKey = e.key ? e.key.toLowerCase() : '';
+      const eventCode = e.code ? e.code.toLowerCase() : '';
+
+      if (
+        eventKey === targetKey ||
+        eventCode === targetKey ||
+        eventCode === `key${targetKey}`
+      ) {
         e.preventDefault();
         callback();
       }
@@ -21,3 +29,4 @@ export function useShortcut(
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [key, callback, ctrlOrMeta]);
 }
+

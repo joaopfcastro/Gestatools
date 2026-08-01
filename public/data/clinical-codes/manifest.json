@@ -1,18 +1,31 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "competence": "202607",
   "competenceLabel": "07/2026",
-  "generatedAt": "2026-08-01T01:03:53.942Z",
+  "generatedAt": "2026-08-01T21:17:22.363Z",
   "source": "SIGTAP/DATASUS",
   "basePath": "/data/clinical-codes/202607",
   "counts": {
-    "cids": 85,
-    "procedures": 25,
-    "relations": 71
+    "cids": 187,
+    "procedures": 37,
+    "relations": 114
   },
   "files": {
     "cids": "cids.json",
     "procedures": "procedures.json",
     "relations": "relations.json"
+  },
+  "sourceFiles": [
+    "SAMPLE_FIXTURE_DATA"
+  ],
+  "sizes": {
+    "cids": 27295,
+    "procedures": 19535,
+    "relations": 8498
+  },
+  "hashes": {
+    "cids": "586f51c579810ba857ceb616bb457b385fb2ff488a9e6d6c1ebb3c784f8b8f66",
+    "procedures": "32d3ab5983978713f59c7d743d65b826e816598b98ebece82bf8e01522bc0db1",
+    "relations": "2ee4b872119e0b732b4cbd7de9adac182f23e022c089ed943be489f0aaa33d4d"
   }
 }

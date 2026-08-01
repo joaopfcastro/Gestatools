@@ -6,7 +6,9 @@ import {
   SigtapProcedureRecord,
 } from '../types';
 import { useClinicalCodesCatalog } from '../hooks/useClinicalCodesCatalog';
+import { useRecentClinicalCodes } from '../hooks/useRecentClinicalCodes';
 import { searchCids, searchProcedures } from '../services/clinicalCodesCatalog';
+import { useShortcut } from '../hooks/useShortcut';
 import ClinicalCodeSearch from './clinical-codes/ClinicalCodeSearch';
 import ClinicalCodeResults from './clinical-codes/ClinicalCodeResults';
 import ClinicalCodeDetails from './clinical-codes/ClinicalCodeDetails';
@@ -17,6 +19,7 @@ type MobileCodesView = 'search' | 'detail';
 
 export default function ClinicalCodesPage() {
   const { catalog, status, error, reload } = useClinicalCodesCatalog();
+  const { recentCids, recentProcedures, recordAccess, clearHistory, isRecent } = useRecentClinicalCodes();
 
   const [mode, setMode] = useState<ClinicalCodeSearchMode>('cid');
   const [query, setQuery] = useState('');
@@ -64,7 +67,16 @@ export default function ClinicalCodesPage() {
     setMode('cid');
     setMobileView('search');
     scrollToTop();
+
+    setTimeout(() => {
+      if (inputRef.current) {
+        inputRef.current.focus();
+        inputRef.current.select?.();
+      }
+    }, 50);
   }, []);
+
+  useShortcut('l', handleClear);
 
   useEffect(() => {
     const onGlobalClear = () => {
@@ -83,6 +95,13 @@ export default function ClinicalCodesPage() {
       setSelectedProcedure(null);
       setMobileView('search');
       scrollToTop();
+
+      setTimeout(() => {
+        if (inputRef.current) {
+          inputRef.current.focus();
+          inputRef.current.select?.();
+        }
+      }, 50);
     }
   };
 
@@ -141,6 +160,8 @@ export default function ClinicalCodesPage() {
   const handleSelectCid = (item: Cid10Record) => {
     if (inputRef.current) inputRef.current.blur();
     setSelectedCid(item);
+    recordAccess('cid', item);
+
     if (mobileView !== 'detail') {
       if (typeof window !== 'undefined' && window.innerWidth < 1024) {
         window.history.pushState({ page: 'detail' }, '');
@@ -153,6 +174,8 @@ export default function ClinicalCodesPage() {
   const handleSelectProcedure = (item: SigtapProcedureRecord) => {
     if (inputRef.current) inputRef.current.blur();
     setSelectedProcedure(item);
+    recordAccess('procedure', item);
+
     if (mobileView !== 'detail') {
       if (typeof window !== 'undefined' && window.innerWidth < 1024) {
         window.history.pushState({ page: 'detail' }, '');
@@ -166,6 +189,7 @@ export default function ClinicalCodesPage() {
   const handleNavigateToProcedure = (proc: SigtapProcedureRecord) => {
     setMode('procedure');
     setSelectedProcedure(proc);
+    recordAccess('procedure', proc);
     setMobileView('detail');
     scrollToTop();
   };
@@ -173,6 +197,7 @@ export default function ClinicalCodesPage() {
   const handleNavigateToCid = (c: Cid10Record) => {
     setMode('cid');
     setSelectedCid(c);
+    recordAccess('cid', c);
     setMobileView('detail');
     scrollToTop();
   };
@@ -247,6 +272,10 @@ export default function ClinicalCodesPage() {
                 getRelationsCountForCid={getRelationsCountForCid}
                 getRelationsCountForProcedure={getRelationsCountForProcedure}
                 onSetExampleQuery={(q) => setQuery(q)}
+                recentCids={recentCids}
+                recentProcedures={recentProcedures}
+                onClearRecent={clearHistory}
+                isRecent={isRecent}
               />
             </div>
           ) : (
@@ -291,6 +320,10 @@ export default function ClinicalCodesPage() {
               getRelationsCountForCid={getRelationsCountForCid}
               getRelationsCountForProcedure={getRelationsCountForProcedure}
               onSetExampleQuery={(q) => setQuery(q)}
+              recentCids={recentCids}
+              recentProcedures={recentProcedures}
+              onClearRecent={clearHistory}
+              isRecent={isRecent}
             />
           </div>
 
@@ -313,3 +346,4 @@ export default function ClinicalCodesPage() {
     </div>
   );
 }
+

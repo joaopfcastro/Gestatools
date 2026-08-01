@@ -1,5 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Cid10Record, ClinicalCodeSearchMode, SigtapProcedureRecord } from '../../types';
+import {
+  Cid10Record,
+  ClinicalCodeSearchMode,
+  RecentClinicalCodeItem,
+  SigtapProcedureRecord,
+} from '../../types';
 import Icon from '../Icon';
 
 interface ClinicalCodeResultsProps {
@@ -14,6 +19,10 @@ interface ClinicalCodeResultsProps {
   getRelationsCountForCid: (code: string) => number;
   getRelationsCountForProcedure: (code: string) => number;
   onSetExampleQuery?: (q: string) => void;
+  recentCids?: RecentClinicalCodeItem[];
+  recentProcedures?: RecentClinicalCodeItem[];
+  onClearRecent?: (mode: ClinicalCodeSearchMode) => void;
+  isRecent?: (mode: ClinicalCodeSearchMode, code: string) => boolean;
 }
 
 const getInitialPageSize = () => {
@@ -35,6 +44,10 @@ export default function ClinicalCodeResults({
   getRelationsCountForCid,
   getRelationsCountForProcedure,
   onSetExampleQuery,
+  recentCids = [],
+  recentProcedures = [],
+  onClearRecent,
+  isRecent,
 }: ClinicalCodeResultsProps) {
   const [visibleCount, setVisibleCount] = useState(getInitialPageSize);
 
@@ -44,15 +57,107 @@ export default function ClinicalCodeResults({
 
   const trimmedQuery = query.trim();
 
-  // 1. Empty query state - Show compact instructions and examples
+  // 1. Empty query state - Show Recents (if any) or Instructions/Examples
   if (!trimmedQuery) {
+    const activeRecents = mode === 'cid' ? recentCids : recentProcedures;
+    const hasRecents = activeRecents.length > 0;
+
     const cidExamples = ['O80', 'O24', 'O14.1', 'PARTO', 'PRÉ-ECLÂMPSIA'];
     const procExamples = ['03.10.01.003-9', '04.11.01.003-4', '02.05.02.014-3', 'PARTO NORMAL', 'ULTRASSONOGRAFIA'];
-
     const activeExamples = mode === 'cid' ? cidExamples : procExamples;
 
     return (
-      <div className="pt-2 pb-1 space-y-3">
+      <div className="pt-2 pb-1 space-y-4">
+        {/* Recents Section if available */}
+        {hasRecents && (
+          <div className="space-y-2">
+            <div className="flex items-center justify-between px-1">
+              <div className="flex items-center gap-1.5 text-secondary">
+                <Icon name="history" className="text-[18px] text-primary" />
+                <span className="text-xs font-bold text-on-surface uppercase tracking-wider">
+                  Consultados recentemente
+                </span>
+              </div>
+              {onClearRecent && (
+                <button
+                  type="button"
+                  onClick={() => onClearRecent(mode)}
+                  className="text-[11px] font-semibold text-secondary hover:text-error transition-colors px-2 py-1 rounded-lg hover:bg-surface-variant cursor-pointer flex items-center gap-1"
+                  title="Limpar histórico recente desta aba"
+                >
+                  <Icon name="delete" className="text-[14px]" />
+                  Limpar
+                </button>
+              )}
+            </div>
+
+            <ul className="space-y-1.5" aria-label="Códigos consultados recentemente">
+              {activeRecents.map((rec) => {
+                const isCid = mode === 'cid';
+                const isSelected = isCid
+                  ? selectedCid?.code === rec.code
+                  : selectedProcedure?.code === rec.code;
+                const relCount = isCid
+                  ? getRelationsCountForCid(rec.code)
+                  : getRelationsCountForProcedure(rec.code);
+
+                return (
+                  <li key={rec.code}>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (isCid) {
+                          onSelectCid({
+                            code: rec.code,
+                            displayCode: rec.displayCode,
+                            description: rec.description,
+                            searchText: `${rec.code} ${rec.description}`,
+                          });
+                        } else {
+                          onSelectProcedure({
+                            code: rec.code,
+                            displayCode: rec.displayCode,
+                            name: rec.description,
+                            searchText: `${rec.code} ${rec.description}`,
+                          });
+                        }
+                      }}
+                      className={`w-full text-left p-2.5 rounded-xl transition-all cursor-pointer border flex items-center justify-between gap-3 min-h-[56px] min-w-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
+                        isSelected
+                          ? 'bg-primary/10 border-primary/40 shadow-xs'
+                          : 'bg-surface-variant/30 hover:bg-surface-variant/60 border-surface-variant/50'
+                      }`}
+                    >
+                      <div className="space-y-0.5 min-w-0 flex-1">
+                        <div className="flex items-center gap-1.5">
+                          <span className="font-mono font-bold text-xs px-2 py-0.5 rounded bg-primary/10 text-primary flex-shrink-0">
+                            {rec.displayCode}
+                          </span>
+                          <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-primary/10 text-primary flex items-center gap-1">
+                            <Icon name="schedule" className="text-[12px]" />
+                            Recente
+                          </span>
+                        </div>
+                        <p className="text-xs font-medium leading-snug line-clamp-1 text-on-surface min-w-0">
+                          {rec.description}
+                        </p>
+                      </div>
+
+                      <div className="flex items-center gap-1 flex-shrink-0 self-center">
+                        <span className="text-[11px] font-medium px-2 py-0.5 rounded-md bg-surface-variant/80 text-secondary">
+                          {relCount} {isCid ? (relCount === 1 ? 'proc.' : 'procs.') : (relCount === 1 ? 'CID' : 'CIDs')}
+                        </span>
+                        <Icon name="chevron_right" className="text-[16px] text-secondary" />
+                      </div>
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        )}
+
+        {/* Search Helper / Prompt */}
         <div className="flex items-center gap-2.5 px-1 text-on-surface">
           <div className="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center flex-shrink-0">
             <Icon name={mode === 'cid' ? 'medical_information' : 'clinical_notes'} className="text-[20px]" />
@@ -62,21 +167,23 @@ export default function ClinicalCodeResults({
               {mode === 'cid' ? 'Pesquisar diagnósticos CID-10' : 'Pesquisar procedimentos SIGTAP'}
             </h3>
             <p className="text-secondary text-[11px] leading-tight">
-              Pesquise pelo código ou pela descrição oficial.
+              Pesquise pelo código oficial ou por palavras do nome.
             </p>
           </div>
         </div>
 
         {onSetExampleQuery && (
           <div className="space-y-1.5 pt-1">
-            <span className="text-[11px] font-semibold text-secondary block pl-1 uppercase tracking-wider">Exemplos de busca:</span>
+            <span className="text-[11px] font-semibold text-secondary block pl-1 uppercase tracking-wider">
+              Exemplos rápidos:
+            </span>
             <div className="flex flex-wrap gap-1.5">
               {activeExamples.map((ex) => (
                 <button
                   key={ex}
                   type="button"
                   onClick={() => onSetExampleQuery(ex)}
-                  className="min-h-[40px] px-3 rounded-xl bg-surface-variant/70 hover:bg-primary/15 hover:text-primary dark:bg-white/10 dark:hover:bg-primary/25 text-xs font-semibold text-on-surface transition-all cursor-pointer border border-surface-variant/50 flex items-center justify-center active:scale-95"
+                  className="min-h-[38px] px-3 rounded-xl bg-surface-variant/70 hover:bg-primary/15 hover:text-primary text-xs font-semibold text-on-surface transition-all cursor-pointer border border-surface-variant/50 flex items-center justify-center active:scale-95"
                 >
                   {ex}
                 </button>
@@ -110,6 +217,7 @@ export default function ClinicalCodeResults({
           {items.map((item) => {
             const isSelected = selectedCid?.code === item.code;
             const relCount = getRelationsCountForCid(item.code);
+            const isRecentlyAccessed = isRecent ? isRecent('cid', item.code) : false;
 
             return (
               <li key={item.code}>
@@ -124,13 +232,19 @@ export default function ClinicalCodeResults({
                   aria-selected={isSelected}
                 >
                   <div className="space-y-1 min-w-0 flex-1">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-wrap">
                       <span className="font-mono font-bold text-xs md:text-sm px-2 py-0.5 rounded-md bg-primary/10 text-primary dark:bg-primary/20 flex-shrink-0">
                         {item.displayCode}
                       </span>
                       <span className="text-[10px] font-semibold tracking-wider uppercase px-1.5 py-0.5 rounded bg-surface-variant text-secondary flex-shrink-0">
                         CID-10
                       </span>
+                      {isRecentlyAccessed && (
+                        <span className="text-[10px] font-semibold tracking-wider uppercase px-1.5 py-0.5 rounded bg-primary/15 text-primary flex items-center gap-1 flex-shrink-0">
+                          <Icon name="history" className="text-[11px]" />
+                          Recente
+                        </span>
+                      )}
                     </div>
                     <p className="text-xs md:text-sm font-medium leading-snug line-clamp-3 text-on-surface min-w-0">
                       {item.description}
@@ -183,6 +297,7 @@ export default function ClinicalCodeResults({
         {items.map((item) => {
           const isSelected = selectedProcedure?.code === item.code;
           const relCount = getRelationsCountForProcedure(item.code);
+          const isRecentlyAccessed = isRecent ? isRecent('procedure', item.code) : false;
 
           return (
             <li key={item.code}>
@@ -197,13 +312,19 @@ export default function ClinicalCodeResults({
                 aria-selected={isSelected}
               >
                 <div className="space-y-1 min-w-0 flex-1">
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 flex-wrap">
                     <span className="font-mono font-bold text-xs md:text-sm px-2 py-0.5 rounded-md bg-primary/10 text-primary dark:bg-primary/20 flex-shrink-0">
                       {item.displayCode}
                     </span>
                     <span className="text-[10px] font-semibold tracking-wider uppercase px-1.5 py-0.5 rounded bg-surface-variant text-secondary flex-shrink-0">
                       SIGTAP
                     </span>
+                    {isRecentlyAccessed && (
+                      <span className="text-[10px] font-semibold tracking-wider uppercase px-1.5 py-0.5 rounded bg-primary/15 text-primary flex items-center gap-1 flex-shrink-0">
+                        <Icon name="history" className="text-[11px]" />
+                        Recente
+                      </span>
+                    )}
                   </div>
                   <p className="text-xs md:text-sm font-semibold leading-snug line-clamp-3 text-on-surface min-w-0">
                     {item.name}
@@ -234,3 +355,4 @@ export default function ClinicalCodeResults({
     </div>
   );
 }
+

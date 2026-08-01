@@ -15,6 +15,8 @@ interface AfiCalculatorProps {
 
 export default function AfiCalculator({ onSaveRecord }: AfiCalculatorProps) {
   const formRef = useRef<HTMLFormElement>(null);
+  const q1InputRef = useRef<HTMLInputElement>(null);
+  const mbvInputRef = useRef<HTMLInputElement>(null);
 
   useShortcut('Enter', () => {
     if (formRef.current) {
@@ -24,6 +26,18 @@ export default function AfiCalculator({ onSaveRecord }: AfiCalculatorProps) {
 
   const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
     e.target.scrollIntoView({ block: 'center', behavior: 'smooth' });
+  };
+
+  const focusInput = (isMbv: boolean = onlyMbv) => {
+    setTimeout(() => {
+      if (isMbv && mbvInputRef.current) {
+        mbvInputRef.current.focus();
+        mbvInputRef.current.select?.();
+      } else if (!isMbv && q1InputRef.current) {
+        q1InputRef.current.focus();
+        q1InputRef.current.select?.();
+      }
+    }, 50);
   };
 
   // Input Quadrants (in cm)
@@ -72,6 +86,8 @@ export default function AfiCalculator({ onSaveRecord }: AfiCalculatorProps) {
     setResult(null);
     setErrorMessage('');
     setMobileView('inputs');
+
+    focusInput(false);
   };
 
   useShortcut('l', handleReset);
@@ -260,7 +276,7 @@ export default function AfiCalculator({ onSaveRecord }: AfiCalculatorProps) {
             <div className="ios-toggle-bg p-1 rounded-2xl grid grid-cols-2 w-full border border-surface-variant shadow-xs bg-white dark:bg-black mb-1">
               <button
                 type="button"
-                onClick={() => { triggerHaptic(15); setOnlyMbv(false); setResult(null); }}
+                onClick={() => { triggerHaptic(15); setOnlyMbv(false); setResult(null); focusInput(false); }}
                 className={`py-2 px-1 text-xs font-bold rounded-xl cursor-pointer transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary min-h-[44px] flex items-center justify-center text-center leading-tight whitespace-normal break-words min-w-0 ${
                   !onlyMbv
                     ? 'bg-surface text-on-surface shadow-xs border border-surface-variant'
@@ -271,7 +287,7 @@ export default function AfiCalculator({ onSaveRecord }: AfiCalculatorProps) {
               </button>
               <button
                 type="button"
-                onClick={() => { triggerHaptic(15); setOnlyMbv(true); setResult(null); }}
+                onClick={() => { triggerHaptic(15); setOnlyMbv(true); setResult(null); focusInput(true); }}
                 className={`py-2 px-1 text-xs font-bold rounded-xl cursor-pointer transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary min-h-[44px] flex items-center justify-center text-center leading-tight whitespace-normal break-words min-w-0 ${
                   onlyMbv
                     ? 'bg-surface text-on-surface shadow-xs border border-surface-variant'
@@ -300,6 +316,7 @@ export default function AfiCalculator({ onSaveRecord }: AfiCalculatorProps) {
                         Quadrante 1 (cm)
                       </label>
                       <input 
+                        ref={q1InputRef}
                         id="q1-input"
                         type="number"
                         min="0"
@@ -380,6 +397,7 @@ export default function AfiCalculator({ onSaveRecord }: AfiCalculatorProps) {
                       Maior Bolso Vertical - MBV (cm)
                     </label>
                     <input 
+                      ref={mbvInputRef}
                       id="mbv-input"
                       type="number"
                       min="0"

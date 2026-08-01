@@ -1,11 +1,11 @@
-import React from 'react';
+import React, { forwardRef } from 'react';
 
 interface DateInputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'value' | 'onChange'> {
   value: string;
   onChange: (value: string) => void;
 }
 
-export default function DateInput({ value, onChange, ...props }: DateInputProps) {
+const DateInput = forwardRef<HTMLInputElement, DateInputProps>(({ value, onChange, ...props }, ref) => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let raw = e.target.value.replace(/\D/g, '');
     if (raw.length > 8) {
@@ -24,6 +24,7 @@ export default function DateInput({ value, onChange, ...props }: DateInputProps)
 
   return (
     <input 
+      ref={ref}
       type="text"
       inputMode="numeric"
       placeholder="DD/MM/AAAA"
@@ -32,4 +33,8 @@ export default function DateInput({ value, onChange, ...props }: DateInputProps)
       {...props}
     />
   );
-}
+});
+
+DateInput.displayName = 'DateInput';
+
+export default DateInput;

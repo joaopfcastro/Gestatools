@@ -19,6 +19,7 @@ type CurveType = 'hadlock' | 'barcelona';
 
 export default function PercentileCalculator({ onSaveRecord }: PercentileCalculatorProps) {
   const formRef = useRef<HTMLFormElement>(null);
+  const weeksInputRef = useRef<HTMLInputElement>(null);
 
   useShortcut('Enter', () => {
     if (formRef.current) {
@@ -87,6 +88,13 @@ export default function PercentileCalculator({ onSaveRecord }: PercentileCalcula
     setResult(null);
     setErrorMessage('');
     setMobileView('inputs');
+
+    setTimeout(() => {
+      if (weeksInputRef.current) {
+        weeksInputRef.current.focus();
+        weeksInputRef.current.select?.();
+      }
+    }, 50);
   };
 
   useShortcut('l', handleReset);
@@ -369,6 +377,7 @@ export default function PercentileCalculator({ onSaveRecord }: PercentileCalcula
                     IG (Semanas)
                   </label>
                   <input 
+                    ref={weeksInputRef}
                     id="ga-weeks"
                     type="number"
                     min="20"

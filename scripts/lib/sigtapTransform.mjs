@@ -155,12 +155,19 @@ export function transformRelationRecords(rawRelations, validCidsSet, validProced
   return relations;
 }
 
-export function createManifest(competence, counts, basePath = `/data/clinical-codes/${competence}`) {
+export function createManifest(
+  competence,
+  counts,
+  basePath = `/data/clinical-codes/${competence}`,
+  sourceFiles = [],
+  hashes = undefined,
+  sizes = undefined
+) {
   const mm = competence.slice(4, 6);
   const yyyy = competence.slice(0, 4);
 
-  return {
-    schemaVersion: 1,
+  const manifest = {
+    schemaVersion: 2,
     competence,
     competenceLabel: `${mm}/${yyyy}`,
     generatedAt: new Date().toISOString(),
@@ -173,4 +180,17 @@ export function createManifest(competence, counts, basePath = `/data/clinical-co
       relations: 'relations.json',
     },
   };
+
+  if (sourceFiles && sourceFiles.length > 0) {
+    manifest.sourceFiles = sourceFiles;
+  }
+  if (sizes) {
+    manifest.sizes = sizes;
+  }
+  if (hashes) {
+    manifest.hashes = hashes;
+  }
+
+  return manifest;
 }
+

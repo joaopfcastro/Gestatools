@@ -19,6 +19,9 @@ type UsgCalcMode = 'report' | 'biometry_1t' | 'biometry_23t';
 
 export default function UsgCalculator({ onSaveRecord }: UsgCalculatorProps) {
   const formRef = useRef<HTMLFormElement>(null);
+  const reportWeeksInputRef = useRef<HTMLInputElement>(null);
+  const ccnInputRef = useRef<HTMLInputElement>(null);
+  const bpdInputRef = useRef<HTMLInputElement>(null);
 
   useShortcut('Enter', () => {
     if (formRef.current) {
@@ -31,6 +34,21 @@ export default function UsgCalculator({ onSaveRecord }: UsgCalculatorProps) {
   };
 
   const [calcMode, setCalcMode] = useState<UsgCalcMode>('report');
+
+  const focusCurrentInput = (targetMode: UsgCalcMode = calcMode) => {
+    setTimeout(() => {
+      if (targetMode === 'report' && reportWeeksInputRef.current) {
+        reportWeeksInputRef.current.focus();
+        reportWeeksInputRef.current.select?.();
+      } else if (targetMode === 'biometry_1t' && ccnInputRef.current) {
+        ccnInputRef.current.focus();
+        ccnInputRef.current.select?.();
+      } else if (targetMode === 'biometry_23t' && bpdInputRef.current) {
+        bpdInputRef.current.focus();
+        bpdInputRef.current.select?.();
+      }
+    }, 50);
+  };
   
   // Mode 1: Report inputs
   const [reportWeeks, setReportWeeks] = useState<number | "">(12);
@@ -109,6 +127,7 @@ export default function UsgCalculator({ onSaveRecord }: UsgCalculatorProps) {
     setErrorMessage('');
     setResult(null);
     setMobileView('inputs');
+    focusCurrentInput('report');
   };
 
   useShortcut('l', handleReset);
@@ -371,7 +390,7 @@ export default function UsgCalculator({ onSaveRecord }: UsgCalculatorProps) {
             <div className="ios-toggle-bg p-1 rounded-2xl grid grid-cols-3 w-full border border-surface-variant shadow-xs bg-white dark:bg-black mb-1">
               <button
                 type="button"
-                onClick={() => { triggerHaptic(15); setCalcMode('report'); setResult(null); setErrorMessage(''); }}
+                onClick={() => { triggerHaptic(15); setCalcMode('report'); setResult(null); setErrorMessage(''); focusCurrentInput('report'); }}
                 className={`py-2 px-1 text-[11px] sm:text-xs font-bold rounded-xl cursor-pointer transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary min-h-[44px] flex items-center justify-center text-center leading-tight whitespace-normal break-words min-w-0 ${
                   calcMode === 'report'
                     ? 'bg-surface text-on-surface shadow-xs border border-surface-variant'
@@ -382,7 +401,7 @@ export default function UsgCalculator({ onSaveRecord }: UsgCalculatorProps) {
               </button>
               <button
                 type="button"
-                onClick={() => { triggerHaptic(15); setCalcMode('biometry_1t'); setResult(null); setErrorMessage(''); }}
+                onClick={() => { triggerHaptic(15); setCalcMode('biometry_1t'); setResult(null); setErrorMessage(''); focusCurrentInput('biometry_1t'); }}
                 className={`py-2 px-1 text-[11px] sm:text-xs font-bold rounded-xl cursor-pointer transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary min-h-[44px] flex items-center justify-center text-center leading-tight whitespace-normal break-words min-w-0 ${
                   calcMode === 'biometry_1t'
                     ? 'bg-surface text-on-surface shadow-xs border border-surface-variant'
@@ -393,7 +412,7 @@ export default function UsgCalculator({ onSaveRecord }: UsgCalculatorProps) {
               </button>
               <button
                 type="button"
-                onClick={() => { triggerHaptic(15); setCalcMode('biometry_23t'); setResult(null); setErrorMessage(''); }}
+                onClick={() => { triggerHaptic(15); setCalcMode('biometry_23t'); setResult(null); setErrorMessage(''); focusCurrentInput('biometry_23t'); }}
                 className={`py-2 px-1 text-[11px] sm:text-xs font-bold rounded-xl cursor-pointer transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary min-h-[44px] flex items-center justify-center text-center leading-tight whitespace-normal break-words min-w-0 ${
                   calcMode === 'biometry_23t'
                     ? 'bg-surface text-on-surface shadow-xs border border-surface-variant'
@@ -421,6 +440,7 @@ export default function UsgCalculator({ onSaveRecord }: UsgCalculatorProps) {
                         IG (Semanas)
                       </label>
                       <input 
+                        ref={reportWeeksInputRef}
                         id="report-weeks"
                         type="number"
                         min="3"
@@ -470,6 +490,7 @@ export default function UsgCalculator({ onSaveRecord }: UsgCalculatorProps) {
                     />
                   </div>
                   <input 
+                    ref={ccnInputRef}
                     id="ccn-input"
                     type="number"
                     min="1"
@@ -499,6 +520,7 @@ export default function UsgCalculator({ onSaveRecord }: UsgCalculatorProps) {
                         DBP (mm)
                       </label>
                       <input 
+                        ref={bpdInputRef}
                         id="bpd-input"
                         type="number"
                         min="0"

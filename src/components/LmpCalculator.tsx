@@ -18,6 +18,7 @@ interface LmpCalculatorProps {
 
 export default function LmpCalculator({ onSaveRecord, defaultCycleLength }: LmpCalculatorProps) {
   const formRef = useRef<HTMLFormElement>(null);
+  const dumInputRef = useRef<HTMLInputElement>(null);
   
   useShortcut('Enter', () => {
     if (formRef.current) {
@@ -88,6 +89,13 @@ export default function LmpCalculator({ onSaveRecord, defaultCycleLength }: LmpC
     setShimmer(false);
     setErrorMessage('');
     setMobileView('inputs');
+
+    setTimeout(() => {
+      if (dumInputRef.current) {
+        dumInputRef.current.focus();
+        dumInputRef.current.select?.();
+      }
+    }, 50);
   };
 
   useShortcut('l', handleReset);
@@ -290,6 +298,7 @@ export default function LmpCalculator({ onSaveRecord, defaultCycleLength }: LmpC
                   />
                 </div>
                 <DateInput
+                  ref={dumInputRef}
                   id="dum-date"
                   required
                   enterKeyHint="next"

@@ -1,11 +1,25 @@
 export type TabType = 'usg' | 'dum' | 'peso' | 'ila' | 'codes';
 
 export type ClinicalCodeSearchMode = 'cid' | 'procedure';
+export type ClinicalCodeMode = ClinicalCodeSearchMode;
 
 export type CidProcedureRelationType =
   | 'principal'
   | 'secondary'
   | 'unspecified';
+
+export interface RecentClinicalCodeItem {
+  code: string;
+  displayCode: string;
+  description: string;
+  accessedAt: string;
+}
+
+export interface RecentClinicalCodesState {
+  version: number;
+  cids: RecentClinicalCodeItem[];
+  procedures: RecentClinicalCodeItem[];
+}
 
 export interface ClinicalCodesManifest {
   schemaVersion: number;
@@ -14,10 +28,21 @@ export interface ClinicalCodesManifest {
   generatedAt: string;
   source: string;
   basePath: string;
+  sourceFiles?: string[];
   counts: {
     cids: number;
     procedures: number;
     relations: number;
+  };
+  sizes?: {
+    cids: number;
+    procedures: number;
+    relations: number;
+  };
+  hashes?: {
+    cids: string;
+    procedures: string;
+    relations: string;
   };
   files: {
     cids: string;
