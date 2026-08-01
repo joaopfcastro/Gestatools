@@ -15,7 +15,7 @@ export default function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
   ];
 
   return (
-    <nav className="glass-nav text-on-surface font-body-lg hidden md:flex flex-col h-[calc(var(--vv-height,100dvh)-56px)] w-sidebar-tablet min-[1366px]:w-sidebar-desktop fixed left-0 top-[calc(48px+env(safe-area-inset-top))] md:top-[calc(56px+env(safe-area-inset-top))] overflow-y-auto z-40">
+    <nav className="app-sidebar glass-nav text-on-surface font-body-lg hidden md:flex flex-col h-[calc(var(--vv-height,100dvh)-56px)] fixed left-0 top-[calc(48px+env(safe-area-inset-top))] md:top-[calc(56px+env(safe-area-inset-top))] overflow-y-auto z-40">
       <div className="p-4 min-[1366px]:p-6 mb-1 min-[1366px]:mb-2">
         <h2 className="font-label-caps text-label-caps font-semibold text-on-surface-variant uppercase tracking-wider text-[11px] min-[1366px]:text-xs">
           Calculadoras

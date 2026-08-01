@@ -58,8 +58,6 @@
   --spacing-stack-lg: 48px;
   --spacing-gutter: 24px;
   --spacing-margin-mobile: 24px;
-  --spacing-sidebar-tablet: 224px;
-  --spacing-sidebar-desktop: 18rem;
 
   --font-body-sm: "Inter", "SF Pro Text", system-ui, sans-serif;
   --font-body-lg: "Inter", "SF Pro Text", system-ui, sans-serif;
@@ -467,4 +465,24 @@ body.dark {
 }
 .dark .ios-input::placeholder, .dark .clinical-input::placeholder {
   color: #9ca3af;
+}
+
+@media (min-width: 768px) {
+  .app-sidebar {
+    width: var(--sidebar-width-tablet);
+  }
+
+  .app-main {
+    margin-left: var(--sidebar-width-tablet);
+  }
+}
+
+@media (min-width: 1366px) {
+  .app-sidebar {
+    width: var(--sidebar-width-desktop);
+  }
+
+  .app-main {
+    margin-left: var(--sidebar-width-desktop);
+  }
 }
