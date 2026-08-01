@@ -10,6 +10,7 @@ import { useShortcut } from '../hooks/useShortcut';
 import DateInput from './DateInput';
 import GestationalMilestones from './GestationalMilestones';
 import { triggerHaptic } from '../utils/haptics';
+import CalculatorActionBar from './CalculatorActionBar';
 
 interface UsgCalculatorProps {
   onSaveRecord: (record: Omit<HistoryRecord, 'id' | 'date'>) => void;
@@ -385,7 +386,7 @@ export default function UsgCalculator({ onSaveRecord }: UsgCalculatorProps) {
             result && mobileView !== 'inputs' ? 'hidden min-[1024px]:flex' : 'flex'
           }`}
         >
-          <form ref={formRef} onSubmit={handleCalculate} noValidate className="glass-panel p-3.5 sm:p-5 min-[1024px]:p-6 min-[1366px]:p-8 rounded-[1.25rem] md:rounded-[2rem] flex flex-col justify-start min-[1366px]:justify-between gap-3 sm:gap-4 shadow-xs h-auto min-[1366px]:h-full relative pb-16 min-[1024px]:pb-6">
+          <form ref={formRef} onSubmit={handleCalculate} noValidate className="glass-panel p-3.5 sm:p-5 min-[1024px]:p-6 min-[1366px]:p-8 rounded-[1.25rem] md:rounded-[2rem] flex flex-col justify-start min-[1366px]:justify-between gap-3 sm:gap-4 shadow-xs h-auto min-[1366px]:h-full relative pb-16 min-[1024px]:pb-6 min-[1366px]:pb-8">
             {/* Calculation Mode Tabs */}
             <div className="ios-toggle-bg p-1 rounded-2xl grid grid-cols-3 w-full border border-surface-variant shadow-xs bg-white dark:bg-black mb-1">
               <button
@@ -622,15 +623,7 @@ export default function UsgCalculator({ onSaveRecord }: UsgCalculatorProps) {
               />
             </div>
 
-            <div className="sticky bottom-0 min-[1024px]:static z-20 pt-3 pb-1 -mx-3.5 sm:-mx-5 min-[1024px]:-mx-6 px-3.5 sm:px-5 min-[1024px]:px-6 -mb-3.5 sm:-mb-5 min-[1024px]:-mb-6 mt-4 min-[1024px]:m-0 min-[1024px]:p-0 backdrop-blur-md bg-white/90 dark:bg-[#1C1C1E]/90 border-t border-black/5 dark:border-white/10 min-[1024px]:border-none min-[1024px]:bg-transparent min-[1024px]:backdrop-blur-none shadow-lg min-[1024px]:shadow-none transition-all rounded-b-[1.25rem] min-[1024px]:rounded-none">
-              <button
-                type="submit"
-                className="calc-btn h-12 min-h-[48px] w-full bg-primary hover:bg-primary/90 text-white font-bold text-[17px] md:text-[18px] rounded-xl shadow-md shadow-primary/25 active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center gap-2"
-              >
-                <Icon name="calculate" className="text-[22px]" />
-                Calcular
-              </button>
-            </div>
+            <CalculatorActionBar label="Calcular" />
           </form>
         </motion.div>
 
