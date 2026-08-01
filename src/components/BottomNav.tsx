@@ -13,10 +13,11 @@ export default function BottomNav({ activeTab, setActiveTab }: BottomNavProps) {
     { id: 'usg' as TabType, label: 'USG', icon: 'monitor_heart' },
     { id: 'peso' as TabType, label: 'Peso', icon: 'monitor_weight' },
     { id: 'ila' as TabType, label: 'ILA', icon: 'water_drop' },
+    { id: 'codes' as TabType, label: 'Códigos', icon: 'clinical_notes' },
   ];
 
   return (
-    <nav className="glass-nav-bottom text-on-surface fixed bottom-0 w-full z-50 md:hidden flex justify-evenly items-center h-[calc(60px+env(safe-area-inset-bottom))] pb-[env(safe-area-inset-bottom)] px-2">
+    <nav className="glass-nav-bottom text-on-surface fixed bottom-0 w-full z-50 md:hidden flex justify-evenly items-center h-[calc(60px+env(safe-area-inset-bottom))] pb-[env(safe-area-inset-bottom)] px-1">
       {menuItems.map((item) => {
         const isActive = activeTab === item.id;
         return (
@@ -26,7 +27,7 @@ export default function BottomNav({ activeTab, setActiveTab }: BottomNavProps) {
               triggerHaptic(15);
               setActiveTab(item.id);
             }}
-            className={`nav-btn flex flex-col items-center justify-center rounded-xl px-2 py-1 flex-1 max-w-[88px] h-[50px] transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
+            className={`nav-btn flex flex-col items-center justify-center rounded-xl px-1 py-1 flex-1 min-w-0 h-[50px] transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
               isActive
                 ? 'bg-primary/10 text-primary font-bold shadow-xs'
                 : 'text-secondary hover:text-primary active:bg-surface-variant/40'
@@ -37,9 +38,9 @@ export default function BottomNav({ activeTab, setActiveTab }: BottomNavProps) {
             <Icon
               name={item.icon}
               filled={isActive}
-              className={`icon-nav ${isActive ? 'text-primary' : 'text-secondary'} text-[22px]`}
+              className={`icon-nav ${isActive ? 'text-primary' : 'text-secondary'} text-[20px] min-[390px]:text-[22px]`}
             />
-            <span className={`text-[11px] leading-tight truncate w-full text-center mt-0.5 ${isActive ? 'font-bold text-primary' : 'font-semibold'}`}>
+            <span className={`text-[10px] min-[390px]:text-[11px] leading-tight truncate w-full text-center mt-0.5 ${isActive ? 'font-bold text-primary' : 'font-semibold'}`}>
               {item.label}
             </span>
           </button>

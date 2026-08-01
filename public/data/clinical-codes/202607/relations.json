@@ -1,0 +1,357 @@
+[
+  {
+    "cidCode": "N390",
+    "procedureCode": "0202050158",
+    "relationType": "principal"
+  },
+  {
+    "cidCode": "O03",
+    "procedureCode": "0411020013",
+    "relationType": "principal"
+  },
+  {
+    "cidCode": "O03",
+    "procedureCode": "0411020021",
+    "relationType": "principal"
+  },
+  {
+    "cidCode": "O04",
+    "procedureCode": "0411020013",
+    "relationType": "principal"
+  },
+  {
+    "cidCode": "O05",
+    "procedureCode": "0411020013",
+    "relationType": "principal"
+  },
+  {
+    "cidCode": "O06",
+    "procedureCode": "0411020013",
+    "relationType": "principal"
+  },
+  {
+    "cidCode": "O14",
+    "procedureCode": "0411010042",
+    "relationType": "principal"
+  },
+  {
+    "cidCode": "O141",
+    "procedureCode": "0301060061",
+    "relationType": "principal"
+  },
+  {
+    "cidCode": "O141",
+    "procedureCode": "0411010042",
+    "relationType": "principal"
+  },
+  {
+    "cidCode": "O15",
+    "procedureCode": "0411010042",
+    "relationType": "principal"
+  },
+  {
+    "cidCode": "O150",
+    "procedureCode": "0301060061",
+    "relationType": "principal"
+  },
+  {
+    "cidCode": "O150",
+    "procedureCode": "0411010042",
+    "relationType": "principal"
+  },
+  {
+    "cidCode": "O200",
+    "procedureCode": "0411020021",
+    "relationType": "principal"
+  },
+  {
+    "cidCode": "O420",
+    "procedureCode": "0301060061",
+    "relationType": "principal"
+  },
+  {
+    "cidCode": "O441",
+    "procedureCode": "0411010042",
+    "relationType": "principal"
+  },
+  {
+    "cidCode": "O45",
+    "procedureCode": "0411010042",
+    "relationType": "principal"
+  },
+  {
+    "cidCode": "O459",
+    "procedureCode": "0411010042",
+    "relationType": "principal"
+  },
+  {
+    "cidCode": "O600",
+    "procedureCode": "0301060061",
+    "relationType": "principal"
+  },
+  {
+    "cidCode": "O70",
+    "procedureCode": "0411010050",
+    "relationType": "principal"
+  },
+  {
+    "cidCode": "O700",
+    "procedureCode": "0411010050",
+    "relationType": "principal"
+  },
+  {
+    "cidCode": "O701",
+    "procedureCode": "0411010050",
+    "relationType": "principal"
+  },
+  {
+    "cidCode": "O720",
+    "procedureCode": "0301060061",
+    "relationType": "principal"
+  },
+  {
+    "cidCode": "O80",
+    "procedureCode": "0310010039",
+    "relationType": "principal"
+  },
+  {
+    "cidCode": "O80",
+    "procedureCode": "0310010047",
+    "relationType": "principal"
+  },
+  {
+    "cidCode": "O80",
+    "procedureCode": "0310010055",
+    "relationType": "principal"
+  },
+  {
+    "cidCode": "O800",
+    "procedureCode": "0310010039",
+    "relationType": "principal"
+  },
+  {
+    "cidCode": "O801",
+    "procedureCode": "0310010039",
+    "relationType": "principal"
+  },
+  {
+    "cidCode": "O808",
+    "procedureCode": "0310010039",
+    "relationType": "principal"
+  },
+  {
+    "cidCode": "O809",
+    "procedureCode": "0310010039",
+    "relationType": "principal"
+  },
+  {
+    "cidCode": "O81",
+    "procedureCode": "0310010012",
+    "relationType": "principal"
+  },
+  {
+    "cidCode": "O810",
+    "procedureCode": "0310010012",
+    "relationType": "principal"
+  },
+  {
+    "cidCode": "O814",
+    "procedureCode": "0310010012",
+    "relationType": "principal"
+  },
+  {
+    "cidCode": "O82",
+    "procedureCode": "0411010034",
+    "relationType": "principal"
+  },
+  {
+    "cidCode": "O820",
+    "procedureCode": "0411010034",
+    "relationType": "principal"
+  },
+  {
+    "cidCode": "O821",
+    "procedureCode": "0411010034",
+    "relationType": "principal"
+  },
+  {
+    "cidCode": "O828",
+    "procedureCode": "0411010034",
+    "relationType": "principal"
+  },
+  {
+    "cidCode": "O829",
+    "procedureCode": "0411010034",
+    "relationType": "principal"
+  },
+  {
+    "cidCode": "Z321",
+    "procedureCode": "0205020186",
+    "relationType": "principal"
+  },
+  {
+    "cidCode": "Z34",
+    "procedureCode": "0202010317",
+    "relationType": "principal"
+  },
+  {
+    "cidCode": "Z34",
+    "procedureCode": "0202010503",
+    "relationType": "principal"
+  },
+  {
+    "cidCode": "Z34",
+    "procedureCode": "0202030300",
+    "relationType": "principal"
+  },
+  {
+    "cidCode": "Z34",
+    "procedureCode": "0202030326",
+    "relationType": "principal"
+  },
+  {
+    "cidCode": "Z34",
+    "procedureCode": "0202050018",
+    "relationType": "principal"
+  },
+  {
+    "cidCode": "Z34",
+    "procedureCode": "0205020143",
+    "relationType": "principal"
+  },
+  {
+    "cidCode": "Z34",
+    "procedureCode": "0301010072",
+    "relationType": "principal"
+  },
+  {
+    "cidCode": "Z340",
+    "procedureCode": "0205020143",
+    "relationType": "principal"
+  },
+  {
+    "cidCode": "Z340",
+    "procedureCode": "0205020160",
+    "relationType": "principal"
+  },
+  {
+    "cidCode": "Z340",
+    "procedureCode": "0301010072",
+    "relationType": "principal"
+  },
+  {
+    "cidCode": "Z348",
+    "procedureCode": "0205020143",
+    "relationType": "principal"
+  },
+  {
+    "cidCode": "Z348",
+    "procedureCode": "0301010072",
+    "relationType": "principal"
+  },
+  {
+    "cidCode": "Z349",
+    "procedureCode": "0205020143",
+    "relationType": "principal"
+  },
+  {
+    "cidCode": "Z349",
+    "procedureCode": "0301010072",
+    "relationType": "principal"
+  },
+  {
+    "cidCode": "Z35",
+    "procedureCode": "0205020151",
+    "relationType": "principal"
+  },
+  {
+    "cidCode": "Z35",
+    "procedureCode": "0205020160",
+    "relationType": "principal"
+  },
+  {
+    "cidCode": "Z35",
+    "procedureCode": "0301010048",
+    "relationType": "principal"
+  },
+  {
+    "cidCode": "Z358",
+    "procedureCode": "0205020151",
+    "relationType": "principal"
+  },
+  {
+    "cidCode": "Z358",
+    "procedureCode": "0301010048",
+    "relationType": "principal"
+  },
+  {
+    "cidCode": "Z390",
+    "procedureCode": "0301010129",
+    "relationType": "principal"
+  },
+  {
+    "cidCode": "Z392",
+    "procedureCode": "0301010129",
+    "relationType": "principal"
+  },
+  {
+    "cidCode": "A530",
+    "procedureCode": "0202030326",
+    "relationType": "secondary"
+  },
+  {
+    "cidCode": "B20",
+    "procedureCode": "0202030300",
+    "relationType": "secondary"
+  },
+  {
+    "cidCode": "O141",
+    "procedureCode": "0205020151",
+    "relationType": "secondary"
+  },
+  {
+    "cidCode": "O200",
+    "procedureCode": "0205020186",
+    "relationType": "secondary"
+  },
+  {
+    "cidCode": "O24",
+    "procedureCode": "0411010042",
+    "relationType": "secondary"
+  },
+  {
+    "cidCode": "O244",
+    "procedureCode": "0202010317",
+    "relationType": "secondary"
+  },
+  {
+    "cidCode": "O244",
+    "procedureCode": "0411010042",
+    "relationType": "secondary"
+  },
+  {
+    "cidCode": "O268",
+    "procedureCode": "0205020143",
+    "relationType": "secondary"
+  },
+  {
+    "cidCode": "O363",
+    "procedureCode": "0205020151",
+    "relationType": "secondary"
+  },
+  {
+    "cidCode": "O365",
+    "procedureCode": "0205020151",
+    "relationType": "secondary"
+  },
+  {
+    "cidCode": "O40",
+    "procedureCode": "0205020143",
+    "relationType": "secondary"
+  },
+  {
+    "cidCode": "O410",
+    "procedureCode": "0205020143",
+    "relationType": "secondary"
+  }
+]

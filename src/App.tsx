@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { TabType, HistoryRecord, AppSettings } from './types';
 import Sidebar from './components/Sidebar';
 import BottomNav from './components/BottomNav';
@@ -6,7 +6,10 @@ import LmpCalculator from './components/LmpCalculator';
 import UsgCalculator from './components/UsgCalculator';
 import PercentileCalculator from './components/PercentileCalculator';
 import AfiCalculator from './components/AfiCalculator';
+import ClinicalCodesSkeleton from './components/clinical-codes/ClinicalCodesSkeleton';
 import HistoryPanel from './components/HistoryPanel';
+
+const ClinicalCodesPage = lazy(() => import('./components/ClinicalCodesPage'));
 import SettingsPanel from './components/SettingsPanel';
 import Icon from './components/Icon';
 import { motion, AnimatePresence } from 'motion/react';
@@ -278,11 +281,20 @@ export default function App() {
             {activeTab === 'ila' && (
               <AfiCalculator onSaveRecord={handleSaveRecord} />
             )}
+            {activeTab === 'codes' && (
+              <Suspense fallback={<ClinicalCodesSkeleton />}>
+                <ClinicalCodesPage />
+              </Suspense>
+            )}
           </div>
 
           {/* Disclaimer Footer */}
           <footer className="hidden md:flex text-secondary text-[11px] w-full py-4 px-3 md:px-margin-desktop mt-auto relative z-10 md:flex-row justify-between items-center text-center gap-2 max-w-7xl mx-auto opacity-70">
-            <p className="font-semibold text-on-surface hidden md:block">Ferramenta destinada exclusivamente a apoio de decisão clínica.</p>
+            <p className="font-semibold text-on-surface hidden md:block">
+              {activeTab === 'codes'
+                ? 'Fonte dos dados: SIGTAP/DATASUS — Competência 07/2026.'
+                : 'Ferramenta destinada exclusivamente a apoio de decisão clínica.'}
+            </p>
             <div className="flex gap-4 md:gap-6 justify-center">
               <button onClick={() => setIsSettingsOpen(true)} className="hover:text-primary transition-colors cursor-pointer text-[11px] md:text-xs">
                 Referências Bibliográficas

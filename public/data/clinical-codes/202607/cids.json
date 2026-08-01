@@ -1,0 +1,512 @@
+[
+  {
+    "code": "A530",
+    "displayCode": "A53.0",
+    "description": "SÍFILIS LATENTE, NÃO ESPECIFICADA SE PRECOCE OU TARDIA",
+    "searchText": "A530 A530 SIFILIS LATENTE NAO ESPECIFICADA SE PRECOCE OU TARDIA"
+  },
+  {
+    "code": "A539",
+    "displayCode": "A53.9",
+    "description": "SÍFILIS NÃO ESPECIFICADA",
+    "searchText": "A539 A539 SIFILIS NAO ESPECIFICADA"
+  },
+  {
+    "code": "B20",
+    "displayCode": "B20",
+    "description": "DOENÇA PELO VÍRUS DA IMUNODEFICIÊNCIA HUMANA [HIV]",
+    "searchText": "B20 B20 DOENCA PELO VIRUS DA IMUNODEFICIENCIA HUMANA HIV"
+  },
+  {
+    "code": "B24",
+    "displayCode": "B24",
+    "description": "DOENÇA PELO VÍRUS DA IMUNODEFICIÊNCIA HUMANA [HIV] NÃO ESPECIFICADA",
+    "searchText": "B24 B24 DOENCA PELO VIRUS DA IMUNODEFICIENCIA HUMANA HIV NAO ESPECIFICADA"
+  },
+  {
+    "code": "N390",
+    "displayCode": "N39.0",
+    "description": "INFECÇÃO DO TRATO URINÁRIO DE LOCALIZAÇÃO NÃO ESPECIFICADA",
+    "searchText": "N390 N390 INFECCAO DO TRATO URINARIO DE LOCALIZACAO NAO ESPECIFICADA"
+  },
+  {
+    "code": "O03",
+    "displayCode": "O03",
+    "description": "ABORTAMENTO ESPONTÂNEO",
+    "searchText": "O03 O03 ABORTAMENTO ESPONTANEO"
+  },
+  {
+    "code": "O04",
+    "displayCode": "O04",
+    "description": "ABORTAMENTO POR RAZÕES MÉDICAS E LEGAIS",
+    "searchText": "O04 O04 ABORTAMENTO POR RAZOES MEDICAS E LEGAIS"
+  },
+  {
+    "code": "O05",
+    "displayCode": "O05",
+    "description": "OUTRO ABORTAMENTO",
+    "searchText": "O05 O05 OUTRO ABORTAMENTO"
+  },
+  {
+    "code": "O06",
+    "displayCode": "O06",
+    "description": "ABORTAMENTO NÃO ESPECIFICADO",
+    "searchText": "O06 O06 ABORTAMENTO NAO ESPECIFICADO"
+  },
+  {
+    "code": "O10",
+    "displayCode": "O10",
+    "description": "HIPERTENSÃO PRÉ-EXISTENTE COMPLICANDO A GRAVIDEZ, O PARTO E O PUERPÉRIO",
+    "searchText": "O10 O10 HIPERTENSAO PRE EXISTENTE COMPLICANDO A GRAVIDEZ O PARTO E O PUERPERIO"
+  },
+  {
+    "code": "O11",
+    "displayCode": "O11",
+    "description": "HIPERTENSÃO PRÉ-EXISTENTE COM PRÉ-ECLÂMPSIA SOBREPOSTA",
+    "searchText": "O11 O11 HIPERTENSAO PRE EXISTENTE COM PRE ECLAMPSIA SOBREPOSTA"
+  },
+  {
+    "code": "O13",
+    "displayCode": "O13",
+    "description": "HIPERTENSÃO GESTACIONAL (INDUCIDA PELA GRAVIDEZ)",
+    "searchText": "O13 O13 HIPERTENSAO GESTACIONAL INDUCIDA PELA GRAVIDEZ"
+  },
+  {
+    "code": "O14",
+    "displayCode": "O14",
+    "description": "PRÉ-ECLÂMPSIA",
+    "searchText": "O14 O14 PRE ECLAMPSIA"
+  },
+  {
+    "code": "O140",
+    "displayCode": "O14.0",
+    "description": "PRÉ-ECLÂMPSIA LEVE A MODERADA",
+    "searchText": "O140 O140 PRE ECLAMPSIA LEVE A MODERADA"
+  },
+  {
+    "code": "O141",
+    "displayCode": "O14.1",
+    "description": "PRÉ-ECLÂMPSIA GRAVE",
+    "searchText": "O141 O141 PRE ECLAMPSIA GRAVE"
+  },
+  {
+    "code": "O149",
+    "displayCode": "O14.9",
+    "description": "PRÉ-ECLÂMPSIA NÃO ESPECIFICADA",
+    "searchText": "O149 O149 PRE ECLAMPSIA NAO ESPECIFICADA"
+  },
+  {
+    "code": "O15",
+    "displayCode": "O15",
+    "description": "ECLÂMPSIA",
+    "searchText": "O15 O15 ECLAMPSIA"
+  },
+  {
+    "code": "O150",
+    "displayCode": "O15.0",
+    "description": "ECLÂMPSIA NA GRAVIDEZ",
+    "searchText": "O150 O150 ECLAMPSIA NA GRAVIDEZ"
+  },
+  {
+    "code": "O151",
+    "displayCode": "O15.1",
+    "description": "ECLÂMPSIA NO TRABALHO DE PARTO",
+    "searchText": "O151 O151 ECLAMPSIA NO TRABALHO DE PARTO"
+  },
+  {
+    "code": "O152",
+    "displayCode": "O15.2",
+    "description": "ECLÂMPSIA NO PUERPÉRIO",
+    "searchText": "O152 O152 ECLAMPSIA NO PUERPERIO"
+  },
+  {
+    "code": "O159",
+    "displayCode": "O15.9",
+    "description": "ECLÂMPSIA, NÃO ESPECIFICADA QUANTO AO PERÍODO",
+    "searchText": "O159 O159 ECLAMPSIA NAO ESPECIFICADA QUANTO AO PERIODO"
+  },
+  {
+    "code": "O16",
+    "displayCode": "O16",
+    "description": "HIPERTENSÃO MATERNA NÃO ESPECIFICADA",
+    "searchText": "O16 O16 HIPERTENSAO MATERNA NAO ESPECIFICADA"
+  },
+  {
+    "code": "O20",
+    "displayCode": "O20",
+    "description": "HEMORRAGIA DO INÍCIO DA GRAVIDEZ",
+    "searchText": "O20 O20 HEMORRAGIA DO INICIO DA GRAVIDEZ"
+  },
+  {
+    "code": "O200",
+    "displayCode": "O20.0",
+    "description": "AMEAÇA DE ABORTAMENTO",
+    "searchText": "O200 O200 AMEACA DE ABORTAMENTO"
+  },
+  {
+    "code": "O24",
+    "displayCode": "O24",
+    "description": "DIABETES MELLITUS NA GRAVIDEZ, NO PARTO E NO PUERPÉRIO",
+    "searchText": "O24 O24 DIABETES MELLITUS NA GRAVIDEZ NO PARTO E NO PUERPERIO"
+  },
+  {
+    "code": "O244",
+    "displayCode": "O24.4",
+    "description": "DIABETES MELLITUS QUE SURGE NA GRAVIDEZ (DIABETES GESTACIONAL)",
+    "searchText": "O244 O244 DIABETES MELLITUS QUE SURGE NA GRAVIDEZ DIABETES GESTACIONAL"
+  },
+  {
+    "code": "O26",
+    "displayCode": "O26",
+    "description": "OUTRAS AFECÇÕES MATERNAS RELACIONADAS PREDOMINANTEMENTE COM A GRAVIDEZ",
+    "searchText": "O26 O26 OUTRAS AFECCOES MATERNAS RELACIONADAS PREDOMINANTEMENTE COM A GRAVIDEZ"
+  },
+  {
+    "code": "O268",
+    "displayCode": "O26.8",
+    "description": "OUTRAS AFECÇÕES ESPECIFICADAS LIGADAS À GRAVIDEZ",
+    "searchText": "O268 O268 OUTRAS AFECCOES ESPECIFICADAS LIGADAS A GRAVIDEZ"
+  },
+  {
+    "code": "O363",
+    "displayCode": "O36.3",
+    "description": "ASSISTÊNCIA MATERNA POR ANOXIA FETAL",
+    "searchText": "O363 O363 ASSISTENCIA MATERNA POR ANOXIA FETAL"
+  },
+  {
+    "code": "O365",
+    "displayCode": "O36.5",
+    "description": "ASSISTÊNCIA MATERNA POR RETARDAMENTO DO CRESCIMENTO FETAL",
+    "searchText": "O365 O365 ASSISTENCIA MATERNA POR RETARDAMENTO DO CRESCIMENTO FETAL"
+  },
+  {
+    "code": "O40",
+    "displayCode": "O40",
+    "description": "POLIDRÂMNIO",
+    "searchText": "O40 O40 POLIDRAMNIO"
+  },
+  {
+    "code": "O410",
+    "displayCode": "O41.0",
+    "description": "OLIGODRÂMNIO",
+    "searchText": "O410 O410 OLIGODRAMNIO"
+  },
+  {
+    "code": "O411",
+    "displayCode": "O41.1",
+    "description": "INFECÇÃO DA CAVIDADE AMNIÓTICA E DAS MEMBRANAS",
+    "searchText": "O411 O411 INFECCAO DA CAVIDADE AMNIOTICA E DAS MEMBRANAS"
+  },
+  {
+    "code": "O42",
+    "displayCode": "O42",
+    "description": "RUPTURA PREMATURA DE MEMBRANAS",
+    "searchText": "O42 O42 RUPTURA PREMATURA DE MEMBRANAS"
+  },
+  {
+    "code": "O420",
+    "displayCode": "O42.0",
+    "description": "RUPTURA PREMATURA DE MEMBRANAS, TRABALHO DE PARTO NAS 24 HORAS SEGUINTES",
+    "searchText": "O420 O420 RUPTURA PREMATURA DE MEMBRANAS TRABALHO DE PARTO NAS 24 HORAS SEGUINTES"
+  },
+  {
+    "code": "O421",
+    "displayCode": "O42.1",
+    "description": "RUPTURA PREMATURA DE MEMBRANAS, TRABALHO DE PARTO APÓS 24 HORAS",
+    "searchText": "O421 O421 RUPTURA PREMATURA DE MEMBRANAS TRABALHO DE PARTO APOS 24 HORAS"
+  },
+  {
+    "code": "O44",
+    "displayCode": "O44",
+    "description": "PLACENTA PRÉVIA",
+    "searchText": "O44 O44 PLACENTA PREVIA"
+  },
+  {
+    "code": "O440",
+    "displayCode": "O44.0",
+    "description": "PLACENTA PRÉVIA SEM HEMORRAGIA",
+    "searchText": "O440 O440 PLACENTA PREVIA SEM HEMORRAGIA"
+  },
+  {
+    "code": "O441",
+    "displayCode": "O44.1",
+    "description": "PLACENTA PRÉVIA COM HEMORRAGIA",
+    "searchText": "O441 O441 PLACENTA PREVIA COM HEMORRAGIA"
+  },
+  {
+    "code": "O45",
+    "displayCode": "O45",
+    "description": "DESCOLAMENTO PREMATURO DA PLACENTA [DPP]",
+    "searchText": "O45 O45 DESCOLAMENTO PREMATURO DA PLACENTA DPP"
+  },
+  {
+    "code": "O450",
+    "displayCode": "O45.0",
+    "description": "DESCOLAMENTO PREMATURO DA PLACENTA COMDEFEITO DA COAGULAÇÃO",
+    "searchText": "O450 O450 DESCOLAMENTO PREMATURO DA PLACENTA COMDEFEITO DA COAGULACAO"
+  },
+  {
+    "code": "O459",
+    "displayCode": "O45.9",
+    "description": "DESCOLAMENTO PREMATURO DA PLACENTA, NÃO ESPECIFICADO",
+    "searchText": "O459 O459 DESCOLAMENTO PREMATURO DA PLACENTA NAO ESPECIFICADO"
+  },
+  {
+    "code": "O60",
+    "displayCode": "O60",
+    "description": "TRABALHO DE PARTO PREMATURO",
+    "searchText": "O60 O60 TRABALHO DE PARTO PREMATURO"
+  },
+  {
+    "code": "O600",
+    "displayCode": "O60.0",
+    "description": "TRABALHO DE PARTO PREMATURO SEM PARTO",
+    "searchText": "O600 O600 TRABALHO DE PARTO PREMATURO SEM PARTO"
+  },
+  {
+    "code": "O601",
+    "displayCode": "O60.1",
+    "description": "TRABALHO DE PARTO PREMATURO COM PARTO",
+    "searchText": "O601 O601 TRABALHO DE PARTO PREMATURO COM PARTO"
+  },
+  {
+    "code": "O70",
+    "displayCode": "O70",
+    "description": "LACERAÇÃO DO PERÍNEO DURANTE O PARTO",
+    "searchText": "O70 O70 LACERACAO DO PERINEO DURANTE O PARTO"
+  },
+  {
+    "code": "O700",
+    "displayCode": "O70.0",
+    "description": "LACERAÇÃO DE PRIMEIRA GRAU DO PERÍNEO DURANTE O PARTO",
+    "searchText": "O700 O700 LACERACAO DE PRIMEIRA GRAU DO PERINEO DURANTE O PARTO"
+  },
+  {
+    "code": "O701",
+    "displayCode": "O70.1",
+    "description": "LACERAÇÃO DE SEGUNDO GRAU DO PERÍNEO DURANTE O PARTO",
+    "searchText": "O701 O701 LACERACAO DE SEGUNDO GRAU DO PERINEO DURANTE O PARTO"
+  },
+  {
+    "code": "O72",
+    "displayCode": "O72",
+    "description": "HEMORRAGIA PÓS-PARTO",
+    "searchText": "O72 O72 HEMORRAGIA POS PARTO"
+  },
+  {
+    "code": "O720",
+    "displayCode": "O72.0",
+    "description": "HEMORRAGIA DO TERCEIRO PERÍODO DO PARTO",
+    "searchText": "O720 O720 HEMORRAGIA DO TERCEIRO PERIODO DO PARTO"
+  },
+  {
+    "code": "O721",
+    "displayCode": "O72.1",
+    "description": "OUTRA HEMORRAGIA PÓS-PARTO IMEDIATA",
+    "searchText": "O721 O721 OUTRA HEMORRAGIA POS PARTO IMEDIATA"
+  },
+  {
+    "code": "O80",
+    "displayCode": "O80",
+    "description": "PARTO ÚNICO ESPONTÂNEO",
+    "searchText": "O80 O80 PARTO UNICO ESPONTANEO"
+  },
+  {
+    "code": "O800",
+    "displayCode": "O80.0",
+    "description": "PARTO ÚNICO ESPONTÂNEO, APRESENTAÇÃO CEFÁLICA VÉRTICE",
+    "searchText": "O800 O800 PARTO UNICO ESPONTANEO APRESENTACAO CEFALICA VERTICE"
+  },
+  {
+    "code": "O801",
+    "displayCode": "O80.1",
+    "description": "PARTO ÚNICO ESPONTÂNEO, APRESENTAÇÃO PÉLVICA OU PODÁLICA",
+    "searchText": "O801 O801 PARTO UNICO ESPONTANEO APRESENTACAO PELVICA OU PODALICA"
+  },
+  {
+    "code": "O808",
+    "displayCode": "O80.8",
+    "description": "OUTRO PARTO ÚNICO ESPONTÂNEO",
+    "searchText": "O808 O808 OUTRO PARTO UNICO ESPONTANEO"
+  },
+  {
+    "code": "O809",
+    "displayCode": "O80.9",
+    "description": "PARTO ÚNICO ESPONTÂNEO, NÃO ESPECIFICADO",
+    "searchText": "O809 O809 PARTO UNICO ESPONTANEO NAO ESPECIFICADO"
+  },
+  {
+    "code": "O81",
+    "displayCode": "O81",
+    "description": "PARTO ÚNICO POR FÓRCEPS OU VÁCUO-EXTRATOR",
+    "searchText": "O81 O81 PARTO UNICO POR FORCEPS OU VACUO EXTRATOR"
+  },
+  {
+    "code": "O810",
+    "displayCode": "O81.0",
+    "description": "PARTO ÚNICO POR FÓRCEPSBAIXO",
+    "searchText": "O810 O810 PARTO UNICO POR FORCEPSBAIXO"
+  },
+  {
+    "code": "O814",
+    "displayCode": "O81.4",
+    "description": "PARTO ÚNICO POR VÁCUO-EXTRATOR",
+    "searchText": "O814 O814 PARTO UNICO POR VACUO EXTRATOR"
+  },
+  {
+    "code": "O82",
+    "displayCode": "O82",
+    "description": "PARTO ÚNICO POR CESARIANA",
+    "searchText": "O82 O82 PARTO UNICO POR CESARIANA"
+  },
+  {
+    "code": "O820",
+    "displayCode": "O82.0",
+    "description": "PARTO POR CESARIANA ELETIVA",
+    "searchText": "O820 O820 PARTO POR CESARIANA ELETIVA"
+  },
+  {
+    "code": "O821",
+    "displayCode": "O82.1",
+    "description": "PARTO POR CESARIANA DE URGÊNCIA",
+    "searchText": "O821 O821 PARTO POR CESARIANA DE URGENCIA"
+  },
+  {
+    "code": "O822",
+    "displayCode": "O82.2",
+    "description": "PARTO POR CESARIANA COM HISTERECTOMIA",
+    "searchText": "O822 O822 PARTO POR CESARIANA COM HISTERECTOMIA"
+  },
+  {
+    "code": "O828",
+    "displayCode": "O82.8",
+    "description": "OUTRO PARTO ÚNICO POR CESARIANA",
+    "searchText": "O828 O828 OUTRO PARTO UNICO POR CESARIANA"
+  },
+  {
+    "code": "O829",
+    "displayCode": "O82.9",
+    "description": "PARTO POR CESARIANA, NÃO ESPECIFICADO",
+    "searchText": "O829 O829 PARTO POR CESARIANA NAO ESPECIFICADO"
+  },
+  {
+    "code": "O83",
+    "displayCode": "O83",
+    "description": "OUTROS PARTOS ÚNICOS ASSISTIDOS",
+    "searchText": "O83 O83 OUTROS PARTOS UNICOS ASSISTIDOS"
+  },
+  {
+    "code": "O830",
+    "displayCode": "O83.0",
+    "description": "PARTO POR EXTRAÇÃO PÉLVICA",
+    "searchText": "O830 O830 PARTO POR EXTRACAO PELVICA"
+  },
+  {
+    "code": "O831",
+    "displayCode": "O83.1",
+    "description": "OUTRO PARTO ASSISTIDO PÉLVICO",
+    "searchText": "O831 O831 OUTRO PARTO ASSISTIDO PELVICO"
+  },
+  {
+    "code": "O84",
+    "displayCode": "O84",
+    "description": "PARTO MÚLTIPLO",
+    "searchText": "O84 O84 PARTO MULTIPLO"
+  },
+  {
+    "code": "O840",
+    "displayCode": "O84.0",
+    "description": "PARTO MÚLTIPLO, TODOS ESPONTÂNEOS",
+    "searchText": "O840 O840 PARTO MULTIPLO TODOS ESPONTANEOS"
+  },
+  {
+    "code": "O842",
+    "displayCode": "O84.2",
+    "description": "PARTO MÚLTIPLO, TODOS POR CESARIANA",
+    "searchText": "O842 O842 PARTO MULTIPLO TODOS POR CESARIANA"
+  },
+  {
+    "code": "Z321",
+    "displayCode": "Z32.1",
+    "description": "GRAVIDEZ CONFIRMADA",
+    "searchText": "Z321 Z321 GRAVIDEZ CONFIRMADA"
+  },
+  {
+    "code": "Z34",
+    "displayCode": "Z34",
+    "description": "SUPERVISÃO DE GRAVIDEZ NORMAL",
+    "searchText": "Z34 Z34 SUPERVISAO DE GRAVIDEZ NORMAL"
+  },
+  {
+    "code": "Z340",
+    "displayCode": "Z34.0",
+    "description": "SUPERVISÃO DE PRIMEIRA GRAVIDEZ NORMAL",
+    "searchText": "Z340 Z340 SUPERVISAO DE PRIMEIRA GRAVIDEZ NORMAL"
+  },
+  {
+    "code": "Z348",
+    "displayCode": "Z34.8",
+    "description": "SUPERVISÃO DE OUTRAS GRAVIDEZES NORMAIS",
+    "searchText": "Z348 Z348 SUPERVISAO DE OUTRAS GRAVIDEZES NORMAIS"
+  },
+  {
+    "code": "Z349",
+    "displayCode": "Z34.9",
+    "description": "SUPERVISÃO DE GRAVIDEZ NORMAL, NÃO ESPECIFICADA",
+    "searchText": "Z349 Z349 SUPERVISAO DE GRAVIDEZ NORMAL NAO ESPECIFICADA"
+  },
+  {
+    "code": "Z35",
+    "displayCode": "Z35",
+    "description": "SUPERVISÃO DE GRAVIDEZ DE ALTO RISCO",
+    "searchText": "Z35 Z35 SUPERVISAO DE GRAVIDEZ DE ALTO RISCO"
+  },
+  {
+    "code": "Z350",
+    "displayCode": "Z35.0",
+    "description": "SUPERVISÃO DE GRAVIDEZ COM HISTÓRIA DE INFERTILIDADE",
+    "searchText": "Z350 Z350 SUPERVISAO DE GRAVIDEZ COM HISTORIA DE INFERTILIDADE"
+  },
+  {
+    "code": "Z351",
+    "displayCode": "Z35.1",
+    "description": "SUPERVISÃO DE GRAVIDEZ COM HISTÓRIA DE ABORTAMENTO DE REPETIÇÃO",
+    "searchText": "Z351 Z351 SUPERVISAO DE GRAVIDEZ COM HISTORIA DE ABORTAMENTO DE REPETICAO"
+  },
+  {
+    "code": "Z352",
+    "displayCode": "Z35.2",
+    "description": "SUPERVISÃO DE GRAVIDEZ COM HISTÓRIA DE OUTRO PARTO TARDIO OU GRAVIDEZ PROBLEMÁTICA",
+    "searchText": "Z352 Z352 SUPERVISAO DE GRAVIDEZ COM HISTORIA DE OUTRO PARTO TARDIO OU GRAVIDEZ PROBLEMATICA"
+  },
+  {
+    "code": "Z358",
+    "displayCode": "Z35.8",
+    "description": "SUPERVISÃO DE OUTRAS GRAVIDEZES DE ALTO RISCO",
+    "searchText": "Z358 Z358 SUPERVISAO DE OUTRAS GRAVIDEZES DE ALTO RISCO"
+  },
+  {
+    "code": "Z359",
+    "displayCode": "Z35.9",
+    "description": "SUPERVISÃO DE GRAVIDEZ DE ALTO RISCO, NÃO ESPECIFICADA",
+    "searchText": "Z359 Z359 SUPERVISAO DE GRAVIDEZ DE ALTO RISCO NAO ESPECIFICADA"
+  },
+  {
+    "code": "Z390",
+    "displayCode": "Z39.0",
+    "description": "ATENDIMENTO E EXAME IMEDIATAMENTE APÓS O PARTO",
+    "searchText": "Z390 Z390 ATENDIMENTO E EXAME IMEDIATAMENTE APOS O PARTO"
+  },
+  {
+    "code": "Z391",
+    "displayCode": "Z39.1",
+    "description": "ATENDIMENTO E EXAME DA MÃE LACTANTE",
+    "searchText": "Z391 Z391 ATENDIMENTO E EXAME DA MAE LACTANTE"
+  },
+  {
+    "code": "Z392",
+    "displayCode": "Z39.2",
+    "description": "ACOMPANHAMENTO DE ROTINA DO PÓS-PARTO",
+    "searchText": "Z392 Z392 ACOMPANHAMENTO DE ROTINA DO POS PARTO"
+  }
+]

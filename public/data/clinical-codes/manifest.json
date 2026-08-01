@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "competence": "202607",
+  "competenceLabel": "07/2026",
+  "generatedAt": "2026-08-01T01:03:53.942Z",
+  "source": "SIGTAP/DATASUS",
+  "basePath": "/data/clinical-codes/202607",
+  "counts": {
+    "cids": 85,
+    "procedures": 25,
+    "relations": 71
+  },
+  "files": {
+    "cids": "cids.json",
+    "procedures": "procedures.json",
+    "relations": "relations.json"
+  }
+}
