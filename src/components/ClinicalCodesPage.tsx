@@ -10,9 +10,10 @@ import { searchCids, searchProcedures } from '../services/clinicalCodesCatalog';
 import ClinicalCodeSearch from './clinical-codes/ClinicalCodeSearch';
 import ClinicalCodeResults from './clinical-codes/ClinicalCodeResults';
 import ClinicalCodeDetails from './clinical-codes/ClinicalCodeDetails';
-import ClinicalCodeDetailSheet from './clinical-codes/ClinicalCodeDetailSheet';
 import ClinicalCodesSkeleton from './clinical-codes/ClinicalCodesSkeleton';
 import Icon from './Icon';
+
+type MobileCodesView = 'search' | 'detail';
 
 export default function ClinicalCodesPage() {
   const { catalog, status, error, reload } = useClinicalCodesCatalog();
@@ -22,9 +23,38 @@ export default function ClinicalCodesPage() {
   const [selectedCid, setSelectedCid] = useState<Cid10Record | null>(null);
   const [selectedProcedure, setSelectedProcedure] = useState<SigtapProcedureRecord | null>(null);
 
-  const [isMobileDetailOpen, setIsMobileDetailOpen] = useState(false);
+  const [mobileView, setMobileView] = useState<MobileCodesView>('search');
 
   const inputRef = useRef<HTMLInputElement | null>(null);
+  const topRef = useRef<HTMLDivElement | null>(null);
+
+  const scrollToTop = () => {
+    if (topRef.current) {
+      topRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } else {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
+  // Mobile Back button / popstate handling
+  useEffect(() => {
+    const handlePopState = () => {
+      setMobileView('search');
+      scrollToTop();
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
+  const handleBackToSearch = useCallback(() => {
+    if (typeof window !== 'undefined' && window.history.state?.page === 'detail') {
+      window.history.back();
+    } else {
+      setMobileView('search');
+      scrollToTop();
+    }
+  }, []);
 
   // Global clear-form handler
   const handleClear = useCallback(() => {
@@ -32,7 +62,8 @@ export default function ClinicalCodesPage() {
     setSelectedCid(null);
     setSelectedProcedure(null);
     setMode('cid');
-    setIsMobileDetailOpen(false);
+    setMobileView('search');
+    scrollToTop();
   }, []);
 
   useEffect(() => {
@@ -50,7 +81,8 @@ export default function ClinicalCodesPage() {
       setQuery('');
       setSelectedCid(null);
       setSelectedProcedure(null);
-      setIsMobileDetailOpen(false);
+      setMobileView('search');
+      scrollToTop();
     }
   };
 
@@ -105,30 +137,44 @@ export default function ClinicalCodesPage() {
       .filter((x): x is { relation: CidProcedureRelation; cid: Cid10Record } => x !== null);
   }, [catalog, selectedProcedure]);
 
-  // Selection handlers with blur before opening mobile sheet
+  // Selection handlers
   const handleSelectCid = (item: Cid10Record) => {
     if (inputRef.current) inputRef.current.blur();
     setSelectedCid(item);
-    setIsMobileDetailOpen(true);
+    if (mobileView !== 'detail') {
+      if (typeof window !== 'undefined' && window.innerWidth < 1024) {
+        window.history.pushState({ page: 'detail' }, '');
+      }
+      setMobileView('detail');
+    }
+    scrollToTop();
   };
 
   const handleSelectProcedure = (item: SigtapProcedureRecord) => {
     if (inputRef.current) inputRef.current.blur();
     setSelectedProcedure(item);
-    setIsMobileDetailOpen(true);
+    if (mobileView !== 'detail') {
+      if (typeof window !== 'undefined' && window.innerWidth < 1024) {
+        window.history.pushState({ page: 'detail' }, '');
+      }
+      setMobileView('detail');
+    }
+    scrollToTop();
   };
 
   // Bidirectional navigation handlers
   const handleNavigateToProcedure = (proc: SigtapProcedureRecord) => {
     setMode('procedure');
     setSelectedProcedure(proc);
-    setIsMobileDetailOpen(true);
+    setMobileView('detail');
+    scrollToTop();
   };
 
   const handleNavigateToCid = (c: Cid10Record) => {
     setMode('cid');
     setSelectedCid(c);
-    setIsMobileDetailOpen(true);
+    setMobileView('detail');
+    scrollToTop();
   };
 
   if (status === 'loading') {
@@ -137,7 +183,7 @@ export default function ClinicalCodesPage() {
 
   if (status === 'error' || !catalog) {
     return (
-      <div className="glass-panel p-6 md:p-8 rounded-2xl text-center space-y-4 max-w-lg mx-auto my-8">
+      <div className="glass-panel p-6 md:p-8 rounded-[1.25rem] md:rounded-[2rem] text-center space-y-4 max-w-lg mx-auto my-8 border border-surface-variant">
         <div className="w-12 h-12 rounded-full bg-error/10 text-error flex items-center justify-center mx-auto">
           <Icon name="error" className="text-[28px]" />
         </div>
@@ -162,90 +208,108 @@ export default function ClinicalCodesPage() {
   const totalResults = mode === 'cid' ? cidResults.length : procedureResults.length;
 
   return (
-    <div className="w-full space-y-4 md:space-y-6 animate-card min-w-0">
+    <div ref={topRef} className="w-full max-w-6xl min-[1366px]:max-w-7xl mx-auto flex flex-col justify-start gap-3 min-[1024px]:gap-5 p-0 sm:p-2 min-[1366px]:p-4 h-auto min-w-0">
       {/* Top Header */}
       <div className="px-1 w-full min-w-0">
-        <div className="flex flex-col min-[1024px]:flex-row min-[1024px]:items-end min-[1024px]:justify-between gap-2">
-          <div>
-            <h1 className="text-xl md:text-2xl min-[1366px]:text-3xl font-bold text-on-surface leading-tight">
-              CID-10 e SIGTAP
-            </h1>
-            <p className="font-body-sm text-secondary hidden md:block text-xs min-[1366px]:text-sm mt-0.5">
-              Consulte diagnósticos, procedimentos e relações oficiais por competência
-            </p>
+        <h1 className="text-xl md:text-2xl min-[1366px]:text-3xl font-bold text-on-surface leading-tight md:mb-1">
+          CID-10 e SIGTAP
+        </h1>
+        <p className="font-body-sm text-secondary hidden md:block text-xs min-[1366px]:text-sm">
+          Consulte diagnósticos, procedimentos e relações oficiais por competência
+        </p>
+      </div>
+
+      {/* Responsive View Switch (<1024px Mobile vs >=1024px Desktop) */}
+      <div className="w-full min-w-0">
+        {/* Mobile View (< 1024px) */}
+        <div className="block min-[1024px]:hidden w-full min-w-0">
+          {mobileView === 'search' ? (
+            <div className="glass-panel p-3.5 sm:p-5 rounded-[1.25rem] md:rounded-[2rem] border border-surface-variant shadow-xs min-w-0 space-y-3">
+              <ClinicalCodeSearch
+                mode={mode}
+                onModeChange={handleModeChange}
+                query={query}
+                onQueryChange={setQuery}
+                onClear={() => setQuery('')}
+                inputRef={inputRef}
+                totalResultsCount={query.trim().length > 0 ? totalResults : undefined}
+                competenceLabel={competenceLabel}
+              />
+              <ClinicalCodeResults
+                mode={mode}
+                query={query}
+                cidResults={cidResults}
+                procedureResults={procedureResults}
+                selectedCid={selectedCid}
+                selectedProcedure={selectedProcedure}
+                onSelectCid={handleSelectCid}
+                onSelectProcedure={handleSelectProcedure}
+                getRelationsCountForCid={getRelationsCountForCid}
+                getRelationsCountForProcedure={getRelationsCountForProcedure}
+                onSetExampleQuery={(q) => setQuery(q)}
+              />
+            </div>
+          ) : (
+            <ClinicalCodeDetails
+              layout="mobile"
+              onBack={handleBackToSearch}
+              mode={mode}
+              cid={selectedCid}
+              procedure={selectedProcedure}
+              relatedProcedures={relatedProceduresForSelectedCid}
+              relatedCids={relatedCidsForSelectedProcedure}
+              competenceLabel={competenceLabel}
+              onNavigateToProcedure={handleNavigateToProcedure}
+              onNavigateToCid={handleNavigateToCid}
+            />
+          )}
+        </div>
+
+        {/* Desktop Layout (>= 1024px) */}
+        <div className="hidden min-[1024px]:grid grid-cols-[minmax(300px,0.85fr)_minmax(0,1.15fr)] min-[1366px]:grid-cols-[minmax(360px,0.9fr)_minmax(0,1.1fr)] gap-4 min-[1024px]:gap-6 min-[1366px]:gap-8 items-start w-full min-w-0">
+          {/* Left Column: Search & Results Panel */}
+          <div className="glass-panel p-5 min-[1024px]:p-6 rounded-[1.25rem] md:rounded-[2rem] border border-surface-variant shadow-xs min-w-0 w-full space-y-4">
+            <ClinicalCodeSearch
+              mode={mode}
+              onModeChange={handleModeChange}
+              query={query}
+              onQueryChange={setQuery}
+              onClear={() => setQuery('')}
+              inputRef={inputRef}
+              totalResultsCount={query.trim().length > 0 ? totalResults : undefined}
+              competenceLabel={competenceLabel}
+            />
+            <ClinicalCodeResults
+              mode={mode}
+              query={query}
+              cidResults={cidResults}
+              procedureResults={procedureResults}
+              selectedCid={selectedCid}
+              selectedProcedure={selectedProcedure}
+              onSelectCid={handleSelectCid}
+              onSelectProcedure={handleSelectProcedure}
+              getRelationsCountForCid={getRelationsCountForCid}
+              getRelationsCountForProcedure={getRelationsCountForProcedure}
+              onSetExampleQuery={(q) => setQuery(q)}
+            />
           </div>
-          <span className="inline-flex items-center gap-1 text-xs font-semibold text-secondary bg-surface-variant/70 dark:bg-white/10 px-2.5 py-1 rounded-lg w-fit">
-            <Icon name="event" className="text-[16px] text-primary" />
-            Competência: {competenceLabel}
-          </span>
+
+          {/* Right Column: Sticky Details Panel */}
+          <div className="min-w-0 w-full sticky top-[calc(64px+env(safe-area-inset-top))]">
+            <ClinicalCodeDetails
+              layout="desktop"
+              mode={mode}
+              cid={selectedCid}
+              procedure={selectedProcedure}
+              relatedProcedures={relatedProceduresForSelectedCid}
+              relatedCids={relatedCidsForSelectedProcedure}
+              competenceLabel={competenceLabel}
+              onNavigateToProcedure={handleNavigateToProcedure}
+              onNavigateToCid={handleNavigateToCid}
+            />
+          </div>
         </div>
       </div>
-
-      {/* Search Bar */}
-      <div className="w-full">
-        <ClinicalCodeSearch
-          mode={mode}
-          onModeChange={handleModeChange}
-          query={query}
-          onQueryChange={setQuery}
-          onClear={() => setQuery('')}
-          inputRef={inputRef}
-          totalResultsCount={query.trim().length > 0 ? totalResults : undefined}
-        />
-      </div>
-
-      {/* Main Grid Master-Detail Layout */}
-      <div className="grid grid-cols-1 min-[1024px]:grid-cols-[minmax(300px,0.85fr)_minmax(0,1.15fr)] min-[1366px]:grid-cols-[minmax(360px,0.9fr)_minmax(0,1.1fr)] gap-4 min-[1024px]:gap-6 min-[1366px]:gap-8 min-w-0 items-start">
-        {/* Results List Column */}
-        <div className="min-w-0 w-full">
-          <ClinicalCodeResults
-            mode={mode}
-            query={query}
-            cidResults={cidResults}
-            procedureResults={procedureResults}
-            selectedCid={selectedCid}
-            selectedProcedure={selectedProcedure}
-            onSelectCid={handleSelectCid}
-            onSelectProcedure={handleSelectProcedure}
-            getRelationsCountForCid={getRelationsCountForCid}
-            getRelationsCountForProcedure={getRelationsCountForProcedure}
-            onSetExampleQuery={(q) => setQuery(q)}
-          />
-        </div>
-
-        {/* Details Column (Desktop >= 1024px) */}
-        <div className="hidden min-[1024px]:block min-w-0 w-full sticky top-[calc(64px+env(safe-area-inset-top))]">
-          <ClinicalCodeDetails
-            mode={mode}
-            cid={selectedCid}
-            procedure={selectedProcedure}
-            relatedProcedures={relatedProceduresForSelectedCid}
-            relatedCids={relatedCidsForSelectedProcedure}
-            competenceLabel={competenceLabel}
-            onNavigateToProcedure={handleNavigateToProcedure}
-            onNavigateToCid={handleNavigateToCid}
-          />
-        </div>
-      </div>
-
-      {/* Mobile / Tablet Detail Sheet Overlay (< 1024px) */}
-      <ClinicalCodeDetailSheet
-        isOpen={isMobileDetailOpen}
-        onClose={() => setIsMobileDetailOpen(false)}
-        title={mode === 'cid' ? selectedCid?.displayCode || 'CID-10' : selectedProcedure?.displayCode || 'SIGTAP'}
-      >
-        <ClinicalCodeDetails
-          mode={mode}
-          cid={selectedCid}
-          procedure={selectedProcedure}
-          relatedProcedures={relatedProceduresForSelectedCid}
-          relatedCids={relatedCidsForSelectedProcedure}
-          competenceLabel={competenceLabel}
-          onNavigateToProcedure={handleNavigateToProcedure}
-          onNavigateToCid={handleNavigateToCid}
-          onCloseMobileDetail={() => setIsMobileDetailOpen(false)}
-        />
-      </ClinicalCodeDetailSheet>
     </div>
   );
 }

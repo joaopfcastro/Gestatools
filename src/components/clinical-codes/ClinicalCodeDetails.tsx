@@ -10,6 +10,8 @@ import RelationTypeBadge from './RelationTypeBadge';
 import Icon from '../Icon';
 
 interface ClinicalCodeDetailsProps {
+  layout?: 'mobile' | 'desktop';
+  onBack?: () => void;
   mode: ClinicalCodeSearchMode;
   cid: Cid10Record | null;
   procedure: SigtapProcedureRecord | null;
@@ -18,10 +20,11 @@ interface ClinicalCodeDetailsProps {
   competenceLabel: string;
   onNavigateToProcedure: (proc: SigtapProcedureRecord) => void;
   onNavigateToCid: (cid: Cid10Record) => void;
-  onCloseMobileDetail?: () => void;
 }
 
 export default function ClinicalCodeDetails({
+  layout = 'desktop',
+  onBack,
   mode,
   cid,
   procedure,
@@ -30,7 +33,6 @@ export default function ClinicalCodeDetails({
   competenceLabel,
   onNavigateToProcedure,
   onNavigateToCid,
-  onCloseMobileDetail,
 }: ClinicalCodeDetailsProps) {
   const [copied, setCopied] = useState(false);
 
@@ -42,21 +44,27 @@ export default function ClinicalCodeDetails({
     }
   };
 
+  const isMobile = layout === 'mobile';
+
   // 1. Empty state if no active selection
   if (mode === 'cid' && !cid) {
     return (
-      <div className="glass-panel p-6 rounded-2xl text-center space-y-3 h-full flex flex-col items-center justify-center min-h-[300px]">
+      <div className="glass-panel p-6 rounded-[1.25rem] md:rounded-[2rem] text-center space-y-3 h-full flex flex-col items-center justify-center min-h-[280px]">
         <Icon name="touch_app" className="text-[36px] text-secondary/60" />
-        <p className="text-secondary text-sm">Selecione um CID da lista ao lado para ver os detalhes e procedimentos relacionados.</p>
+        <p className="text-secondary text-xs md:text-sm max-w-xs">
+          Selecione um CID da lista para ver os detalhes e procedimentos relacionados.
+        </p>
       </div>
     );
   }
 
   if (mode === 'procedure' && !procedure) {
     return (
-      <div className="glass-panel p-6 rounded-2xl text-center space-y-3 h-full flex flex-col items-center justify-center min-h-[300px]">
+      <div className="glass-panel p-6 rounded-[1.25rem] md:rounded-[2rem] text-center space-y-3 h-full flex flex-col items-center justify-center min-h-[280px]">
         <Icon name="touch_app" className="text-[36px] text-secondary/60" />
-        <p className="text-secondary text-sm">Selecione um procedimento da lista ao lado para ver os detalhes e CIDs vinculados.</p>
+        <p className="text-secondary text-xs md:text-sm max-w-xs">
+          Selecione um procedimento da lista para ver os detalhes e CIDs vinculados.
+        </p>
       </div>
     );
   }
@@ -64,81 +72,112 @@ export default function ClinicalCodeDetails({
   // 2. Details for CID selection
   if (mode === 'cid' && cid) {
     return (
-      <div className="glass-panel p-5 md:p-6 rounded-2xl space-y-5 animate-card border border-surface-variant/70 dark:border-white/5">
-        {/* Top bar header inside panel */}
-        <div className="flex items-start justify-between gap-3 pb-3 border-b border-surface-variant/50 dark:border-white/5">
-          <div className="space-y-1">
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-semibold px-2 py-0.5 rounded bg-primary/10 text-primary dark:bg-primary/20">
+      <div className="glass-panel p-3.5 sm:p-5 min-[1024px]:p-6 rounded-[1.25rem] md:rounded-[2rem] space-y-4 animate-card border border-surface-variant shadow-xs">
+        {/* Header bar */}
+        {isMobile ? (
+          <div className="space-y-2.5 pb-3 border-b border-surface-variant/60">
+            {/* Top row: Voltar on left, Copiar on right */}
+            <div className="flex items-center justify-between gap-2">
+              {onBack && (
+                <button
+                  type="button"
+                  onClick={onBack}
+                  className="inline-flex items-center gap-1 px-3 py-2 min-h-[44px] rounded-xl bg-surface-variant/80 hover:bg-surface-variant text-primary text-xs font-bold transition-colors cursor-pointer active:scale-95"
+                  aria-label="Voltar para a lista de resultados"
+                >
+                  <Icon name="arrow_back" className="text-[18px]" />
+                  <span>Voltar</span>
+                </button>
+              )}
+
+              <button
+                type="button"
+                onClick={() => handleCopy(cid.displayCode)}
+                className="inline-flex items-center gap-1.5 px-3 py-2 min-h-[44px] rounded-xl bg-primary/10 hover:bg-primary/20 text-primary text-xs font-semibold transition-colors cursor-pointer active:scale-95 ml-auto"
+                title="Copiar código CID"
+                aria-label="Copiar código CID"
+              >
+                <Icon name={copied ? 'check' : 'content_copy'} className="text-[16px]" />
+                <span className="hidden min-[360px]:inline">{copied ? 'Copiado!' : 'Copiar'}</span>
+              </button>
+            </div>
+
+            {/* Sub-info: Type & Competence */}
+            <div className="flex items-center gap-2 pt-0.5">
+              <span className="text-[10px] font-bold tracking-wider uppercase px-2 py-0.5 rounded bg-primary/10 text-primary dark:bg-primary/20">
                 CID-10
               </span>
               <span className="text-xs text-secondary font-medium">Competência {competenceLabel}</span>
             </div>
-            <h2 className="font-mono font-bold text-xl md:text-2xl text-primary tracking-tight">
+
+            {/* Code display on its own line */}
+            <h2 className="font-mono font-bold text-xl sm:text-2xl text-primary tracking-tight leading-none pt-0.5">
               {cid.displayCode}
             </h2>
           </div>
+        ) : (
+          <div className="flex items-start justify-between gap-3 pb-3 border-b border-surface-variant/60">
+            <div className="space-y-1 min-w-0">
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-bold tracking-wider uppercase px-2 py-0.5 rounded bg-primary/10 text-primary dark:bg-primary/20">
+                  CID-10
+                </span>
+                <span className="text-xs text-secondary font-medium">Competência {competenceLabel}</span>
+              </div>
+              <h2 className="font-mono font-bold text-xl md:text-2xl text-primary tracking-tight">
+                {cid.displayCode}
+              </h2>
+            </div>
 
-          <div className="flex items-center gap-2">
             <button
               type="button"
               onClick={() => handleCopy(cid.displayCode)}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-surface-variant/80 hover:bg-primary/15 hover:text-primary text-xs font-semibold text-on-surface transition-colors cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3 py-2 min-h-[44px] rounded-xl bg-primary/10 hover:bg-primary/20 text-primary text-xs font-semibold transition-colors cursor-pointer flex-shrink-0"
               title="Copiar código CID"
+              aria-label="Copiar código CID"
             >
               <Icon name={copied ? 'check' : 'content_copy'} className="text-[16px]" />
               <span>{copied ? 'Copiado!' : 'Copiar'}</span>
             </button>
-
-            {onCloseMobileDetail && (
-              <button
-                type="button"
-                onClick={onCloseMobileDetail}
-                className="md:hidden p-1.5 rounded-xl bg-surface-variant/80 text-secondary hover:text-on-surface cursor-pointer"
-                title="Fechar"
-              >
-                <Icon name="close" className="text-[20px]" />
-              </button>
-            )}
           </div>
-        </div>
+        )}
 
         {/* Description */}
         <div className="space-y-1">
-          <span className="text-xs font-semibold text-secondary uppercase tracking-wider">Descrição oficial</span>
-          <p className="text-sm md:text-base font-semibold text-on-surface leading-relaxed">
+          <span className="text-[11px] font-bold text-secondary uppercase tracking-wider block">Descrição oficial</span>
+          <p className="text-xs sm:text-sm font-semibold text-on-surface leading-relaxed">
             {cid.description}
           </p>
         </div>
 
         {/* Related SIGTAP Procedures list */}
-        <div className="space-y-3 pt-2">
+        <div className="space-y-2.5 pt-1">
           <div className="flex items-center justify-between">
-            <h3 className="text-xs font-semibold text-secondary uppercase tracking-wider">
+            <h3 className="text-[11px] font-bold text-secondary uppercase tracking-wider">
               Procedimentos SIGTAP relacionados ({relatedProcedures.length})
             </h3>
           </div>
 
           {relatedProcedures.length === 0 ? (
-            <div className="p-4 rounded-xl bg-surface-variant/40 dark:bg-white/5 text-xs text-secondary text-center">
+            <div className="p-3.5 rounded-xl bg-surface-variant/30 text-xs text-secondary text-center">
               Nenhum procedimento SIGTAP relacionado a este CID na competência {competenceLabel}.
             </div>
           ) : (
-            <div className="space-y-2 max-h-[420px] overflow-y-auto pr-1">
+            <div className={`space-y-2 ${isMobile ? '' : 'max-h-[380px] overflow-y-auto pr-1'}`}>
               {relatedProcedures.map(({ relation, procedure: proc }) => (
                 <button
                   key={`${cid.code}-${proc.code}`}
                   type="button"
                   onClick={() => onNavigateToProcedure(proc)}
-                  className="w-full text-left p-3 rounded-xl bg-surface-variant/40 hover:bg-primary/10 dark:bg-white/5 dark:hover:bg-primary/20 border border-surface-variant/40 dark:border-white/5 transition-all cursor-pointer space-y-1.5 group"
+                  className="w-full text-left p-3 rounded-xl bg-surface-variant/40 hover:bg-primary/10 border border-surface-variant/50 transition-all cursor-pointer space-y-1 group min-w-0"
                 >
                   <div className="flex items-center justify-between gap-2">
-                    <span className="font-mono font-bold text-xs text-primary group-hover:underline">
+                    <span className="font-mono font-bold text-xs text-primary group-hover:underline flex-shrink-0">
                       {proc.displayCode}
                     </span>
                     <RelationTypeBadge type={relation.relationType} />
                   </div>
-                  <p className="text-xs md:text-sm font-medium text-on-surface leading-snug line-clamp-2">
+                  <p className="text-xs font-medium text-on-surface leading-snug line-clamp-2 min-w-0">
                     {proc.name}
                   </p>
                 </button>
@@ -148,7 +187,7 @@ export default function ClinicalCodeDetails({
         </div>
 
         {/* Informational Disclaimer */}
-        <div className="p-3 rounded-xl bg-surface-variant/30 dark:bg-white/5 text-[11px] text-secondary leading-normal">
+        <div className="p-3 rounded-xl bg-surface-variant/30 text-[11px] text-secondary leading-relaxed">
           Informações extraídas da Tabela Unificada SIGTAP/DATASUS ({competenceLabel}). A relação oficial não garante cobertura automática e deve respeitar diretrizes locais.
         </div>
       </div>
@@ -158,73 +197,104 @@ export default function ClinicalCodeDetails({
   // 3. Details for Procedure selection
   if (mode === 'procedure' && procedure) {
     return (
-      <div className="glass-panel p-5 md:p-6 rounded-2xl space-y-5 animate-card border border-surface-variant/70 dark:border-white/5">
-        {/* Top bar header inside panel */}
-        <div className="flex items-start justify-between gap-3 pb-3 border-b border-surface-variant/50 dark:border-white/5">
-          <div className="space-y-1">
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-semibold px-2 py-0.5 rounded bg-primary/10 text-primary dark:bg-primary/20">
+      <div className="glass-panel p-3.5 sm:p-5 min-[1024px]:p-6 rounded-[1.25rem] md:rounded-[2rem] space-y-4 animate-card border border-surface-variant shadow-xs">
+        {/* Header bar */}
+        {isMobile ? (
+          <div className="space-y-2.5 pb-3 border-b border-surface-variant/60">
+            {/* Top row: Voltar on left, Copiar on right */}
+            <div className="flex items-center justify-between gap-2">
+              {onBack && (
+                <button
+                  type="button"
+                  onClick={onBack}
+                  className="inline-flex items-center gap-1 px-3 py-2 min-h-[44px] rounded-xl bg-surface-variant/80 hover:bg-surface-variant text-primary text-xs font-bold transition-colors cursor-pointer active:scale-95"
+                  aria-label="Voltar para a lista de resultados"
+                >
+                  <Icon name="arrow_back" className="text-[18px]" />
+                  <span>Voltar</span>
+                </button>
+              )}
+
+              <button
+                type="button"
+                onClick={() => handleCopy(procedure.displayCode)}
+                className="inline-flex items-center gap-1.5 px-3 py-2 min-h-[44px] rounded-xl bg-primary/10 hover:bg-primary/20 text-primary text-xs font-semibold transition-colors cursor-pointer active:scale-95 ml-auto"
+                title="Copiar código do procedimento"
+                aria-label="Copiar código do procedimento"
+              >
+                <Icon name={copied ? 'check' : 'content_copy'} className="text-[16px]" />
+                <span className="hidden min-[360px]:inline">{copied ? 'Copiado!' : 'Copiar'}</span>
+              </button>
+            </div>
+
+            {/* Sub-info: Type & Competence */}
+            <div className="flex items-center gap-2 pt-0.5">
+              <span className="text-[10px] font-bold tracking-wider uppercase px-2 py-0.5 rounded bg-primary/10 text-primary dark:bg-primary/20">
                 SIGTAP
               </span>
               <span className="text-xs text-secondary font-medium">Competência {competenceLabel}</span>
             </div>
-            <h2 className="font-mono font-bold text-xl md:text-2xl text-primary tracking-tight">
+
+            {/* Code display on its own line */}
+            <h2 className="font-mono font-bold text-xl sm:text-2xl text-primary tracking-tight leading-none pt-0.5">
               {procedure.displayCode}
             </h2>
           </div>
+        ) : (
+          <div className="flex items-start justify-between gap-3 pb-3 border-b border-surface-variant/60">
+            <div className="space-y-1 min-w-0">
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-bold tracking-wider uppercase px-2 py-0.5 rounded bg-primary/10 text-primary dark:bg-primary/20">
+                  SIGTAP
+                </span>
+                <span className="text-xs text-secondary font-medium">Competência {competenceLabel}</span>
+              </div>
+              <h2 className="font-mono font-bold text-xl md:text-2xl text-primary tracking-tight">
+                {procedure.displayCode}
+              </h2>
+            </div>
 
-          <div className="flex items-center gap-2">
             <button
               type="button"
               onClick={() => handleCopy(procedure.displayCode)}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-surface-variant/80 hover:bg-primary/15 hover:text-primary text-xs font-semibold text-on-surface transition-colors cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3 py-2 min-h-[44px] rounded-xl bg-primary/10 hover:bg-primary/20 text-primary text-xs font-semibold transition-colors cursor-pointer flex-shrink-0"
               title="Copiar código do procedimento"
+              aria-label="Copiar código do procedimento"
             >
               <Icon name={copied ? 'check' : 'content_copy'} className="text-[16px]" />
               <span>{copied ? 'Copiado!' : 'Copiar'}</span>
             </button>
-
-            {onCloseMobileDetail && (
-              <button
-                type="button"
-                onClick={onCloseMobileDetail}
-                className="md:hidden p-1.5 rounded-xl bg-surface-variant/80 text-secondary hover:text-on-surface cursor-pointer"
-                title="Fechar"
-              >
-                <Icon name="close" className="text-[20px]" />
-              </button>
-            )}
           </div>
-        </div>
+        )}
 
         {/* Procedure Name & Description */}
         <div className="space-y-2">
           <div>
-            <span className="text-xs font-semibold text-secondary uppercase tracking-wider">Nome do procedimento</span>
-            <p className="text-sm md:text-base font-bold text-on-surface leading-snug mt-0.5">
+            <span className="text-[11px] font-bold text-secondary uppercase tracking-wider block">Nome do procedimento</span>
+            <p className="text-xs sm:text-sm font-bold text-on-surface leading-snug mt-0.5">
               {procedure.name}
             </p>
           </div>
 
           {procedure.description && (
-            <div className="pt-1">
-              <span className="text-xs font-semibold text-secondary uppercase tracking-wider">Descrição / Instrução</span>
-              <p className="text-xs md:text-sm text-on-surface-variant leading-relaxed mt-0.5">
+            <div className="pt-0.5">
+              <span className="text-[11px] font-bold text-secondary uppercase tracking-wider block">Descrição / Instrução</span>
+              <p className="text-xs text-on-surface-variant leading-relaxed mt-0.5">
                 {procedure.description}
               </p>
             </div>
           )}
 
-          {/* Group / Subgroup / Form Info if present */}
+          {/* Group / Subgroup / Organization Info if present */}
           {(procedure.groupName || procedure.subgroupName) && (
             <div className="flex flex-wrap gap-1.5 pt-1">
               {procedure.groupName && (
-                <span className="text-[11px] font-medium px-2 py-0.5 rounded bg-surface-variant/70 text-secondary">
+                <span className="text-[10px] font-medium px-2 py-0.5 rounded bg-surface-variant/70 text-secondary">
                   Grupo: {procedure.groupName}
                 </span>
               )}
               {procedure.subgroupName && (
-                <span className="text-[11px] font-medium px-2 py-0.5 rounded bg-surface-variant/70 text-secondary">
+                <span className="text-[10px] font-medium px-2 py-0.5 rounded bg-surface-variant/70 text-secondary">
                   Subgrupo: {procedure.subgroupName}
                 </span>
               )}
@@ -233,33 +303,33 @@ export default function ClinicalCodeDetails({
         </div>
 
         {/* Related CIDs list */}
-        <div className="space-y-3 pt-2">
+        <div className="space-y-2.5 pt-1">
           <div className="flex items-center justify-between">
-            <h3 className="text-xs font-semibold text-secondary uppercase tracking-wider">
+            <h3 className="text-[11px] font-bold text-secondary uppercase tracking-wider">
               Diagnósticos CID-10 relacionados ({relatedCids.length})
             </h3>
           </div>
 
           {relatedCids.length === 0 ? (
-            <div className="p-4 rounded-xl bg-surface-variant/40 dark:bg-white/5 text-xs text-secondary text-center">
+            <div className="p-3.5 rounded-xl bg-surface-variant/30 text-xs text-secondary text-center">
               Nenhum CID-10 relacionado a este procedimento na competência {competenceLabel}.
             </div>
           ) : (
-            <div className="space-y-2 max-h-[380px] overflow-y-auto pr-1">
+            <div className={`space-y-2 ${isMobile ? '' : 'max-h-[380px] overflow-y-auto pr-1'}`}>
               {relatedCids.map(({ relation, cid: c }) => (
                 <button
                   key={`${procedure.code}-${c.code}`}
                   type="button"
                   onClick={() => onNavigateToCid(c)}
-                  className="w-full text-left p-3 rounded-xl bg-surface-variant/40 hover:bg-primary/10 dark:bg-white/5 dark:hover:bg-primary/20 border border-surface-variant/40 dark:border-white/5 transition-all cursor-pointer space-y-1.5 group"
+                  className="w-full text-left p-3 rounded-xl bg-surface-variant/40 hover:bg-primary/10 border border-surface-variant/50 transition-all cursor-pointer space-y-1 group min-w-0"
                 >
                   <div className="flex items-center justify-between gap-2">
-                    <span className="font-mono font-bold text-xs text-primary group-hover:underline">
+                    <span className="font-mono font-bold text-xs text-primary group-hover:underline flex-shrink-0">
                       {c.displayCode}
                     </span>
                     <RelationTypeBadge type={relation.relationType} />
                   </div>
-                  <p className="text-xs md:text-sm font-medium text-on-surface leading-snug line-clamp-2">
+                  <p className="text-xs font-medium text-on-surface leading-snug line-clamp-2 min-w-0">
                     {c.description}
                   </p>
                 </button>
@@ -269,7 +339,7 @@ export default function ClinicalCodeDetails({
         </div>
 
         {/* Informational Disclaimer */}
-        <div className="p-3 rounded-xl bg-surface-variant/30 dark:bg-white/5 text-[11px] text-secondary leading-normal">
+        <div className="p-3 rounded-xl bg-surface-variant/30 text-[11px] text-secondary leading-relaxed">
           Relações oficiais da Tabela Unificada SIGTAP ({competenceLabel}). A indicação e faturamento devem seguir regramentos assistenciais e administrativos da instituição.
         </div>
       </div>
