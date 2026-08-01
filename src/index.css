@@ -342,6 +342,113 @@ body {
   animation: pulseIcon 1.5s infinite;
 }
 
+/* =========================================================
+   Calculator Action Bar
+   ========================================================= */
+
+.calculator-action-bar {
+  position: sticky;
+  bottom: 0;
+  z-index: 20;
+
+  margin-top: 1rem;
+  margin-right: -0.875rem;
+  margin-bottom: -0.875rem;
+  margin-left: -0.875rem;
+
+  padding-top: 0.75rem;
+  padding-right: 0.875rem;
+  padding-bottom: 0.25rem;
+  padding-left: 0.875rem;
+
+  background: rgba(255, 255, 255, 0.9);
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  border-radius: 0 0 1.25rem 1.25rem;
+
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+
+  box-shadow:
+    0 -4px 12px rgba(0, 0, 0, 0.04),
+    0 8px 20px rgba(0, 0, 0, 0.06);
+}
+
+.dark .calculator-action-bar {
+  background: rgba(28, 28, 30, 0.9);
+  border-top-color: rgba(255, 255, 255, 0.1);
+}
+
+@media (min-width: 640px) and (max-width: 1023px) {
+  .calculator-action-bar {
+    margin-right: -1.25rem;
+    margin-bottom: -1.25rem;
+    margin-left: -1.25rem;
+
+    padding-right: 1.25rem;
+    padding-left: 1.25rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .calculator-action-bar {
+    position: static;
+    bottom: auto;
+    z-index: auto;
+
+    margin-top: 1rem;
+    margin-right: 0;
+    margin-bottom: 0;
+    margin-left: 0;
+
+    padding-top: 0;
+    padding-right: 0;
+    padding-bottom: 0;
+    padding-left: 0;
+
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+
+    box-shadow: none;
+  }
+
+  .dark .calculator-action-bar {
+    background: transparent;
+    border: 0;
+  }
+}
+
+/* =========================================================
+   Calculator Form Panel
+   ========================================================= */
+
+.calculator-form-panel {
+  padding: 0.875rem;
+  padding-bottom: 4rem;
+}
+
+@media (min-width: 640px) {
+  .calculator-form-panel {
+    padding: 1.25rem;
+    padding-bottom: 4rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .calculator-form-panel {
+    padding: 1.5rem;
+  }
+}
+
+@media (min-width: 1366px) {
+  .calculator-form-panel {
+    padding: 2rem;
+  }
+}
+
 /* Interactions */
 .calc-btn {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);

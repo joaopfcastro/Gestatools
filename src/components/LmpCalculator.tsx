@@ -282,7 +282,7 @@ export default function LmpCalculator({ onSaveRecord, defaultCycleLength }: LmpC
             result && mobileView !== 'inputs' ? 'hidden min-[1024px]:flex' : 'flex'
           }`}
         >
-          <form ref={formRef} onSubmit={handleCalculate} noValidate className="glass-panel p-3.5 sm:p-5 min-[1024px]:p-6 min-[1366px]:p-8 rounded-[1.25rem] md:rounded-[2rem] flex flex-col justify-start min-[1366px]:justify-between gap-3 sm:gap-4 shadow-xs h-auto min-[1366px]:h-full relative pb-16 min-[1024px]:pb-6 min-[1366px]:pb-8">
+          <form ref={formRef} onSubmit={handleCalculate} noValidate className="glass-panel calculator-form-panel rounded-[1.25rem] md:rounded-[2rem] flex flex-col justify-start min-[1366px]:justify-between gap-3 sm:gap-4 shadow-xs h-auto min-[1366px]:h-full relative">
             {errorMessage && (
               <InfoBalloon variant="error" text={errorMessage} />
             )}
