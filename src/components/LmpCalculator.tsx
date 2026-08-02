@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { clampValue, parseDateString, getTodayFormatted, validateDateStr } from '../utils/validation';
+import { parseDateString, getTodayFormatted, validateDateStr } from '../utils/validation';
 import { motion } from 'motion/react';
 import { HistoryRecord } from '../types';
 import Skeleton from "./Skeleton";
@@ -11,6 +11,10 @@ import DateInput from './DateInput';
 import GestationalMilestones from './GestationalMilestones';
 import { triggerHaptic } from '../utils/haptics';
 import CalculatorActionBar from './CalculatorActionBar';
+import { ClinicalNumericInput } from './ClinicalNumericInput';
+import { parseNumericDraft, validateNumericRange } from '../utils/numericInput';
+import { CLINICAL_INPUT_LIMITS } from '../config/clinicalInputLimits';
+import { useFieldNavigation } from '../hooks/useFieldNavigation';
 
 interface LmpCalculatorProps {
   onSaveRecord: (record: Omit<HistoryRecord, 'id' | 'date'>) => void;
@@ -20,22 +24,27 @@ interface LmpCalculatorProps {
 export default function LmpCalculator({ onSaveRecord, defaultCycleLength }: LmpCalculatorProps) {
   const formRef = useRef<HTMLFormElement>(null);
   const dumInputRef = useRef<HTMLInputElement>(null);
-  
+  const refDateInputRef = useRef<HTMLInputElement>(null);
+  const cycleInputRef = useRef<HTMLInputElement>(null);
+
   useShortcut('Enter', () => {
     if (formRef.current) {
       formRef.current.requestSubmit();
     }
   });
 
-  const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
-    e.target.scrollIntoView({ block: 'center', behavior: 'smooth' });
-  };
+  const { focusFirstInvalid } = useFieldNavigation([
+    dumInputRef,
+    refDateInputRef,
+    cycleInputRef,
+  ]);
 
   const [dum, setDum] = useState<string>('');
   const [refDate, setRefDate] = useState<string>(getTodayFormatted());
-  const [cycle, setCycle] = useState<number | "">(defaultCycleLength);
+  const [cycleInput, setCycleInput] = useState<string>(String(defaultCycleLength || 28));
   const [patientName, setPatientName] = useState<string>('');
   const [errorMessage, setErrorMessage] = useState<string>('');
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string | undefined>>({});
   const [mobileView, setMobileView] = useState<'inputs' | 'results'>('inputs');
 
   // Results state
@@ -58,7 +67,7 @@ export default function LmpCalculator({ onSaveRecord, defaultCycleLength }: LmpC
 
   // Load defaults
   useEffect(() => {
-    setCycle(defaultCycleLength);
+    setCycleInput(String(defaultCycleLength || 28));
   }, [defaultCycleLength]);
 
   // Real-time validation
@@ -83,12 +92,13 @@ export default function LmpCalculator({ onSaveRecord, defaultCycleLength }: LmpC
   const handleReset = () => {
     setDum('');
     setRefDate(getTodayFormatted());
-    setCycle(defaultCycleLength);
+    setCycleInput(String(defaultCycleLength || 28));
     setPatientName('');
     setResult(null);
     setSaved(false);
     setShimmer(false);
     setErrorMessage('');
+    setFieldErrors({});
     setMobileView('inputs');
 
     setTimeout(() => {
@@ -114,98 +124,117 @@ export default function LmpCalculator({ onSaveRecord, defaultCycleLength }: LmpC
 
   const handleCalculate = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
-    
-    if (errorMessage) {
-      triggerHaptic([60, 40, 60]);
-      return; // Prevent calculation if reactive validation already caught an error.
-    }
-    
+    setErrorMessage('');
+    setFieldErrors({});
+
+    const newFieldErrors: Record<string, string | undefined> = {};
+    const invalidRefs: (HTMLInputElement | null)[] = [];
+
     if (!dum || dum.length !== 10) {
-      setErrorMessage('Por favor, informe a Data da Última Menstruação.');
+      newFieldErrors['dum'] = 'Por favor, informe a Data da Última Menstruação.';
+      invalidRefs.push(dumInputRef.current);
+    } else {
+      const dumErr = validateDateStr(dum, { noFuture: true });
+      if (dumErr) {
+        newFieldErrors['dum'] = dumErr;
+        invalidRefs.push(dumInputRef.current);
+      }
+    }
+
+    if (!refDate || refDate.length !== 10) {
+      newFieldErrors['refDate'] = 'Por favor, informe a data de referência.';
+      invalidRefs.push(refDateInputRef.current);
+    } else {
+      const refErr = validateDateStr(refDate);
+      if (refErr) {
+        newFieldErrors['refDate'] = refErr;
+        invalidRefs.push(refDateInputRef.current);
+      }
+    }
+
+    const errCycle = validateNumericRange(cycleInput, {
+      required: true,
+      min: CLINICAL_INPUT_LIMITS.lmpCycle.min,
+      max: CLINICAL_INPUT_LIMITS.lmpCycle.max,
+      label: 'Duração do ciclo',
+      unit: 'dias',
+    });
+    if (errCycle) {
+      newFieldErrors['cycle'] = errCycle;
+      invalidRefs.push(cycleInputRef.current);
+    }
+
+    if (Object.keys(newFieldErrors).length > 0) {
+      setFieldErrors(newFieldErrors);
       triggerHaptic([60, 40, 60]);
+      focusFirstInvalid(invalidRefs);
       return;
     }
 
-    const dumObj = parseDateString(dum);
-    if (!dumObj) {
-      setErrorMessage('A data da DUM é inválida.');
-      triggerHaptic([60, 40, 60]);
-      return;
-    }
-
-    if (dumObj > new Date()) {
-      setErrorMessage('A data da DUM não pode ser uma data futura.');
-      triggerHaptic([60, 40, 60]);
-      return;
-    }
-
-    const refObj = parseDateString(refDate);
-    if (!refObj) {
-      setErrorMessage('A data de referência é inválida.');
-      triggerHaptic([60, 40, 60]);
-      return;
-    }
+    const dumObj = parseDateString(dum)!;
+    const refObj = parseDateString(refDate)!;
 
     if (refObj < dumObj) {
       setErrorMessage('A data de referência não pode ser anterior à DUM.');
       triggerHaptic([60, 40, 60]);
       return;
     }
-    
-    const c = Number(cycle);
-    if (cycle === '' || c < 20 || c > 45) {
-      setErrorMessage('A duração do ciclo deve estar entre 20 e 45 dias.');
-      triggerHaptic([60, 40, 60]);
-      return;
-    }
 
-    setShimmer(true); setTimeout(() => {
-    
-    // Cycle adjustment: if cycle is different from 28 days, ovulation happens (cycle - 14) days after DUM.
-    const shiftDays = (Number(cycle) || 28) - 28;
-    
-    // Adjusted DUM used for gestational age calculation
-    const adjustedDumMs = dumObj.getTime() - shiftDays * 24 * 60 * 60 * 1000;
-    
-    // Gestational age calculation
-    const diffTime = refObj.getTime() - adjustedDumMs;
-    const totalDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-    
-    const weeks = Math.floor(totalDays / 7);
-    const days = totalDays % 7;
+    const cycleVal = parseNumericDraft(cycleInput) ?? 28;
 
-    // DPP is 280 days after DUM, adjusted by shift
-    const dppObj = new Date(dumObj.getTime() + (280 + shiftDays) * 24 * 60 * 60 * 1000);
-    const conceptionObj = new Date(dumObj.getTime() + (14 + shiftDays) * 24 * 60 * 60 * 1000);
-    
-    // Morphological ultrasound: 20 to 24 weeks
-    const morphMinObj = new Date(adjustedDumMs + 20 * 7 * 24 * 60 * 60 * 1000);
-    const morphMaxObj = new Date(adjustedDumMs + 24 * 7 * 24 * 60 * 60 * 1000);
+    setShimmer(true);
+    setTimeout(() => {
+      // Cycle adjustment: if cycle is different from 28 days, ovulation happens (cycle - 14) days after DUM.
+      const shiftDays = cycleVal - 28;
 
-    const formatDateStr = (d: Date) => {
-      return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
-    };
+      // Adjusted DUM used for gestational age calculation
+      const adjustedDumMs = dumObj.getTime() - shiftDays * 24 * 60 * 60 * 1000;
 
-    setResult({
-      weeks,
-      days,
-      dpp: formatDateStr(dppObj),
-      conceptionDate: formatDateStr(conceptionObj),
-      morphologicalMin: formatDateStr(morphMinObj),
-      morphologicalMax: formatDateStr(morphMaxObj),
-      adjustedDumDate: new Date(adjustedDumMs),
-      totalDays
-    });
-    setMobileView('results');
-    triggerHaptic([25, 40, 25]);
-    setSaved(false); setShimmer(false); }, 600);
+      // Gestational age calculation
+      const diffTime = refObj.getTime() - adjustedDumMs;
+      const totalDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+      const weeks = Math.floor(totalDays / 7);
+      const days = totalDays % 7;
+
+      // DPP is 280 days after DUM, adjusted by shift
+      const dppObj = new Date(dumObj.getTime() + (280 + shiftDays) * 24 * 60 * 60 * 1000);
+      const conceptionObj = new Date(dumObj.getTime() + (14 + shiftDays) * 24 * 60 * 60 * 1000);
+
+      // Morphological ultrasound: 20 to 24 weeks
+      const morphMinObj = new Date(adjustedDumMs + 20 * 7 * 24 * 60 * 60 * 1000);
+      const morphMaxObj = new Date(adjustedDumMs + 24 * 7 * 24 * 60 * 60 * 1000);
+
+      const formatDateStr = (d: Date) => {
+        return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+      };
+
+      setResult({
+        weeks,
+        days,
+        dpp: formatDateStr(dppObj),
+        conceptionDate: formatDateStr(conceptionObj),
+        morphologicalMin: formatDateStr(morphMinObj),
+        morphologicalMax: formatDateStr(morphMaxObj),
+        adjustedDumDate: new Date(adjustedDumMs),
+        totalDays,
+      });
+
+      // Close keyboard before displaying result
+      (document.activeElement as HTMLElement | null)?.blur();
+
+      setMobileView('results');
+      triggerHaptic([25, 40, 25]);
+      setSaved(false);
+      setShimmer(false);
+    }, 600);
   };
 
   const handleSave = () => {
     if (!result) return;
     triggerHaptic([50, 50]);
     const finalName = patientName.trim() || 'Paciente Sem Nome';
-    
+
     onSaveRecord({
       patientName: finalName,
       type: 'DUM',
@@ -213,7 +242,7 @@ export default function LmpCalculator({ onSaveRecord, defaultCycleLength }: LmpC
       details: {
         dum,
         refDate,
-        cycle,
+        cycle: parseNumericDraft(cycleInput) ?? undefined,
         weeks: result.weeks,
         days: result.days,
         dpp: result.dpp,
@@ -275,80 +304,107 @@ export default function LmpCalculator({ onSaveRecord, defaultCycleLength }: LmpC
 
       <div className="grid grid-cols-1 min-[1024px]:grid-cols-[minmax(320px,0.88fr)_minmax(0,1.12fr)] min-[1366px]:flex min-[1366px]:flex-row gap-4 min-[1024px]:gap-6 min-[1366px]:gap-12 items-start w-full min-w-0">
         {/* Left Col: Inputs Form */}
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
           className={`w-full min-[1366px]:w-[45%] flex flex-col animate-card min-w-0 ${
             result && mobileView !== 'inputs' ? 'hidden min-[1024px]:flex' : 'flex'
           }`}
         >
-          <form ref={formRef} onSubmit={handleCalculate} noValidate className="glass-panel calculator-form-panel rounded-[1.25rem] md:rounded-[2rem] flex flex-col justify-start min-[1366px]:justify-between gap-3 sm:gap-4 shadow-xs h-auto min-[1366px]:h-full relative">
-            {errorMessage && (
-              <InfoBalloon variant="error" text={errorMessage} />
-            )}
-            
+          <form
+            ref={formRef}
+            onSubmit={handleCalculate}
+            noValidate
+            className="glass-panel calculator-form-panel rounded-[1.25rem] md:rounded-[2rem] flex flex-col justify-start min-[1366px]:justify-between gap-3 sm:gap-4 shadow-xs h-auto min-[1366px]:h-full relative"
+          >
+            {errorMessage && <InfoBalloon variant="error" text={errorMessage} />}
+
             <div className="flex flex-col gap-3 justify-start">
-              <div className="flex flex-col gap-1.5" title="Primeiro dia de sangramento do último ciclo.">
+              <div
+                className="flex flex-col gap-1.5"
+                title="Primeiro dia de sangramento do último ciclo."
+              >
                 <div className="flex flex-col gap-1 mb-0.5">
-                  <label className="text-sm font-semibold text-on-surface pl-0.5" htmlFor="dum-date">
-                    Data da Última Menstruação (DUM)
-                  </label>
-                  <InfoBalloon 
+                  <InfoBalloon
                     text="Primeiro dia de sangramento do último ciclo."
                     onClick={() => setHelpTopic('dum')}
                   />
                 </div>
+                <label className="text-sm font-semibold text-on-surface pl-0.5" htmlFor="dum-date">
+                  Data da Última Menstruação (DUM)
+                </label>
                 <DateInput
                   ref={dumInputRef}
                   id="dum-date"
                   required
                   enterKeyHint="next"
                   value={dum}
-                  onChange={setDum}
-                  onFocus={handleFocus}
+                  onChange={(val) => {
+                    setDum(val);
+                    setFieldErrors((prev) => ({ ...prev, dum: undefined }));
+                  }}
+                  onAutoAdvance={() => refDateInputRef.current?.focus()}
                   className="ios-input w-full h-12 md:h-12 px-3.5 md:px-4 rounded-xl text-[16px] font-medium text-on-surface"
                 />
+                {fieldErrors.dum && (
+                  <span className="text-xs font-semibold text-error pl-1">{fieldErrors.dum}</span>
+                )}
               </div>
 
-              <div className="flex flex-col gap-1.5" title="Data para a qual a idade gestacional será calculada.">
+              <div
+                className="flex flex-col gap-1.5"
+                title="Data para a qual a idade gestacional será calculada."
+              >
                 <label className="text-sm font-semibold text-on-surface pl-0.5" htmlFor="ref-date">
                   Data de Referência (Hoje)
                 </label>
                 <DateInput
+                  ref={refDateInputRef}
                   id="ref-date"
                   required
                   enterKeyHint="next"
                   value={refDate}
-                  onChange={setRefDate}
-                  onFocus={handleFocus}
+                  onChange={(val) => {
+                    setRefDate(val);
+                    setFieldErrors((prev) => ({ ...prev, refDate: undefined }));
+                  }}
+                  onAutoAdvance={() => cycleInputRef.current?.focus()}
                   className="ios-input w-full h-12 md:h-12 px-3.5 md:px-4 rounded-xl text-[16px] font-medium text-on-surface"
                 />
+                {fieldErrors.refDate && (
+                  <span className="text-xs font-semibold text-error pl-1">
+                    {fieldErrors.refDate}
+                  </span>
+                )}
               </div>
 
-              <div className="flex flex-col gap-1.5" title="Duração média do ciclo menstrual (padrão: 28 dias). Afeta a estimativa da ovulação.">
+              <div
+                className="flex flex-col gap-1.5"
+                title="Duração média do ciclo menstrual (padrão: 28 dias). Afeta a estimativa da ovulação."
+              >
                 <div className="flex flex-col gap-1 mb-0.5">
-                  <div className="flex justify-between items-center pl-0.5 pr-0.5">
-                    <label className="text-sm font-semibold text-on-surface" htmlFor="cycle-length">
-                      Duração do Ciclo (dias)
-                    </label>
-                    <span className="text-xs font-semibold text-secondary">Padrão: 28</span>
-                  </div>
-                  <InfoBalloon 
+                  <InfoBalloon
                     text="Afeta a data estimada da ovulação."
                     onClick={() => setHelpTopic('cycle')}
                   />
                 </div>
-                <input 
+                <ClinicalNumericInput
+                  ref={cycleInputRef}
                   id="cycle-length"
-                  type="number"
-                  min="20"
-                  max="45"
-                  required
+                  label="Duração do Ciclo"
+                  value={cycleInput}
+                  onChange={(val) => {
+                    setCycleInput(val);
+                    setFieldErrors((prev) => ({ ...prev, cycle: undefined }));
+                  }}
+                  maxIntegerDigits={CLINICAL_INPUT_LIMITS.lmpCycle.maxIntegerDigits}
+                  decimalPlaces={CLINICAL_INPUT_LIMITS.lmpCycle.decimalPlaces}
+                  unit="dias"
+                  placeholder="28"
+                  selectAllOnFirstFocus
                   enterKeyHint="done"
-                  value={cycle}
-                  onChange={(e) => setCycle(clampValue(e.target.value, 45) as any)}
-                  onFocus={handleFocus}
-                  className="ios-input w-full h-12 md:h-12 px-3.5 md:px-4 rounded-xl text-[16px] font-medium text-on-surface"
+                  onDone={() => handleCalculate()}
+                  error={fieldErrors.cycle}
                 />
               </div>
             </div>
@@ -357,153 +413,193 @@ export default function LmpCalculator({ onSaveRecord, defaultCycleLength }: LmpC
           </form>
         </motion.div>
 
-      {/* Right Col: Results View */}
-      <div 
-        className={`w-full min-[1366px]:w-[55%] flex flex-col animate-results min-[1024px]:sticky min-[1024px]:top-20 min-w-0 ${
-          !result || mobileView !== 'results' ? 'hidden min-[1024px]:flex' : 'flex'
-        }`}
-      >
-        <motion.div
-          initial={{ opacity: 0, scale: 0.98 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ type: 'spring', stiffness: 100, damping: 15 }}
-          className={`glass-panel widget-gradient p-4 min-[1024px]:p-6 min-[1366px]:p-10 rounded-[1.5rem] md:rounded-[2rem] flex flex-col items-center justify-center text-center w-full min-h-[300px] md:min-h-[360px] relative overflow-hidden ${shimmer ? 'shimmer-active' : ''}`}
+        {/* Right Col: Results View */}
+        <div
+          className={`w-full min-[1366px]:w-[55%] flex flex-col animate-results min-[1024px]:sticky min-[1024px]:top-20 min-w-0 ${
+            !result || mobileView !== 'results' ? 'hidden min-[1024px]:flex' : 'flex'
+          }`}
         >
-          <div className="relative z-10 w-full flex flex-col items-center min-w-0">
-            {/* Main IG Section */}
-            <div className="relative flex justify-center items-center mb-2 md:mb-4 mt-1 md:mt-2">
-              <svg viewBox="0 0 220 220" className="w-[120px] h-[120px] md:w-[180px] md:h-[180px] min-[1366px]:w-[220px] min-[1366px]:h-[220px] -rotate-90">
-                <circle 
-                  cx="110" cy="110" r="95"
-                  className="stroke-surface-variant fill-none dark:opacity-100 opacity-50"
-                  strokeWidth="6"
-                />
-                {!shimmer && result && (
-                  <motion.circle 
-                    cx="110" cy="110" r="95"
-                    className="stroke-primary fill-none drop-shadow-sm dark:drop-shadow-[0_0_8px_rgba(10,132,255,0.4)]"
-                    strokeWidth="8"
-                    strokeLinecap="round"
-                    initial={{ strokeDashoffset: 2 * Math.PI * 95 }}
-                    animate={{ strokeDashoffset: (2 * Math.PI * 95) - ((Math.min(result.totalDays, 280) / 280) * (2 * Math.PI * 95)) }}
-                    transition={{ duration: 1.5, ease: "easeOut" }}
-                    style={{ strokeDasharray: 2 * Math.PI * 95 }}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.98 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ type: 'spring', stiffness: 100, damping: 15 }}
+            className={`glass-panel widget-gradient p-4 min-[1024px]:p-6 min-[1366px]:p-10 rounded-[1.5rem] md:rounded-[2rem] flex flex-col items-center justify-center text-center w-full min-h-[300px] md:min-h-[360px] relative overflow-hidden ${
+              shimmer ? 'shimmer-active' : ''
+            }`}
+          >
+            <div className="relative z-10 w-full flex flex-col items-center min-w-0">
+              {/* Main IG Section */}
+              <div className="relative flex justify-center items-center mb-2 md:mb-4 mt-1 md:mt-2">
+                <svg
+                  viewBox="0 0 220 220"
+                  className="w-[120px] h-[120px] md:w-[180px] md:h-[180px] min-[1366px]:w-[220px] min-[1366px]:h-[220px] -rotate-90"
+                >
+                  <circle
+                    cx="110"
+                    cy="110"
+                    r="95"
+                    className="stroke-surface-variant fill-none dark:opacity-100 opacity-50"
+                    strokeWidth="6"
                   />
-                )}
-              </svg>
-              <div className="absolute inset-0 flex flex-col items-center justify-center pt-2">
-                {shimmer ? (
-                  <Skeleton className="w-24 h-[48px] md:h-[64px]" type="dots" />
-                ) : result ? (
-                  <>
-                    <div className="flex items-baseline gap-1">
-                      <span className="font-display-lg text-[32px] md:text-[44px] min-[1366px]:text-[56px] leading-none text-primary tracking-tight">
-                        {result.weeks < 0 ? '--' : result.weeks}
-                      </span>
-                      <span className="font-title-md text-primary opacity-80 text-lg md:text-xl">s</span>
-                      <span className="font-display-lg text-[24px] md:text-[32px] min-[1366px]:text-[40px] leading-none text-tertiary tracking-tight ml-1">
-                        {result.weeks < 0 ? '--' : result.days}
-                      </span>
-                      <span className="font-title-md text-tertiary opacity-80 text-lg md:text-xl">d</span>
-                    </div>
-                    <span className="text-[7px] md:text-[10px] font-bold text-secondary uppercase tracking-wider md:tracking-widest mt-1 md:mt-2 text-center max-w-[90px] md:max-w-none leading-tight">Idade Gestacional</span>
-                  </>
-                ) : (
-                  <span className="font-display-lg text-[32px] md:text-[56px] leading-none text-secondary opacity-50">--</span>
-                )}
-              </div>
-            </div>
-
-            <div className="bg-surface-variant/50 dark:bg-surface-variant rounded-2xl md:rounded-3xl px-4 md:px-8 py-2 md:py-4 flex flex-col items-center border border-surface-variant/50 dark:border-transparent w-full max-w-[280px] md:max-w-[320px] shadow-sm mb-2 md:mb-4">
-              <p className="text-[9px] md:text-[10px] font-bold text-secondary uppercase tracking-widest mb-1">
-                Data Provável do Parto
-              </p>
-              <span className="font-headline-lg text-xl md:text-[24px] min-[1366px]:text-[28px] font-semibold text-on-surface tracking-tight">
-                {shimmer ? (
-                  <Skeleton className="w-32 md:w-40 h-[24px] md:h-[32px] rounded-lg mt-1" />
-                ) : result ? (
-                  result.dpp
-                ) : (
-                  '-- / -- / ----'
-                )}
-              </span>
-            </div>
-
-            {/* Detailed clinical indicators, only visible when computed */}
-            {result && (
-              <motion.div 
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="w-full flex flex-col gap-3 md:gap-4 mt-3 md:mt-6 pt-3 md:pt-5 border-t border-surface-variant min-w-0"
-              >
-                <div className="grid grid-cols-2 gap-2.5 sm:gap-3 text-left">
-                  <div className="flex flex-col gap-1 bg-surface-variant/50 dark:bg-surface-variant p-2.5 sm:p-3.5 rounded-xl min-w-0">
-                    <span className="text-[9px] md:text-[10px] font-bold text-secondary uppercase tracking-wide">Concepção Estimada</span>
-                    <span className="text-xs md:text-sm font-semibold text-on-surface break-words leading-snug">{result.conceptionDate}</span>
-                  </div>
-                  <div className="flex flex-col gap-1 bg-surface-variant/50 dark:bg-surface-variant p-2.5 sm:p-3.5 rounded-xl min-w-0">
-                    <span className="text-[9px] md:text-[10px] font-bold text-secondary uppercase tracking-wide">USG Morfológico</span>
-                    <span className="text-[11px] md:text-xs font-semibold text-on-surface break-words leading-snug">{result.morphologicalMin} - {result.morphologicalMax}</span>
-                  </div>
-                </div>
-
-                <GestationalMilestones dumDate={result.adjustedDumDate} currentDays={result.totalDays} />
-
-                {/* Save record */}
-                <div className="mt-2 md:mt-4 pt-3 md:pt-4 border-t border-surface-variant flex flex-col gap-2.5 text-left">
-                  <label className="text-[11px] md:text-xs font-semibold uppercase tracking-wider text-secondary pl-1" htmlFor="pat-name">
-                    Salvar no Histórico Local
-                  </label>
-                  <div className="flex gap-2">
-                    <input 
-                      id="pat-name"
-                      type="text"
-                      placeholder="Identificação da paciente..."
-                      value={patientName}
-                      onChange={(e) => setPatientName(e.target.value)}
-                      onFocus={handleFocus}
-                      className="ios-input flex-grow h-10 md:h-12 px-3 rounded-xl text-base md:text-sm min-w-0"
+                  {!shimmer && result && (
+                    <motion.circle
+                      cx="110"
+                      cy="110"
+                      r="95"
+                      className="stroke-primary fill-none drop-shadow-sm dark:drop-shadow-[0_0_8px_rgba(10,132,255,0.4)]"
+                      strokeWidth="8"
+                      strokeLinecap="round"
+                      initial={{ strokeDashoffset: 2 * Math.PI * 95 }}
+                      animate={{
+                        strokeDashoffset:
+                          2 * Math.PI * 95 -
+                          (Math.min(result.totalDays, 280) / 280) * (2 * Math.PI * 95),
+                      }}
+                      transition={{ duration: 1.5, ease: 'easeOut' }}
+                      style={{ strokeDasharray: 2 * Math.PI * 95 }}
                     />
-                    <button
-                      type="button"
-                      onClick={handleSave}
-                      className={`px-3 md:px-4 rounded-xl inline-flex items-center justify-center gap-1.5 font-bold text-xs transition-all duration-150 cursor-pointer min-h-[44px] ${
-                        saved
-                          ? 'bg-primary text-white shadow-md'
-                          : 'bg-surface-variant text-on-surface hover:bg-surface-variant/80'
-                      }`}
-                    >
-                      <Icon name={saved ? 'check_circle' : 'save'} className="icon-inline" />
-                      {saved ? 'Salvo' : 'Salvar'}
-                    </button>
-                  </div>
+                  )}
+                </svg>
+                <div className="absolute inset-0 flex flex-col items-center justify-center pt-2">
+                  {shimmer ? (
+                    <Skeleton className="w-24 h-[48px] md:h-[64px]" type="dots" />
+                  ) : result ? (
+                    <>
+                      <div className="flex items-baseline gap-1">
+                        <span className="font-display-lg text-[32px] md:text-[44px] min-[1366px]:text-[56px] leading-none text-primary tracking-tight">
+                          {result.weeks < 0 ? '--' : result.weeks}
+                        </span>
+                        <span className="font-title-md text-primary opacity-80 text-lg md:text-xl">
+                          s
+                        </span>
+                        <span className="font-display-lg text-[24px] md:text-[32px] min-[1366px]:text-[40px] leading-none text-tertiary tracking-tight ml-1">
+                          {result.weeks < 0 ? '--' : result.days}
+                        </span>
+                        <span className="font-title-md text-tertiary opacity-80 text-lg md:text-xl">
+                          d
+                        </span>
+                      </div>
+                      <span className="text-[7px] md:text-[10px] font-bold text-secondary uppercase tracking-wider md:tracking-widest mt-1 md:mt-2 text-center max-w-[90px] md:max-w-none leading-tight">
+                        Idade Gestacional
+                      </span>
+                    </>
+                  ) : (
+                    <span className="font-display-lg text-[32px] md:text-[56px] leading-none text-secondary opacity-50">
+                      --
+                    </span>
+                  )}
                 </div>
-              </motion.div>
-            )}
-          </div>
-        </motion.div>
-      </div>
+              </div>
+
+              <div className="bg-surface-variant/50 dark:bg-surface-variant rounded-2xl md:rounded-3xl px-4 md:px-8 py-2 md:py-4 flex flex-col items-center border border-surface-variant/50 dark:border-transparent w-full max-w-[280px] md:max-w-[320px] shadow-sm mb-2 md:mb-4">
+                <p className="text-[9px] md:text-[10px] font-bold text-secondary uppercase tracking-widest mb-1">
+                  Data Provável do Parto
+                </p>
+                <span className="font-headline-lg text-xl md:text-[24px] min-[1366px]:text-[28px] font-semibold text-on-surface tracking-tight">
+                  {shimmer ? (
+                    <Skeleton className="w-32 md:w-40 h-[24px] md:h-[32px] rounded-lg mt-1" />
+                  ) : result ? (
+                    result.dpp
+                  ) : (
+                    '-- / -- / ----'
+                  )}
+                </span>
+              </div>
+
+              {/* Detailed clinical indicators, only visible when computed */}
+              {result && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="w-full flex flex-col gap-3 md:gap-4 mt-3 md:mt-6 pt-3 md:pt-5 border-t border-surface-variant min-w-0"
+                >
+                  <div className="grid grid-cols-2 gap-2.5 sm:gap-3 text-left">
+                    <div className="flex flex-col gap-1 bg-surface-variant/50 dark:bg-surface-variant p-2.5 sm:p-3.5 rounded-xl min-w-0">
+                      <span className="text-[9px] md:text-[10px] font-bold text-secondary uppercase tracking-wide">
+                        Concepção Estimada
+                      </span>
+                      <span className="text-xs md:text-sm font-semibold text-on-surface break-words leading-snug">
+                        {result.conceptionDate}
+                      </span>
+                    </div>
+                    <div className="flex flex-col gap-1 bg-surface-variant/50 dark:bg-surface-variant p-2.5 sm:p-3.5 rounded-xl min-w-0">
+                      <span className="text-[9px] md:text-[10px] font-bold text-secondary uppercase tracking-wide">
+                        USG Morfológico
+                      </span>
+                      <span className="text-[11px] md:text-xs font-semibold text-on-surface break-words leading-snug">
+                        {result.morphologicalMin} - {result.morphologicalMax}
+                      </span>
+                    </div>
+                  </div>
+
+                  <GestationalMilestones
+                    dumDate={result.adjustedDumDate}
+                    currentDays={result.totalDays}
+                  />
+
+                  {/* Save record */}
+                  <div className="mt-2 md:mt-4 pt-3 md:pt-4 border-t border-surface-variant flex flex-col gap-2.5 text-left">
+                    <label
+                      className="text-[11px] md:text-xs font-semibold uppercase tracking-wider text-secondary pl-1"
+                      htmlFor="pat-name-dum"
+                    >
+                      Salvar no Histórico Local
+                    </label>
+                    <div className="flex gap-2">
+                      <input
+                        id="pat-name-dum"
+                        type="text"
+                        placeholder="Identificação da paciente..."
+                        value={patientName}
+                        onChange={(e) => setPatientName(e.target.value)}
+                        className="ios-input flex-grow h-10 md:h-12 px-3 rounded-xl text-base md:text-sm min-w-0"
+                      />
+                      <button
+                        type="button"
+                        onClick={handleSave}
+                        className={`px-3 md:px-4 rounded-xl inline-flex items-center justify-center gap-1.5 font-bold text-xs transition-all duration-150 cursor-pointer min-h-[44px] ${
+                          saved
+                            ? 'bg-primary text-white shadow-md'
+                            : 'bg-surface-variant text-on-surface hover:bg-surface-variant/80'
+                        }`}
+                      >
+                        <Icon name={saved ? 'check_circle' : 'save'} className="icon-inline" />
+                        {saved ? 'Salvo' : 'Salvar'}
+                      </button>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </div>
+          </motion.div>
+        </div>
       </div>
 
       <HelpModal
         isOpen={helpTopic !== null}
         onClose={() => setHelpTopic(null)}
         title={
-          helpTopic === 'dum' ? 'Data da Última Menstruação (DUM)' :
-          helpTopic === 'cycle' ? 'Duração do Ciclo' : ''
+          helpTopic === 'dum'
+            ? 'Data da Última Menstruação (DUM)'
+            : helpTopic === 'cycle'
+            ? 'Duração do Ciclo'
+            : ''
         }
       >
         {helpTopic === 'dum' && (
           <p>
-            A <strong>DUM (Data da Última Menstruação)</strong> refere-se ao primeiro dia de sangramento do último ciclo menstrual. 
-            É o parâmetro clínico padrão para datar a gestação, assumindo um ciclo regular onde a ovulação ocorre cerca de 14 dias após a DUM.
+            A <strong>DUM (Data da Última Menstruação)</strong> refere-se ao primeiro dia de
+            sangramento do último ciclo menstrual. É o parâmetro clínico padrão para datar a
+            gestação, assumindo um ciclo regular onde a ovulação ocorre cerca de 14 dias após a
+            DUM.
           </p>
         )}
         {helpTopic === 'cycle' && (
           <p>
-            A <strong>duração do ciclo</strong> afeta o momento da ovulação. Em um ciclo padrão de 28 dias, a ovulação ocorre no 14º dia. 
-            Se o ciclo for mais longo ou mais curto, a data provável da concepção e, consequentemente, a idade gestacional real, 
-            precisam ser adjusted (regra de Naegele modificada).
+            A <strong>duração do ciclo</strong> afeta o momento da ovulação. Em um ciclo padrão de
+            28 dias, a ovulação ocorre no 14º dia. Se o ciclo for mais longo ou mais curto, a data
+            provável da concepção e, consequentemente, a idade gestacional real, precisam ser
+            ajustadas (regra de Naegele modificada).
           </p>
         )}
       </HelpModal>
@@ -520,7 +616,10 @@ export default function LmpCalculator({ onSaveRecord, defaultCycleLength }: LmpC
         className="hidden min-[1366px]:flex fixed bottom-10 right-10 bg-surface text-on-surface shadow-[0_4px_20px_rgba(0,0,0,0.15)] dark:shadow-[0_4px_20px_rgba(0,0,0,0.4)] hover:bg-surface-variant transition-colors p-4 rounded-full items-center justify-center border border-surface-variant/50 z-40 group"
         title="Zerar formulário"
       >
-        <Icon name="refresh" className="text-[24px] group-hover:-rotate-180 transition-transform duration-500" />
+        <Icon
+          name="refresh"
+          className="text-[24px] group-hover:-rotate-180 transition-transform duration-500"
+        />
       </motion.button>
     </div>
   );

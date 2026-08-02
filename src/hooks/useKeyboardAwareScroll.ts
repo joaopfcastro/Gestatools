@@ -2,21 +2,60 @@ import { useEffect, RefObject } from 'react';
 
 export function useKeyboardAwareScroll(containerRef?: RefObject<HTMLElement | null>) {
   useEffect(() => {
+    let rafId: number | null = null;
+    let targetElement: HTMLElement | null = null;
+
+    const performScroll = () => {
+      if (!targetElement || !document.contains(targetElement)) return;
+
+      const rect = targetElement.getBoundingClientRect();
+      const vvHeight = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+      const vvTop = window.visualViewport ? window.visualViewport.offsetTop : 0;
+
+      // Safe areas: Header (~60px) and CalculatorActionBar (~70px)
+      const topPadding = 64;
+      const bottomPadding = 80;
+
+      const visibleTop = vvTop + topPadding;
+      const visibleBottom = vvTop + vvHeight - bottomPadding;
+
+      const isObscuredTop = rect.top < visibleTop;
+      const isObscuredBottom = rect.bottom > visibleBottom;
+
+      if (isObscuredTop || isObscuredBottom) {
+        targetElement.scrollIntoView({
+          behavior: 'auto',
+          block: 'nearest',
+          inline: 'nearest',
+        });
+      }
+    };
+
     const handleFocusIn = (e: Event) => {
       const target = e.target as HTMLElement;
-      
-      if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT') {
-        // Only scroll into view if on coarse pointer or small/constrained viewport
-        const isTouch = window.matchMedia('(pointer: coarse)').matches || window.innerHeight < 700;
+
+      if (
+        target &&
+        (target.tagName === 'INPUT' ||
+          target.tagName === 'TEXTAREA' ||
+          target.tagName === 'SELECT')
+      ) {
+        const isTouch =
+          window.matchMedia('(pointer: coarse)').matches || window.innerHeight < 700;
         if (!isTouch) return;
 
-        setTimeout(() => {
-          target.scrollIntoView({
-            behavior: 'smooth',
-            block: 'center',
-            inline: 'nearest'
+        targetElement = target;
+
+        if (rafId) {
+          cancelAnimationFrame(rafId);
+        }
+
+        // Wait up to 2 animation frames for visualViewport / keyboard to adjust
+        rafId = requestAnimationFrame(() => {
+          rafId = requestAnimationFrame(() => {
+            performScroll();
           });
-        }, 300);
+        });
       }
     };
 
@@ -24,6 +63,7 @@ export function useKeyboardAwareScroll(containerRef?: RefObject<HTMLElement | nu
     element.addEventListener('focusin', handleFocusIn);
 
     return () => {
+      if (rafId) cancelAnimationFrame(rafId);
       element.removeEventListener('focusin', handleFocusIn);
     };
   }, [containerRef]);
@@ -36,9 +76,9 @@ export function useKeyboardAwareScroll(containerRef?: RefObject<HTMLElement | nu
         document.documentElement.style.setProperty('--app-height', height);
       }
     };
-    
+
     updateVv();
-    
+
     if (window.visualViewport) {
       window.visualViewport.addEventListener('resize', updateVv);
       window.visualViewport.addEventListener('scroll', updateVv);
@@ -46,7 +86,7 @@ export function useKeyboardAwareScroll(containerRef?: RefObject<HTMLElement | nu
 
     window.addEventListener('resize', updateVv);
     window.addEventListener('orientationchange', updateVv);
-    
+
     return () => {
       if (window.visualViewport) {
         window.visualViewport.removeEventListener('resize', updateVv);
@@ -57,4 +97,3 @@ export function useKeyboardAwareScroll(containerRef?: RefObject<HTMLElement | nu
     };
   }, []);
 }
-
