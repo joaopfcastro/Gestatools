@@ -182,9 +182,9 @@ body {
   -webkit-tap-highlight-color: transparent;
 }
 
-.dark body {
-  background-color: #000000;
-  background-image: none;
+.dark body, body.dark, html.dark body {
+  background-color: #000000 !important;
+  background-image: none !important;
 }
 
 /* Apple-style Glassmorphism */
@@ -222,7 +222,7 @@ body {
 }
 
 .dark .glass-nav-top {
-  background: rgba(0, 0, 0, 0.65);
+  background: #000000;
   backdrop-filter: blur(40px) saturate(200%);
   -webkit-backdrop-filter: blur(40px) saturate(200%);
   border-bottom: 1px solid rgba(255, 255, 255, 0.04);
@@ -347,78 +347,29 @@ body {
    ========================================================= */
 
 .calculator-action-bar {
-  position: sticky;
-  bottom: 0;
-  z-index: 20;
+  position: relative;
+  z-index: 1;
 
-  margin-top: 1rem;
-  margin-right: -0.875rem;
-  margin-bottom: -0.875rem;
-  margin-left: -0.875rem;
+  margin-top: 1.25rem;
+  margin-right: 0;
+  margin-bottom: 0;
+  margin-left: 0;
 
-  padding-top: 0.75rem;
-  padding-right: 0.875rem;
-  padding-bottom: 0.25rem;
-  padding-left: 0.875rem;
+  padding: 0;
 
-  background: rgba(255, 255, 255, 0.9);
-  border-top: 1px solid rgba(0, 0, 0, 0.05);
-  border-radius: 0 0 1.25rem 1.25rem;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
 
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
 
-  box-shadow:
-    0 -4px 12px rgba(0, 0, 0, 0.04),
-    0 8px 20px rgba(0, 0, 0, 0.06);
+  box-shadow: none;
 }
 
 .dark .calculator-action-bar {
-  background: rgba(28, 28, 30, 0.9);
-  border-top-color: rgba(255, 255, 255, 0.1);
-}
-
-@media (min-width: 640px) and (max-width: 1023px) {
-  .calculator-action-bar {
-    margin-right: -1.25rem;
-    margin-bottom: -1.25rem;
-    margin-left: -1.25rem;
-
-    padding-right: 1.25rem;
-    padding-left: 1.25rem;
-  }
-}
-
-@media (min-width: 1024px) {
-  .calculator-action-bar {
-    position: static;
-    bottom: auto;
-    z-index: auto;
-
-    margin-top: 1rem;
-    margin-right: 0;
-    margin-bottom: 0;
-    margin-left: 0;
-
-    padding-top: 0;
-    padding-right: 0;
-    padding-bottom: 0;
-    padding-left: 0;
-
-    background: transparent;
-    border: 0;
-    border-radius: 0;
-
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
-
-    box-shadow: none;
-  }
-
-  .dark .calculator-action-bar {
-    background: transparent;
-    border: 0;
-  }
+  background: transparent;
+  border: 0;
 }
 
 /* =========================================================
@@ -525,34 +476,45 @@ html, body, #root {
   supported-color-schemes: light dark;
 }
 
+html, body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
 html {
-  color-scheme: light dark !important;
   forced-color-adjust: none !important;
 }
 
 html:not(.dark) {
   background-color: #F2F2F7;
   color: #1a1c1d;
+  color-scheme: light !important;
 }
 
 html.dark {
-  background-color: #000000;
+  background-color: #000000 !important;
   color: #ffffff;
+  color-scheme: dark !important;
 }
 
 body {
-  color-scheme: light dark !important;
   forced-color-adjust: none !important;
 }
 
 body:not(.dark) {
   background-color: #F2F2F7;
   color: #1a1c1d;
+  color-scheme: light !important;
 }
 
-body.dark {
-  background-color: #000000;
+body.dark, html.dark body {
+  background-color: #000000 !important;
   color: #ffffff;
+  color-scheme: dark !important;
 }
 
 @utility icon-inline {

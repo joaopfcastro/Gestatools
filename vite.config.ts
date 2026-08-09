@@ -7,11 +7,14 @@ export default defineConfig(() => {
   return {
     plugins: [react(), tailwindcss()],
     resolve: {
+      dedupe: ['react', 'react-dom'],
       alias: {
         '@': path.resolve(__dirname, '.'),
-        'react': path.resolve(__dirname, 'node_modules/react'),
-        'react-dom': path.resolve(__dirname, 'node_modules/react-dom'),
+        '@GestaTools_Identidade_Visual': path.resolve(__dirname, 'GestaTools_Identidade_Visual'),
       },
+    },
+    optimizeDeps: {
+      include: ['react', 'react-dom', 'motion/react', 'lucide-react'],
     },
     server: {
       // HMR is disabled in AI Studio via DISABLE_HMR env var.

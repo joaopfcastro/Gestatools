@@ -3,9 +3,10 @@ import React, { forwardRef } from 'react';
 interface DateInputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'value' | 'onChange'> {
   value: string;
   onChange: (value: string) => void;
+  onAutoAdvance?: () => void;
 }
 
-const DateInput = forwardRef<HTMLInputElement, DateInputProps>(({ value, onChange, ...props }, ref) => {
+const DateInput = forwardRef<HTMLInputElement, DateInputProps>(({ value, onChange, onAutoAdvance, ...props }, ref) => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let raw = e.target.value.replace(/\D/g, '');
     if (raw.length > 8) {
@@ -20,6 +21,9 @@ const DateInput = forwardRef<HTMLInputElement, DateInputProps>(({ value, onChang
     }
     
     onChange(formatted);
+    if (formatted.length === 10 && onAutoAdvance) {
+      onAutoAdvance();
+    }
   };
 
   return (

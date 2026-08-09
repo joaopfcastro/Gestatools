@@ -1,15 +1,28 @@
-const CACHE_NAME = 'gestatools-v6';
+const CACHE_NAME = 'gestatools-v8-official-brand-assets';
 
 const CORE_ASSETS = [
   '/',
   '/index.html',
   '/manifest.json',
+  '/browserconfig.xml',
+  '/favicon.ico',
+  '/favicon-16x16.png',
+  '/favicon-32x32.png',
+  '/favicon-48x48.png',
   '/favicon.png',
   '/apple-touch-icon.png',
-  '/icon-180.png',
-  '/icon-192.png',
-  '/icon-512.png',
-  '/icon.svg'
+  '/android-chrome-192x192.png',
+  '/android-chrome-512x512.png',
+  '/icons/gestatools-v2/icon-64.png',
+  '/icons/gestatools-v2/icon-152.png',
+  '/icons/gestatools-v2/icon-167.png',
+  '/icons/gestatools-v2/icon-180.png',
+  '/icons/gestatools-v2/icon-192.png',
+  '/icons/gestatools-v2/icon-512.png',
+  '/icons/gestatools-v2/maskable-192.png',
+  '/icons/gestatools-v2/maskable-512.png',
+  '/icons/gestatools-v2/mstile-150.png',
+  '/social/gestatools-og-1200x630.png'
 ];
 
 self.addEventListener('install', (e) => {
@@ -40,6 +53,18 @@ self.addEventListener('activate', (e) => {
 
 self.addEventListener('fetch', (e) => {
   const req = e.request;
+  const url = new URL(req.url);
+
+  // Bypass service worker entirely in development / preview containers to prevent stale module caching
+  if (
+    url.hostname.includes('-dev-') ||
+    url.hostname.includes('-pre-') ||
+    url.hostname.includes('run.app') ||
+    url.hostname.includes('localhost') ||
+    url.hostname.includes('127.0.0.1')
+  ) {
+    return;
+  }
 
   // Ignore non-GET requests and non-http protocols (like chrome-extension://)
   if (req.method !== 'GET' || !req.url.startsWith('http')) return;
@@ -63,12 +88,29 @@ self.addEventListener('fetch', (e) => {
     return;
   }
 
-  // Other assets (JS, CSS, Images, Fonts) -> Stale-While-Revalidate
+  // For JS and CSS scripts/styles (code modules), use Network First to prevent stale bundle mismatches
+  if (url.pathname.endsWith('.js') || url.pathname.endsWith('.css') || url.pathname.includes('/assets/')) {
+    e.respondWith(
+      fetch(req)
+        .then((networkResponse) => {
+          if (networkResponse && networkResponse.status === 200) {
+            const cacheCopy = networkResponse.clone();
+            caches.open(CACHE_NAME).then((cache) => {
+              cache.put(req, cacheCopy);
+            });
+          }
+          return networkResponse;
+        })
+        .catch(() => caches.match(req))
+    );
+    return;
+  }
+
+  // Other static assets (Images, Fonts) -> Stale-While-Revalidate
   e.respondWith(
     caches.match(req).then((cachedResponse) => {
       const networkFetch = fetch(req)
         .then((networkResponse) => {
-          // Cache valid responses
           if (networkResponse && (networkResponse.status === 200 || networkResponse.type === 'opaque')) {
             const cacheCopy = networkResponse.clone();
             caches.open(CACHE_NAME).then((cache) => {
@@ -77,11 +119,8 @@ self.addEventListener('fetch', (e) => {
           }
           return networkResponse;
         })
-        .catch(() => {
-          // Ignore network errors on background updates
-        });
+        .catch(() => {});
 
-      // Return cache immediately if available, otherwise wait for network
       return cachedResponse || networkFetch;
     })
   );

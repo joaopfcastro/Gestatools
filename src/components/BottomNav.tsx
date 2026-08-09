@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { TabType } from '../types';
 import Icon from './Icon';
 import { triggerHaptic } from '../utils/haptics';
@@ -8,6 +9,60 @@ interface BottomNavProps {
 }
 
 export default function BottomNav({ activeTab, setActiveTab }: BottomNavProps) {
+  const [isKeyboardOpen, setIsKeyboardOpen] = useState(false);
+
+  useEffect(() => {
+    const checkInputFocus = () => {
+      const active = document.activeElement;
+      const isInputFocused = !!(
+        active &&
+        (active.tagName === 'INPUT' ||
+          active.tagName === 'TEXTAREA' ||
+          active.tagName === 'SELECT' ||
+          (active as HTMLElement).isContentEditable)
+      );
+
+      const isViewportSmall = window.visualViewport
+        ? window.innerHeight - window.visualViewport.height > 120
+        : false;
+
+      setIsKeyboardOpen(isInputFocused || isViewportSmall);
+    };
+
+    const handleFocusIn = () => {
+      checkInputFocus();
+    };
+
+    const handleFocusOut = () => {
+      setTimeout(() => {
+        checkInputFocus();
+        if (window.scrollY !== 0) {
+          window.scrollTo(0, 0);
+        }
+      }, 100);
+    };
+
+    document.addEventListener('focusin', handleFocusIn);
+    document.addEventListener('focusout', handleFocusOut);
+
+    if (window.visualViewport) {
+      const handleResize = () => {
+        checkInputFocus();
+      };
+      window.visualViewport.addEventListener('resize', handleResize);
+      return () => {
+        document.removeEventListener('focusin', handleFocusIn);
+        document.removeEventListener('focusout', handleFocusOut);
+        window.visualViewport?.removeEventListener('resize', handleResize);
+      };
+    }
+
+    return () => {
+      document.removeEventListener('focusin', handleFocusIn);
+      document.removeEventListener('focusout', handleFocusOut);
+    };
+  }, []);
+
   const menuItems = [
     { id: 'dum' as TabType, label: 'DUM', icon: 'calendar_today' },
     { id: 'usg' as TabType, label: 'USG', icon: 'monitor_heart' },
@@ -16,8 +71,12 @@ export default function BottomNav({ activeTab, setActiveTab }: BottomNavProps) {
     { id: 'codes' as TabType, label: 'Códigos', icon: 'clinical_notes' },
   ];
 
+  if (isKeyboardOpen) {
+    return null;
+  }
+
   return (
-    <nav className="glass-nav-bottom text-on-surface fixed bottom-0 w-full z-50 md:hidden flex justify-evenly items-center h-[calc(60px+env(safe-area-inset-bottom))] pb-[env(safe-area-inset-bottom)] px-1">
+    <nav className="glass-nav-bottom text-on-surface fixed bottom-0 left-0 right-0 w-full z-50 md:hidden flex justify-evenly items-center h-[calc(60px+env(safe-area-inset-bottom))] pb-[env(safe-area-inset-bottom)] px-1">
       {menuItems.map((item) => {
         const isActive = activeTab === item.id;
         return (

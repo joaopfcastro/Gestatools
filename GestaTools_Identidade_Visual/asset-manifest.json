@@ -1,0 +1,141 @@
+{
+  "source": "branding/source/gestatools-icon-master.png",
+  "generated_from": "Imagem original fornecida pelo usuário",
+  "assets": [
+    {
+      "file": "branding/source/gestatools-icon-master.png",
+      "dimensions": "1024x1024",
+      "bytes": 948880
+    },
+    {
+      "file": "previews/preview-kit-identidade.png",
+      "dimensions": "1500x1040",
+      "bytes": 455030
+    },
+    {
+      "file": "public/android-chrome-192x192.png",
+      "dimensions": "192x192",
+      "bytes": 35734
+    },
+    {
+      "file": "public/android-chrome-512x512.png",
+      "dimensions": "512x512",
+      "bytes": 257741
+    },
+    {
+      "file": "public/apple-touch-icon.png",
+      "dimensions": "180x180",
+      "bytes": 31408
+    },
+    {
+      "file": "public/favicon-16x16.png",
+      "dimensions": "16x16",
+      "bytes": 604
+    },
+    {
+      "file": "public/favicon-32x32.png",
+      "dimensions": "32x32",
+      "bytes": 1647
+    },
+    {
+      "file": "public/favicon-48x48.png",
+      "dimensions": "48x48",
+      "bytes": 3228
+    },
+    {
+      "file": "public/favicon.ico",
+      "dimensions": "16x16, 32x32, 48x48",
+      "bytes": 5550
+    },
+    {
+      "file": "public/favicon.png",
+      "dimensions": "48x48",
+      "bytes": 3228
+    },
+    {
+      "file": "public/icons/gestatools-v2/icon-1024.png",
+      "dimensions": "1024x1024",
+      "bytes": 948880
+    },
+    {
+      "file": "public/icons/gestatools-v2/icon-128.png",
+      "dimensions": "128x128",
+      "bytes": 16621
+    },
+    {
+      "file": "public/icons/gestatools-v2/icon-144.png",
+      "dimensions": "144x144",
+      "bytes": 20587
+    },
+    {
+      "file": "public/icons/gestatools-v2/icon-152.png",
+      "dimensions": "152x152",
+      "bytes": 22812
+    },
+    {
+      "file": "public/icons/gestatools-v2/icon-167.png",
+      "dimensions": "167x167",
+      "bytes": 27248
+    },
+    {
+      "file": "public/icons/gestatools-v2/icon-180.png",
+      "dimensions": "180x180",
+      "bytes": 31408
+    },
+    {
+      "file": "public/icons/gestatools-v2/icon-192.png",
+      "dimensions": "192x192",
+      "bytes": 35734
+    },
+    {
+      "file": "public/icons/gestatools-v2/icon-256.png",
+      "dimensions": "256x256",
+      "bytes": 63194
+    },
+    {
+      "file": "public/icons/gestatools-v2/icon-384.png",
+      "dimensions": "384x384",
+      "bytes": 143788
+    },
+    {
+      "file": "public/icons/gestatools-v2/icon-512.png",
+      "dimensions": "512x512",
+      "bytes": 257741
+    },
+    {
+      "file": "public/icons/gestatools-v2/icon-64.png",
+      "dimensions": "64x64",
+      "bytes": 4775
+    },
+    {
+      "file": "public/icons/gestatools-v2/icon-72.png",
+      "dimensions": "72x72",
+      "bytes": 5814
+    },
+    {
+      "file": "public/icons/gestatools-v2/icon-96.png",
+      "dimensions": "96x96",
+      "bytes": 9785
+    },
+    {
+      "file": "public/icons/gestatools-v2/maskable-192.png",
+      "dimensions": "192x192",
+      "bytes": 35734
+    },
+    {
+      "file": "public/icons/gestatools-v2/maskable-512.png",
+      "dimensions": "512x512",
+      "bytes": 257741
+    },
+    {
+      "file": "public/icons/gestatools-v2/mstile-150.png",
+      "dimensions": "150x150",
+      "bytes": 22273
+    },
+    {
+      "file": "public/social/gestatools-og-1200x630.png",
+      "dimensions": "1200x630",
+      "bytes": 323497
+    }
+  ]
+}
