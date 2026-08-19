@@ -5,6 +5,7 @@ import {
   RecentClinicalCodeItem,
   SigtapProcedureRecord,
 } from '../../types';
+import { hapticSelection, hapticLight } from '../../utils/haptics';
 import Icon from '../Icon';
 
 interface ClinicalCodeResultsProps {
@@ -81,7 +82,10 @@ export default function ClinicalCodeResults({
               {onClearRecent && (
                 <button
                   type="button"
-                  onClick={() => onClearRecent(mode)}
+                  onClick={() => {
+                    hapticLight();
+                    onClearRecent(mode);
+                  }}
                   className="text-[11px] font-semibold text-secondary hover:text-error transition-colors px-2 py-1 rounded-lg hover:bg-surface-variant cursor-pointer flex items-center gap-1"
                   title="Limpar histórico recente desta aba"
                 >
@@ -106,6 +110,7 @@ export default function ClinicalCodeResults({
                     <button
                       type="button"
                       onClick={() => {
+                        hapticSelection();
                         if (isCid) {
                           onSelectCid({
                             code: rec.code,
@@ -182,7 +187,10 @@ export default function ClinicalCodeResults({
                 <button
                   key={ex}
                   type="button"
-                  onClick={() => onSetExampleQuery(ex)}
+                  onClick={() => {
+                    hapticSelection();
+                    onSetExampleQuery(ex);
+                  }}
                   className="min-h-[38px] px-3 rounded-xl bg-surface-variant/70 hover:bg-primary/15 hover:text-primary text-xs font-semibold text-on-surface transition-all cursor-pointer border border-surface-variant/50 flex items-center justify-center active:scale-95"
                 >
                   {ex}
@@ -223,7 +231,10 @@ export default function ClinicalCodeResults({
               <li key={item.code}>
                 <button
                   type="button"
-                  onClick={() => onSelectCid(item)}
+                  onClick={() => {
+                    hapticSelection();
+                    onSelectCid(item);
+                  }}
                   className={`w-full text-left p-3 rounded-xl transition-all cursor-pointer border flex items-center justify-between gap-3 min-h-[64px] min-w-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
                     isSelected
                       ? 'bg-primary/10 border-primary/40 shadow-xs'
@@ -266,7 +277,10 @@ export default function ClinicalCodeResults({
         {visibleCount < cidResults.length && (
           <button
             type="button"
-            onClick={() => setVisibleCount((prev) => prev + 30)}
+            onClick={() => {
+              hapticLight();
+              setVisibleCount((prev) => prev + 30);
+            }}
             className="w-full py-2.5 min-h-[44px] rounded-xl text-xs md:text-sm font-semibold text-primary hover:bg-primary/10 transition-colors cursor-pointer border border-primary/20 flex items-center justify-center mt-2"
           >
             Mostrar mais ({cidResults.length - visibleCount} restantes)
@@ -303,7 +317,10 @@ export default function ClinicalCodeResults({
             <li key={item.code}>
               <button
                 type="button"
-                onClick={() => onSelectProcedure(item)}
+                onClick={() => {
+                  hapticSelection();
+                  onSelectProcedure(item);
+                }}
                 className={`w-full text-left p-3 rounded-xl transition-all cursor-pointer border flex items-center justify-between gap-3 min-h-[64px] min-w-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
                   isSelected
                     ? 'bg-primary/10 border-primary/40 shadow-xs'
@@ -346,7 +363,10 @@ export default function ClinicalCodeResults({
       {visibleCount < procedureResults.length && (
         <button
           type="button"
-          onClick={() => setVisibleCount((prev) => prev + 30)}
+          onClick={() => {
+            hapticLight();
+            setVisibleCount((prev) => prev + 30);
+          }}
           className="w-full py-2.5 min-h-[44px] rounded-xl text-xs md:text-sm font-semibold text-primary hover:bg-primary/10 transition-colors cursor-pointer border border-primary/20 flex items-center justify-center mt-2"
         >
           Mostrar mais ({procedureResults.length - visibleCount} restantes)

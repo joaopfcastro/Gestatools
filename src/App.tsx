@@ -1,4 +1,4 @@
-import { useState, useEffect, lazy, Suspense } from 'react';
+import { useState, useEffect, lazy, Suspense, useRef } from 'react';
 import { TabType, HistoryRecord, AppSettings } from './types';
 import Sidebar from './components/Sidebar';
 import BottomNav from './components/BottomNav';
@@ -9,15 +9,20 @@ import AfiCalculator from './components/AfiCalculator';
 import ClinicalCodesSkeleton from './components/clinical-codes/ClinicalCodesSkeleton';
 import HistoryPanel from './components/HistoryPanel';
 import ReferencesModal from './components/ReferencesModal';
+import InstallAppModal from './components/InstallAppModal';
+import OfflineStatusBanner from './components/OfflineStatusBanner';
 
 const ClinicalCodesPage = lazy(() => import('./components/ClinicalCodesPage'));
 import SettingsPanel from './components/SettingsPanel';
 import BrandMark from './components/BrandMark';
 import Icon from './components/Icon';
+import { Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useShortcut } from './hooks/useShortcut';
 import { useKeyboardAwareScroll } from './hooks/useKeyboardAwareScroll';
-import { triggerHaptic } from './utils/haptics';
+import { useGlobalResultsScroll } from './hooks/useGlobalResultsScroll';
+import { hapticSelection, hapticLight } from './utils/haptics';
+import { applyTheme, resolveIsDark } from './utils/theme';
 
 const DEFAULT_SETTINGS: AppSettings = {
   defaultCycleLength: 28,
@@ -26,18 +31,68 @@ const DEFAULT_SETTINGS: AppSettings = {
 };
 
 export default function App() {
-  useKeyboardAwareScroll();
+  const mainContainerRef = useRef<HTMLElement>(null);
+  useKeyboardAwareScroll(mainContainerRef);
+  useGlobalResultsScroll();
 
-  const [activeTab, setActiveTab] = useState<TabType>('usg');
-  const [settings, setSettings] = useState<AppSettings>(DEFAULT_SETTINGS);
+  const [isInitialThemeReload] = useState(() => {
+    try {
+      return sessionStorage.getItem('gestatools_theme_reloading') === 'true';
+    } catch (e) {
+      return false;
+    }
+  });
+
+  const [activeTab, setActiveTab] = useState<TabType>(() => {
+    try {
+      const savedTab = sessionStorage.getItem('gestatools_active_tab');
+      if (savedTab && ['usg', 'dum', 'peso', 'ila', 'codes'].includes(savedTab)) {
+        return savedTab as TabType;
+      }
+    } catch (e) {}
+    return 'usg';
+  });
+
+  const [settings, setSettings] = useState<AppSettings>(() => {
+    let currentSettings = DEFAULT_SETTINGS;
+    try {
+      const saved = localStorage.getItem('gestatools_settings');
+      if (saved) {
+        currentSettings = { ...DEFAULT_SETTINGS, ...JSON.parse(saved) };
+      }
+    } catch (e) {}
+    return currentSettings;
+  });
+
   const [records, setRecords] = useState<HistoryRecord[]>([]);
   
   // Drawer visibility
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(() => {
+    try {
+      return sessionStorage.getItem('gestatools_open_settings') === 'true';
+    } catch (e) {}
+    return false;
+  });
   const [isReferencesOpen, setIsReferencesOpen] = useState(false);
+  const [isInstallModalOpen, setIsInstallModalOpen] = useState(false);
+  const [isThemeTransitioning, setIsThemeTransitioning] = useState(false);
+  const [themeTransitionBg, setThemeTransitionBg] = useState('');
+  const [themeTransitionLabel, setThemeTransitionLabel] = useState('Alternando tema...');
 
-  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    try {
+      let theme = DEFAULT_SETTINGS.theme;
+      const saved = localStorage.getItem('gestatools_settings');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.theme) theme = parsed.theme;
+      }
+      return resolveIsDark(theme);
+    } catch (e) {
+      return false;
+    }
+  });
 
   useShortcut('h', () => {
     setIsHistoryOpen(prev => !prev);
@@ -48,6 +103,31 @@ export default function App() {
     setIsSettingsOpen(prev => !prev);
     if (!isSettingsOpen) setIsHistoryOpen(false);
   });
+
+  // Handle post-reload curtain fadeout
+  useEffect(() => {
+    try {
+      const isReloading = sessionStorage.getItem('gestatools_theme_reloading');
+      if (isReloading === 'true') {
+        sessionStorage.removeItem('gestatools_theme_reloading');
+        sessionStorage.removeItem('gestatools_open_settings');
+        sessionStorage.removeItem('gestatools_active_tab');
+        sessionStorage.removeItem('gestatools_theme_label');
+
+        const curtain = document.getElementById('theme-curtain');
+        if (curtain) {
+          setTimeout(() => {
+            requestAnimationFrame(() => {
+              curtain.style.opacity = '0';
+              setTimeout(() => {
+                curtain.remove();
+              }, 250);
+            });
+          }, 120);
+        }
+      }
+    } catch (e) {}
+  }, []);
 
   // Load from local storage on mount
   useEffect(() => {
@@ -95,50 +175,8 @@ export default function App() {
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
     
     const updateTheme = () => {
-      const isDark = settings.theme === 'system' ? mediaQuery.matches : settings.theme === 'dark';
+      const isDark = applyTheme(settings.theme);
       setIsDarkMode(isDark);
-      
-      const themeColor = isDark ? '#000000' : '#F2F2F7';
-      const statusBarStyle = isDark ? 'black-translucent' : 'default';
-      const colorScheme = isDark ? 'dark' : 'light';
-
-      // 1. Update element classes, colorScheme & backgrounds
-      if (isDark) {
-        document.documentElement.classList.add('dark');
-        if (document.body) document.body.classList.add('dark');
-        document.documentElement.style.colorScheme = 'dark';
-        document.documentElement.style.backgroundColor = '#000000';
-        if (document.body) {
-          document.body.style.colorScheme = 'dark';
-          document.body.style.backgroundColor = '#000000';
-        }
-      } else {
-        document.documentElement.classList.remove('dark');
-        if (document.body) document.body.classList.remove('dark');
-        document.documentElement.style.colorScheme = 'light';
-        document.documentElement.style.backgroundColor = '#F2F2F7';
-        if (document.body) {
-          document.body.style.colorScheme = 'light';
-          document.body.style.backgroundColor = '#F2F2F7';
-        }
-      }
-
-      // 2. Dynamically update theme-color, status-bar-style, and color-scheme meta tags
-      const themeMeta = document.getElementById('theme-color-meta') || document.querySelector('meta[name="theme-color"]');
-      if (themeMeta) {
-        themeMeta.setAttribute('content', themeColor);
-        themeMeta.removeAttribute('media');
-      }
-
-      const statusMeta = document.getElementById('status-bar-style-meta') || document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]');
-      if (statusMeta) {
-        statusMeta.setAttribute('content', statusBarStyle);
-      }
-
-      const schemeMeta = document.getElementById('color-scheme-meta') || document.querySelector('meta[name="color-scheme"]');
-      if (schemeMeta) {
-        schemeMeta.setAttribute('content', colorScheme);
-      }
     };
 
     updateTheme();
@@ -198,15 +236,51 @@ export default function App() {
   };
 
   const handleSaveSettings = (updatedSettings: AppSettings) => {
+    const isThemeChanged = updatedSettings.theme !== settings.theme;
+    const targetIsDark = resolveIsDark(updatedSettings.theme);
+    const targetBg = targetIsDark ? '#000000' : '#F2F2F7';
+
     setSettings(updatedSettings);
     localStorage.setItem('gestatools_settings', JSON.stringify(updatedSettings));
+
+    if (isThemeChanged) {
+      hapticSelection();
+      const label = updatedSettings.theme === 'dark'
+        ? 'Alternando para Modo Escuro...'
+        : updatedSettings.theme === 'light'
+        ? 'Alternando para Modo Claro...'
+        : 'Aplicando Tema do Sistema...';
+
+      setThemeTransitionLabel(label);
+
+      try {
+        sessionStorage.setItem('gestatools_theme_reloading', 'true');
+        sessionStorage.setItem('gestatools_theme_label', label);
+        sessionStorage.setItem('gestatools_open_settings', isSettingsOpen ? 'true' : 'false');
+        sessionStorage.setItem('gestatools_active_tab', activeTab);
+      } catch (e) {}
+
+      // Immediately apply theme in DOM & set transition curtain
+      applyTheme(updatedSettings.theme);
+      setIsDarkMode(targetIsDark);
+      setThemeTransitionBg(targetBg);
+      setIsThemeTransitioning(true);
+
+      // Perform seamless reload after soft fade
+      setTimeout(() => {
+        window.location.reload();
+      }, 120);
+    } else {
+      const isDark = applyTheme(updatedSettings.theme);
+      setIsDarkMode(isDark);
+    }
   };
 
   return (
-    <div className={`h-dvh min-h-dvh flex overflow-hidden bg-background text-on-surface transition-colors duration-300 ${isDarkMode ? 'dark' : ''}`}>
+    <div className={`fixed inset-0 w-full h-full flex flex-col overflow-hidden bg-background text-on-surface transition-colors duration-300 ${isDarkMode ? 'dark' : ''}`}>
       
       {/* TopAppBar */}
-      <header className="glass-nav-top text-on-surface font-title-md fixed top-0 w-full z-50 flex justify-between items-center h-[calc(48px+env(safe-area-inset-top))] md:h-[calc(56px+env(safe-area-inset-top))] pt-[env(safe-area-inset-top)] px-3 md:px-6 min-[1366px]:px-margin-desktop max-w-full left-0 transition-all">
+      <header className="glass-nav-top text-on-surface font-title-md shrink-0 w-full z-40 flex justify-between items-center h-[calc(48px+env(safe-area-inset-top))] md:h-[calc(56px+env(safe-area-inset-top))] pt-[env(safe-area-inset-top)] px-3 md:px-6 min-[1366px]:px-margin-desktop max-w-full left-0 transition-all">
         <div className="flex items-center gap-2 min-w-0">
           <BrandMark size={26} className="w-[26px] h-[26px] md:w-[28px] md:h-[28px]" />
           <span className="font-headline-lg text-[20px] md:text-title-md font-bold text-on-surface tracking-tight truncate">GestaTools</span>
@@ -215,7 +289,7 @@ export default function App() {
           <div className="relative">
             <button 
               onClick={() => {
-                triggerHaptic(50);
+                hapticLight();
                 window.dispatchEvent(new CustomEvent('clear-form'));
               }}
               className="pulse-hover text-primary hover:bg-primary/10 transition-colors cursor-pointer active:scale-95 p-2 rounded-full h-11 w-11 flex items-center justify-center group"
@@ -227,6 +301,7 @@ export default function App() {
           <div className="relative">
             <button 
               onClick={() => {
+                hapticLight();
                 setIsHistoryOpen(true);
                 setIsSettingsOpen(false);
               }}
@@ -242,6 +317,7 @@ export default function App() {
           <div className="relative">
             <button 
               onClick={() => {
+                hapticLight();
                 setIsSettingsOpen(true);
                 setIsHistoryOpen(false);
               }}
@@ -254,57 +330,66 @@ export default function App() {
         </div>
       </header>
 
-      {/* Sidebar for Desktop & Tablet */}
-      <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
+      {/* Main Layout Area: Sidebar (Desktop/Tablet) + Main Content */}
+      <div className="flex-1 flex min-h-0 min-w-0 w-full overflow-hidden relative">
+        {/* Sidebar for Desktop & Tablet */}
+        <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
 
-      {/* Main Content Area */}
-      <main className="app-main flex-1 min-h-0 min-w-0 w-full md:w-auto px-3 sm:px-4 md:px-5 min-[1024px]:px-6 min-[1366px]:px-margin-desktop overflow-y-auto overscroll-contain z-10 relative pt-[calc(48px+env(safe-area-inset-top))] md:pt-16 min-[1366px]:pt-20 pb-[calc(64px+env(safe-area-inset-bottom))] md:pb-5 flex flex-col">
-        
-        <div className="max-w-6xl min-[1366px]:max-w-7xl mx-auto w-full min-h-full flex flex-col justify-between flex-1 min-w-0">
-          <div className="w-full tab-content active flex-1 flex flex-col pt-0.5 md:pt-0 min-w-0">
-            {activeTab === 'usg' && (
-              <UsgCalculator onSaveRecord={handleSaveRecord} />
-            )}
-            {activeTab === 'dum' && (
-              <LmpCalculator
-                onSaveRecord={handleSaveRecord}
-                defaultCycleLength={settings.defaultCycleLength}
-              />
-            )}
-            {activeTab === 'peso' && (
-              <PercentileCalculator onSaveRecord={handleSaveRecord} />
-            )}
-            {activeTab === 'ila' && (
-              <AfiCalculator onSaveRecord={handleSaveRecord} />
-            )}
-            {activeTab === 'codes' && (
-              <Suspense fallback={<ClinicalCodesSkeleton />}>
-                <ClinicalCodesPage />
-              </Suspense>
-            )}
-          </div>
-
-          {/* Disclaimer Footer */}
-          <footer className="w-full mt-8 md:mt-12 pt-4 pb-2 border-t border-surface-variant/40 text-secondary text-xs relative z-10 flex flex-col sm:flex-row justify-between items-center text-center sm:text-left gap-2.5 sm:gap-4 shrink-0">
-            <p className="font-semibold text-on-surface/90 text-[11px] sm:text-xs">
-              {activeTab === 'codes'
-                ? 'Fonte dos dados: SIGTAP/DATASUS — Competência 07/2026.'
-                : 'Ferramenta destinada exclusivamente a apoio de decisão clínica.'}
-            </p>
-            <div className="flex gap-4 justify-center items-center">
-              <button 
-                onClick={() => setIsReferencesOpen(true)} 
-                className="hover:text-primary transition-colors cursor-pointer text-[11px] sm:text-xs font-medium text-secondary/90 hover:underline underline-offset-4"
-              >
-                Referências Bibliográficas
-              </button>
+        {/* Main Content Area */}
+        <main
+          ref={mainContainerRef}
+          className="app-main flex-1 min-h-0 min-w-0 w-full md:w-auto px-3 sm:px-4 md:px-5 min-[1024px]:px-6 min-[1366px]:px-margin-desktop overflow-y-auto md:overflow-hidden overflow-x-hidden overscroll-contain z-10 relative pt-2 sm:pt-3 md:pt-3 min-[1366px]:pt-5 pb-[calc(68px+env(safe-area-inset-bottom))] md:pb-3 flex flex-col md:h-full"
+        >
+          
+          <div className="max-w-6xl min-[1366px]:max-w-7xl mx-auto w-full min-h-full flex flex-col flex-1 min-w-0 overflow-x-hidden md:h-full md:min-h-0">
+            <div className="w-full tab-content active flex-1 min-w-0 overflow-x-hidden flex flex-col md:min-h-0">
+              {activeTab === 'usg' && (
+                <UsgCalculator onSaveRecord={handleSaveRecord} />
+              )}
+              {activeTab === 'dum' && (
+                <LmpCalculator
+                  onSaveRecord={handleSaveRecord}
+                  defaultCycleLength={settings.defaultCycleLength}
+                />
+              )}
+              {activeTab === 'peso' && (
+                <PercentileCalculator onSaveRecord={handleSaveRecord} />
+              )}
+              {activeTab === 'ila' && (
+                <AfiCalculator onSaveRecord={handleSaveRecord} />
+              )}
+              {activeTab === 'codes' && (
+                <Suspense fallback={<ClinicalCodesSkeleton />}>
+                  <ClinicalCodesPage />
+                </Suspense>
+              )}
             </div>
-            <p className="text-[10px] sm:text-[11px] text-secondary/80">
-              © {new Date().getFullYear()} GestaTools - Profissionais de saúde.
-            </p>
-          </footer>
-        </div>
-      </main>
+
+            {/* Disclaimer Footer - Exibido apenas em tablets e desktops (md:flex), oculto no mobile */}
+            <footer className="hidden md:flex flex-row justify-between items-center w-full mt-2 md:mt-3 pt-2.5 md:pt-3 pb-1 md:pb-1.5 border-t border-surface-variant/40 text-secondary text-xs relative z-10 shrink-0 text-left gap-4">
+              <p className="font-semibold text-on-surface/90 text-xs">
+                {activeTab === 'codes'
+                  ? 'Fonte dos dados: SIGTAP/DATASUS — Competência 07/2026.'
+                  : 'Ferramenta destinada exclusivamente a apoio de decisão clínica.'}
+              </p>
+              <div className="flex gap-4 justify-center items-center">
+                <button 
+                  onClick={() => setIsReferencesOpen(true)} 
+                  className="hover:text-primary transition-colors cursor-pointer text-xs font-medium text-secondary/90 hover:underline underline-offset-4"
+                >
+                  Referências Bibliográficas
+                </button>
+              </div>
+              <p className="text-[11px] text-secondary/80">
+                © {new Date().getFullYear()} GestaTools - Profissionais de saúde.
+              </p>
+            </footer>
+          </div>
+        </main>
+      </div>
+
+      {/* Offline and connection status banner */}
+      <OfflineStatusBanner />
 
       {/* References Modal */}
       <ReferencesModal 
@@ -321,9 +406,10 @@ export default function App() {
         {(isHistoryOpen || isSettingsOpen) && (
           <motion.div
             key="drawer-backdrop"
-            initial={{ opacity: 0 }}
+            initial={isInitialThemeReload ? { opacity: 0.4 } : { opacity: 0 }}
             animate={{ opacity: 0.4 }}
             exit={{ opacity: 0 }}
+            transition={isInitialThemeReload ? { duration: 0 } : undefined}
             onClick={() => {
               setIsHistoryOpen(false);
               setIsSettingsOpen(false);
@@ -356,20 +442,48 @@ export default function App() {
         {isSettingsOpen && (
           <motion.div
             key="settings-drawer"
-            initial={{ x: '100%' }}
+            initial={isInitialThemeReload ? { x: 0 } : { x: '100%' }}
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
-            transition={{ type: 'spring', damping: 20, stiffness: 200 }}
+            transition={isInitialThemeReload ? { duration: 0 } : { type: 'spring', damping: 20, stiffness: 200 }}
             className="fixed right-0 top-0 h-dvh w-full sm:w-[420px] glass-nav-top border-b-0 border-l border-surface-variant/50 dark:border-white/5 shadow-2xl z-50 overflow-hidden flex flex-col"
           >
             <SettingsPanel
               settings={settings}
               onChangeSettings={handleSaveSettings}
               onClose={() => setIsSettingsOpen(false)}
+              onOpenInstallModal={() => setIsInstallModalOpen(true)}
+              onOpenReferences={() => setIsReferencesOpen(true)}
             />
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Seamless Theme Transition Curtain (Pre-reload) */}
+      <AnimatePresence>
+        {isThemeTransitioning && (
+          <motion.div
+            key="theme-transition-curtain"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.1, ease: [0.4, 0, 0.2, 1] }}
+            style={{ backgroundColor: themeTransitionBg }}
+            className="fixed inset-0 z-[99999] pointer-events-none flex items-center justify-center"
+          >
+            <div className="flex flex-col items-center justify-center gap-3 px-6 py-5 rounded-[20px] bg-white dark:bg-[#1C1C1E] border border-black/[0.08] dark:border-white/10 shadow-[0_12px_36px_rgba(0,0,0,0.18)] text-[#1C1C1E] dark:text-[#F2F2F7]">
+              <Loader2 className="w-7 h-7 animate-spin text-sky-600 dark:text-sky-400" />
+              <span className="text-[13px] font-semibold tracking-tight">{themeTransitionLabel}</span>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Install PWA Modal (rendered on top of drawers) */}
+      <InstallAppModal
+        isOpen={isInstallModalOpen}
+        onClose={() => setIsInstallModalOpen(false)}
+      />
     </div>
   );
 }

@@ -8,23 +8,42 @@
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
+  "display_override": [
+    "standalone",
+    "window-controls-overlay",
+    "minimal-ui"
+  ],
   "orientation": "portrait-primary",
   "background_color": "#F2F2F7",
   "theme_color": "#F2F2F7",
+  "prefer_related_applications": false,
   "categories": [
     "medical",
-    "utilities"
+    "utilities",
+    "productivity"
   ],
   "icons": [
     {
-      "src": "/icons/gestatools-v2/icon-64.png",
-      "sizes": "64x64",
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/icons/gestatools-v2/icon-72.png",
-      "sizes": "72x72",
+      "src": "/android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/gestatools-v2/icon-64.png",
+      "sizes": "64x64",
       "type": "image/png",
       "purpose": "any"
     },
@@ -37,12 +56,6 @@
     {
       "src": "/icons/gestatools-v2/icon-128.png",
       "sizes": "128x128",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "/icons/gestatools-v2/icon-144.png",
-      "sizes": "144x144",
       "type": "image/png",
       "purpose": "any"
     },

@@ -1,5 +1,6 @@
 import React, { RefObject } from 'react';
 import { ClinicalCodeSearchMode } from '../../types';
+import { hapticSelection, hapticLight } from '../../utils/haptics';
 import Icon from '../Icon';
 
 interface ClinicalCodeSearchProps {
@@ -29,7 +30,10 @@ export default function ClinicalCodeSearch({
       <div className="ios-toggle-bg p-1 rounded-2xl grid grid-cols-2 w-full border border-surface-variant shadow-xs bg-white dark:bg-black">
         <button
           type="button"
-          onClick={() => onModeChange('cid')}
+          onClick={() => {
+            hapticSelection();
+            onModeChange('cid');
+          }}
           className={`min-h-[44px] py-2 px-2 text-xs font-bold rounded-xl cursor-pointer transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary flex items-center justify-center text-center leading-tight whitespace-normal min-w-0 ${
             mode === 'cid'
               ? 'bg-surface text-on-surface shadow-xs border border-surface-variant'
@@ -41,7 +45,10 @@ export default function ClinicalCodeSearch({
         </button>
         <button
           type="button"
-          onClick={() => onModeChange('procedure')}
+          onClick={() => {
+            hapticSelection();
+            onModeChange('procedure');
+          }}
           className={`min-h-[44px] py-2 px-2 text-xs font-bold rounded-xl cursor-pointer transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary flex items-center justify-center text-center leading-tight whitespace-normal min-w-0 ${
             mode === 'procedure'
               ? 'bg-surface text-on-surface shadow-xs border border-surface-variant'
@@ -86,7 +93,10 @@ export default function ClinicalCodeSearch({
         {query && (
           <button
             type="button"
-            onClick={onClear}
+            onClick={() => {
+              hapticLight();
+              onClear();
+            }}
             className="absolute inset-y-0 right-0 pr-2 flex items-center justify-center min-w-[44px] min-h-[44px] text-secondary hover:text-on-surface active:scale-90 transition-transform cursor-pointer"
             title="Limpar pesquisa"
             aria-label="Limpar pesquisa"

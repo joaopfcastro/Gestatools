@@ -2,57 +2,37 @@
 <html lang="pt-BR" class="h-full antialiased">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-    <meta name="theme-color" id="theme-color-meta" content="#F2F2F7" />
-    <meta name="color-scheme" id="color-scheme-meta" content="light" />
-    <meta name="darkreader-lock" />
-    <meta name="nightmode" content="disable" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" id="status-bar-style-meta" content="default" />
+    <meta name="apple-touch-fullscreen" content="yes" />
     <meta name="apple-mobile-web-app-title" content="GestaTools" />
+    <meta name="format-detection" content="telephone=no" />
     <script>
       (function() {
-        const isDevHost = window.location.hostname.includes('-dev-') || 
-                          window.location.hostname.includes('-pre-') || 
-                          window.location.hostname.includes('run.app') || 
-                          window.location.hostname.includes('localhost') || 
-                          window.location.hostname.includes('127.0.0.1');
-
-        if ('serviceWorker' in navigator) {
-          if (isDevHost) {
-            navigator.serviceWorker.getRegistrations().then(function(registrations) {
-              for (let registration of registrations) {
-                registration.unregister();
-              }
-            });
-            if (window.caches) {
-              caches.keys().then(function(names) {
-                for (let name of names) {
-                  caches.delete(name);
-                }
-              });
-            }
-          }
-        }
-
-        const savedSettings = localStorage.getItem('gestatools_settings');
-        let isDark = false;
+        var lightColor = '#F2F2F7';
+        var darkColor = '#000000';
+        var savedSettings = localStorage.getItem('gestatools_settings');
+        var theme = 'system';
+        var isDark = false;
+        
         if (savedSettings) {
           try {
-            const settings = JSON.parse(savedSettings);
-            if (settings.theme === 'dark') {
-              isDark = true;
-            } else if (settings.theme === 'system' || !settings.theme) {
-              isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-            }
+            var settings = JSON.parse(savedSettings);
+            if (settings.theme) theme = settings.theme;
           } catch (e) {}
-        } else {
-          isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
         }
         
-        const themeColor = isDark ? '#000000' : '#F2F2F7';
-        const statusBarStyle = isDark ? 'black-translucent' : 'default';
-        const colorScheme = isDark ? 'dark' : 'light';
+        if (theme === 'dark') {
+          isDark = true;
+        } else if (theme === 'light') {
+          isDark = false;
+        } else {
+          isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        }
+        
+        var activeColor = isDark ? darkColor : lightColor;
+        var colorScheme = isDark ? 'dark' : 'light';
+        var statusBarStyle = isDark ? 'black-translucent' : 'default';
 
         if (isDark) {
           document.documentElement.classList.add('dark');
@@ -61,25 +41,74 @@
         }
 
         document.documentElement.style.colorScheme = colorScheme;
-        document.documentElement.style.backgroundColor = themeColor;
+        document.documentElement.style.backgroundColor = activeColor;
         
-        const themeMeta = document.getElementById('theme-color-meta');
-        if (themeMeta) themeMeta.setAttribute('content', themeColor);
+        // Remove existing theme/color-scheme metas
+        var metas = document.querySelectorAll('meta[name="theme-color"], meta[name="color-scheme"], meta[name="apple-mobile-web-app-status-bar-style"]');
+        for (var i = 0; i < metas.length; i++) {
+          metas[i].remove();
+        }
 
-        const statusMeta = document.getElementById('status-bar-style-meta');
-        if (statusMeta) statusMeta.setAttribute('content', statusBarStyle);
+        var head = document.head || document.getElementsByTagName('head')[0];
+        if (head) {
+          var sMeta = document.createElement('meta');
+          sMeta.name = 'apple-mobile-web-app-status-bar-style';
+          sMeta.content = statusBarStyle;
+          sMeta.id = 'status-bar-style-meta';
+          head.appendChild(sMeta);
 
-        const schemeMeta = document.getElementById('color-scheme-meta');
-        if (schemeMeta) schemeMeta.setAttribute('content', colorScheme);
+          var cMeta = document.createElement('meta');
+          cMeta.name = 'color-scheme';
+          cMeta.content = theme === 'system' ? 'light dark' : colorScheme;
+          cMeta.id = 'color-scheme-meta';
+          head.appendChild(cMeta);
+
+          if (theme === 'system') {
+            var lm = document.createElement('meta');
+            lm.name = 'theme-color';
+            lm.media = '(prefers-color-scheme: light)';
+            lm.content = lightColor;
+            head.appendChild(lm);
+
+            var dm = document.createElement('meta');
+            dm.name = 'theme-color';
+            dm.media = '(prefers-color-scheme: dark)';
+            dm.content = darkColor;
+            head.appendChild(dm);
+
+            var tm = document.createElement('meta');
+            tm.name = 'theme-color';
+            tm.content = activeColor;
+            tm.id = 'theme-color-meta';
+            head.appendChild(tm);
+          } else {
+            var lm2 = document.createElement('meta');
+            lm2.name = 'theme-color';
+            lm2.media = '(prefers-color-scheme: light)';
+            lm2.content = activeColor;
+            head.appendChild(lm2);
+
+            var dm2 = document.createElement('meta');
+            dm2.name = 'theme-color';
+            dm2.media = '(prefers-color-scheme: dark)';
+            dm2.content = activeColor;
+            head.appendChild(dm2);
+
+            var tm2 = document.createElement('meta');
+            tm2.name = 'theme-color';
+            tm2.content = activeColor;
+            tm2.id = 'theme-color-meta';
+            head.appendChild(tm2);
+          }
+        }
       })();
     </script>
     
     <!-- Application Meta -->
     <meta name="application-name" content="GestaTools" />
     <meta name="mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-title" content="GestaTools" />
     <meta name="msapplication-TileColor" content="#035ADB" />
+    <meta name="msapplication-TileImage" content="/apple-touch-icon-180x180.png" />
     <meta name="msapplication-config" content="/browserconfig.xml" />
 
     <!-- Open Graph & Twitter -->
@@ -88,7 +117,7 @@
     <meta property="og:site_name" content="GestaTools" />
     <meta property="og:title" content="GestaTools - Calculadoras Obstétricas" />
     <meta property="og:description" content="Calculadoras e ferramentas obstétricas para apoio à prática clínica." />
-    <meta property="og:image" content="/social/gestatools-og-1200x630.png?v=gestatools-v2" />
+    <meta property="og:image" content="/social/gestatools-og-1200x630.png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta property="og:image:type" content="image/png" />
@@ -97,29 +126,37 @@
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="GestaTools - Calculadoras Obstétricas" />
     <meta name="twitter:description" content="Calculadoras e ferramentas obstétricas para apoio à prática clínica." />
-    <meta name="twitter:image" content="/social/gestatools-og-1200x630.png?v=gestatools-v2" />
+    <meta name="twitter:image" content="/social/gestatools-og-1200x630.png" />
     <meta name="twitter:image:alt" content="GestaTools — Calculadoras e ferramentas obstétricas" />
 
     <!-- Favicons -->
-    <link rel="icon" href="/favicon.ico?v=gestatools-v2" sizes="any" />
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png?v=gestatools-v2" />
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png?v=gestatools-v2" />
-    <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48x48.png?v=gestatools-v2" />
-    <link rel="shortcut icon" href="/favicon.png?v=gestatools-v2" />
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48x48.png" />
+    <link rel="shortcut icon" href="/favicon.png" />
 
     <!-- Android / Chrome -->
-    <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png?v=gestatools-v2" />
-    <link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png?v=gestatools-v2" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png" />
+    <link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png" />
 
-    <!-- iOS Touch Icons -->
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=gestatools-v2" />
-    <link rel="apple-touch-icon" sizes="152x152" href="/icons/gestatools-v2/icon-152.png?v=gestatools-v2" />
-    <link rel="apple-touch-icon" sizes="167x167" href="/icons/gestatools-v2/icon-167.png?v=gestatools-v2" />
-    <link rel="apple-touch-icon" sizes="180x180" href="/icons/gestatools-v2/icon-180.png?v=gestatools-v2" />
-    <link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png?v=gestatools-v2" />
+    <!-- iOS Touch Icons (Standard & Precomposed) -->
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon-180x180.png" />
+    <link rel="apple-touch-icon" sizes="167x167" href="/apple-touch-icon-167x167.png" />
+    <link rel="apple-touch-icon" sizes="152x152" href="/apple-touch-icon-152x152.png" />
+    <link rel="apple-touch-icon" sizes="120x120" href="/apple-touch-icon-120x120.png" />
+    <link rel="apple-touch-icon" sizes="192x192" href="/apple-touch-icon-192x192.png" />
+    
+    <link rel="apple-touch-icon-precomposed" href="/apple-touch-icon-precomposed.png" />
+    <link rel="apple-touch-icon-precomposed" sizes="180x180" href="/apple-touch-icon-180x180-precomposed.png" />
+    <link rel="apple-touch-icon-precomposed" sizes="167x167" href="/apple-touch-icon-167x167-precomposed.png" />
+    <link rel="apple-touch-icon-precomposed" sizes="152x152" href="/apple-touch-icon-152x152-precomposed.png" />
+    <link rel="apple-touch-icon-precomposed" sizes="120x120" href="/apple-touch-icon-120x120-precomposed.png" />
+    <link rel="apple-touch-icon-precomposed" sizes="192x192" href="/apple-touch-icon-192x192-precomposed.png" />
 
     <!-- Web App Manifest -->
-    <link rel="manifest" href="/manifest.json?v=gestatools-v2" />
+    <link rel="manifest" href="/manifest.json" />
     <title>GestaTools - Calculadoras Obstétricas</title>
     <!-- Fonts and Material Symbols -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -129,23 +166,59 @@
   </head>
   <body class="h-full overflow-hidden" data-mode="connect">
     <script>
-      if (document.documentElement.classList.contains('dark')) {
-        document.body.classList.add('dark');
-        document.body.style.backgroundColor = '#000000';
-        document.body.style.colorScheme = 'dark';
-      } else {
-        document.body.classList.remove('dark');
-        document.body.style.backgroundColor = '#F2F2F7';
-        document.body.style.colorScheme = 'light';
-      }
+      (function() {
+        var isThemeReload = false;
+        var themeLabel = 'Alternando tema...';
+        try {
+          isThemeReload = sessionStorage.getItem('gestatools_theme_reloading') === 'true';
+          var savedLabel = sessionStorage.getItem('gestatools_theme_label');
+          if (savedLabel) themeLabel = savedLabel;
+        } catch (e) {}
+
+        var isDark = document.documentElement.classList.contains('dark');
+        var activeBg = isDark ? '#000000' : '#F2F2F7';
+        var cardBg = isDark ? '#1C1C1E' : '#FFFFFF';
+        var cardBorder = isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.08)';
+        var textColor = isDark ? '#F2F2F7' : '#1C1C1E';
+        var spinnerColor = isDark ? '#38BDF8' : '#0284C7';
+
+        if (isDark) {
+          document.body.classList.add('dark');
+          document.body.style.backgroundColor = '#000000';
+          document.body.style.colorScheme = 'dark';
+        } else {
+          document.body.classList.remove('dark');
+          document.body.style.backgroundColor = '#F2F2F7';
+          document.body.style.colorScheme = 'light';
+        }
+
+        if (isThemeReload) {
+          var curtain = document.createElement('div');
+          curtain.id = 'theme-curtain';
+          curtain.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;width:100%;height:100%;background-color:' + activeBg + ';z-index:99999;pointer-events:none;transition:opacity 0.22s cubic-bezier(0.4, 0, 0.2, 1);opacity:1;display:flex;align-items:center;justify-content:center;';
+          
+          curtain.innerHTML = '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:20px 24px;border-radius:20px;background-color:' + cardBg + ';box-shadow:0 12px 36px rgba(0,0,0,0.18);border:1px solid ' + cardBorder + ';color:' + textColor + ';font-family:-apple-system,BlinkMacSystemFont,\'SF Pro Text\',\'Inter\',sans-serif;">' +
+            '<svg style="width:28px;height:28px;animation:gt-spin 0.8s linear infinite;" viewBox="0 0 24 24" fill="none" stroke="' + spinnerColor + '" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">' +
+              '<path d="M21 12a9 9 0 1 1-6.219-8.56"/>' +
+            '</svg>' +
+            '<span style="font-size:13px;font-weight:600;letter-spacing:-0.2px;">' + themeLabel + '</span>' +
+          '</div>';
+
+          var styleEl = document.createElement('style');
+          styleEl.textContent = '@keyframes gt-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }';
+          document.head.appendChild(styleEl);
+
+          document.body.appendChild(curtain);
+        }
+      })();
     </script>
     <div id="root" class="h-full"></div>
     <script type="module" src="/src/main.tsx"></script>
     <script>
-      if ('serviceWorker' in navigator && !window.location.hostname.includes('-dev-') && !window.location.hostname.includes('-pre-') && !window.location.hostname.includes('run.app') && !window.location.hostname.includes('localhost') && !window.location.hostname.includes('127.0.0.1')) {
+      if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
           navigator.serviceWorker.register('/sw.js').catch(err => {
-            console.log('SW registration failed:', err);
+            console.log('SW registration note:', err);
           });
         });
       }

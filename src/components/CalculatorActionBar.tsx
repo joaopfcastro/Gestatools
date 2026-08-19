@@ -21,7 +21,7 @@ export default function CalculatorActionBar({
         <button
           type="submit"
           disabled={disabled}
-          className="calc-btn h-12 min-h-[48px] w-full bg-primary hover:bg-primary/90 text-white font-bold text-[17px] md:text-[18px] rounded-xl shadow-md shadow-primary/25 active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
+          className="calc-btn h-11 sm:h-12 min-h-[44px] sm:min-h-[48px] w-full bg-primary hover:bg-primary/90 text-white font-bold text-[16px] sm:text-[17px] md:text-[18px] rounded-xl shadow-md shadow-primary/25 active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {label}
         </button>

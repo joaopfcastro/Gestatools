@@ -6,7 +6,7 @@ import HelpModal from './HelpModal';
 import Icon from './Icon';
 import { InfoBalloon } from './InfoBalloon';
 import { useShortcut } from '../hooks/useShortcut';
-import { triggerHaptic } from '../utils/haptics';
+import { triggerHaptic, hapticSuccess, hapticError, hapticSelection, hapticMedium } from '../utils/haptics';
 import CalculatorActionBar from './CalculatorActionBar';
 import { ClinicalNumericInput } from './ClinicalNumericInput';
 import { parseNumericDraft, validateNumericRange } from '../utils/numericInput';
@@ -196,7 +196,7 @@ export default function AfiCalculator({ onSaveRecord }: AfiCalculatorProps) {
 
     if (Object.keys(newFieldErrors).length > 0) {
       setFieldErrors(newFieldErrors);
-      triggerHaptic([60, 40, 60]);
+      hapticError();
       focusFirstInvalid(invalidRefs);
       return;
     }
@@ -271,7 +271,7 @@ export default function AfiCalculator({ onSaveRecord }: AfiCalculatorProps) {
       (document.activeElement as HTMLElement | null)?.blur();
 
       setMobileView('results');
-      triggerHaptic([25, 40, 25]);
+      hapticSuccess();
       setSaved(false);
       setShimmer(false);
     }, 600);
@@ -279,7 +279,7 @@ export default function AfiCalculator({ onSaveRecord }: AfiCalculatorProps) {
 
   const handleSave = () => {
     if (!result) return;
-    triggerHaptic([50, 50]);
+    hapticSuccess();
     const finalName = patientName.trim() || 'Paciente Sem Nome';
 
     onSaveRecord({
@@ -307,7 +307,7 @@ export default function AfiCalculator({ onSaveRecord }: AfiCalculatorProps) {
   };
 
   return (
-    <div className="w-full max-w-6xl min-[1366px]:max-w-7xl mx-auto flex flex-col justify-start gap-3 min-[1024px]:gap-5 p-0 sm:p-2 min-[1366px]:p-4 h-auto min-w-0">
+    <div className="w-full max-w-6xl min-[1366px]:max-w-7xl mx-auto flex flex-col justify-start gap-3 min-[1024px]:gap-5 p-0 sm:p-2 min-[1366px]:p-4 h-auto min-w-0 md:h-full md:min-h-0">
       <div className="px-1 w-full">
         <h1 className="text-xl md:text-2xl min-[1366px]:text-3xl font-bold text-on-surface leading-tight md:mb-1">
           Líquido Amniótico
@@ -319,11 +319,11 @@ export default function AfiCalculator({ onSaveRecord }: AfiCalculatorProps) {
 
       {/* Mobile / Narrow Tablet Segmented Control */}
       {result && (
-        <div className="min-[1024px]:hidden flex p-1 bg-surface-variant/50 dark:bg-surface-variant dark:bg-surface-variant/10 rounded-2xl w-full border border-surface-variant mb-1">
+        <div className="md:hidden flex p-1 bg-surface-variant/50 dark:bg-surface-variant dark:bg-surface-variant/10 rounded-2xl w-full border border-surface-variant mb-1">
           <button
             type="button"
             onClick={() => {
-              triggerHaptic(15);
+              hapticSelection();
               setMobileView('inputs');
             }}
             className={`flex-1 py-2 text-xs font-bold rounded-xl transition-all ${
@@ -337,7 +337,7 @@ export default function AfiCalculator({ onSaveRecord }: AfiCalculatorProps) {
           <button
             type="button"
             onClick={() => {
-              triggerHaptic(15);
+              hapticSelection();
               setMobileView('results');
             }}
             className={`flex-1 py-2 text-xs font-bold rounded-xl transition-all ${
@@ -351,13 +351,13 @@ export default function AfiCalculator({ onSaveRecord }: AfiCalculatorProps) {
         </div>
       )}
 
-      <div className="grid grid-cols-1 min-[1024px]:grid-cols-[minmax(320px,0.88fr)_minmax(0,1.12fr)] min-[1366px]:flex min-[1366px]:flex-row gap-4 min-[1024px]:gap-6 min-[1366px]:gap-12 items-start w-full min-w-0">
+      <div className="grid grid-cols-1 md:grid-cols-[minmax(300px,0.88fr)_minmax(0,1.12fr)] min-[1366px]:flex min-[1366px]:flex-row gap-4 md:gap-6 min-[1366px]:gap-10 items-start w-full min-w-0 md:h-full md:min-h-0">
         {/* Left Col: Inputs Form */}
         <motion.div
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
-          className={`w-full min-[1366px]:w-[45%] flex flex-col animate-card min-w-0 ${
-            result && mobileView !== 'inputs' ? 'hidden min-[1024px]:flex' : 'flex'
+          className={`w-full min-[1366px]:w-[45%] flex flex-col animate-card min-w-0 md:sticky md:top-0 ${
+            result && mobileView !== 'inputs' ? 'hidden md:flex' : 'flex'
           }`}
         >
           <form
@@ -371,7 +371,7 @@ export default function AfiCalculator({ onSaveRecord }: AfiCalculatorProps) {
               <button
                 type="button"
                 onClick={() => {
-                  triggerHaptic(15);
+                  hapticSelection();
                   setOnlyMbv(false);
                   setResult(null);
                   setFieldErrors({});
@@ -388,7 +388,7 @@ export default function AfiCalculator({ onSaveRecord }: AfiCalculatorProps) {
               <button
                 type="button"
                 onClick={() => {
-                  triggerHaptic(15);
+                  hapticSelection();
                   setOnlyMbv(true);
                   setResult(null);
                   setFieldErrors({});
@@ -526,15 +526,17 @@ export default function AfiCalculator({ onSaveRecord }: AfiCalculatorProps) {
 
         {/* Right Col: Results View */}
         <div
-          className={`w-full min-[1366px]:w-[55%] flex flex-col animate-results min-[1024px]:sticky min-[1024px]:top-20 min-w-0 ${
-            !result || mobileView !== 'results' ? 'hidden min-[1024px]:flex' : 'flex'
+          className={`w-full min-[1366px]:w-[55%] flex flex-col animate-results min-w-0 md:h-full md:min-h-0 ${
+            !result || mobileView !== 'results' ? 'hidden md:flex' : 'flex'
           }`}
         >
           <motion.div
             initial={{ opacity: 0, scale: 0.98 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ type: 'spring', stiffness: 100, damping: 15 }}
-            className={`glass-panel widget-gradient p-4 min-[1024px]:p-6 min-[1366px]:p-10 rounded-[1.5rem] md:rounded-[2rem] flex flex-col items-center justify-center text-center w-full min-h-[300px] md:min-h-[360px] relative overflow-hidden ${
+            className={`glass-panel widget-gradient p-4 md:p-6 min-[1366px]:p-8 rounded-[1.5rem] md:rounded-[2rem] flex flex-col items-center ${
+              result ? 'justify-start' : 'justify-center'
+            } text-center w-full min-h-[300px] md:min-h-[360px] md:max-h-[calc(100dvh-9.5rem)] min-[1366px]:max-h-[calc(100dvh-10.5rem)] md:overflow-y-auto overscroll-contain touch-pan-y results-scroll-panel relative ${
               shimmer ? 'shimmer-active' : ''
             }`}
           >
@@ -627,7 +629,7 @@ export default function AfiCalculator({ onSaveRecord }: AfiCalculatorProps) {
                 <motion.div
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="w-full flex flex-col gap-4 mt-8 pt-6 border-t border-surface-variant text-left"
+                  className="w-full flex flex-col gap-4 mt-8 pt-6 border-t border-surface-variant text-left min-w-0"
                 >
                   {/* ILA Range Visual Guide */}
                   {!onlyMbv && (
@@ -705,26 +707,26 @@ export default function AfiCalculator({ onSaveRecord }: AfiCalculatorProps) {
                   </div>
 
                   {/* Save record */}
-                  <div className="mt-4 pt-4 border-t border-surface-variant flex flex-col gap-3">
+                  <div className="mt-4 pt-4 border-t border-surface-variant flex flex-col gap-2.5 text-left w-full min-w-0">
                     <label
-                      className="text-xs font-semibold uppercase tracking-wider text-secondary pl-1"
+                      className="text-[11px] md:text-xs font-semibold uppercase tracking-wider text-secondary pl-1"
                       htmlFor="pat-name-afi"
                     >
                       Salvar no Histórico Local
                     </label>
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 w-full min-w-0">
                       <input
                         id="pat-name-afi"
                         type="text"
                         placeholder="Identificação da paciente..."
                         value={patientName}
                         onChange={(e) => setPatientName(e.target.value)}
-                        className="ios-input flex-grow h-12 px-3 rounded-xl text-base"
+                        className="ios-input flex-1 min-w-0 h-11 md:h-12 px-3 rounded-xl text-sm md:text-base"
                       />
                       <button
                         type="button"
                         onClick={handleSave}
-                        className={`px-4 rounded-xl inline-flex items-center justify-center gap-1.5 font-bold text-xs transition-all duration-150 cursor-pointer min-h-[48px] md:min-h-0 ${
+                        className={`shrink-0 whitespace-nowrap px-3.5 sm:px-4 rounded-xl inline-flex items-center justify-center gap-1.5 font-bold text-xs transition-all duration-150 cursor-pointer min-h-[44px] md:min-h-0 ${
                           saved
                             ? 'bg-primary text-white shadow-md'
                             : 'bg-surface-variant text-on-surface hover:bg-surface-variant/80'
@@ -791,7 +793,7 @@ export default function AfiCalculator({ onSaveRecord }: AfiCalculatorProps) {
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
         onClick={() => {
-          triggerHaptic(50);
+          hapticMedium();
           handleReset();
         }}
         className="hidden min-[1366px]:flex fixed bottom-10 right-10 bg-surface text-on-surface shadow-[0_4px_20px_rgba(0,0,0,0.15)] dark:shadow-[0_4px_20px_rgba(0,0,0,0.4)] hover:bg-surface-variant transition-colors p-4 rounded-full items-center justify-center border border-surface-variant/50 z-40 group"

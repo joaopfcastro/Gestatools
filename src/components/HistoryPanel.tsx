@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { HistoryRecord } from '../types';
 import Icon from './Icon';
 import SwipeToDelete from './SwipeToDelete';
-import { triggerHaptic } from '../utils/haptics';
+import { hapticWarning, hapticMedium, hapticSelection, hapticLight } from '../utils/haptics';
 
 interface HistoryPanelProps {
   records: HistoryRecord[];
@@ -47,8 +47,9 @@ export default function HistoryPanel({ records, onDeleteRecord, onClearAll, onCl
           {records.length > 0 && (
             <button
               onClick={() => {
-                triggerHaptic([100, 50, 100]);
+                hapticWarning();
                 if (window.confirm('Deseja realmente limpar todo o histórico?')) {
+                  hapticMedium();
                   onClearAll();
                 }
               }}
@@ -58,7 +59,10 @@ export default function HistoryPanel({ records, onDeleteRecord, onClearAll, onCl
             </button>
           )}
           <button
-            onClick={onClose}
+            onClick={() => {
+              hapticLight();
+              onClose();
+            }}
             className="p-2 min-w-11 min-h-11 md:p-1.5 md:min-w-0 md:min-h-0 flex items-center justify-center rounded-full hover:bg-surface-variant text-secondary transition-colors cursor-pointer"
           >
             <Icon name="close" className="icon-inline" />
@@ -80,7 +84,10 @@ export default function HistoryPanel({ records, onDeleteRecord, onClearAll, onCl
             />
           </div>
           <button
-            onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
+            onClick={() => {
+              hapticSelection();
+              setShowFavoritesOnly(!showFavoritesOnly);
+            }}
             className={`p-2 h-11 w-11 rounded-xl flex items-center justify-center transition-colors cursor-pointer border ${showFavoritesOnly ? 'bg-amber-500/10 border-amber-500/30 text-amber-500' : 'bg-surface-variant border-transparent text-secondary hover:text-amber-500'}`}
             title="Mostrar apenas favoritos"
           >
@@ -118,7 +125,7 @@ export default function HistoryPanel({ records, onDeleteRecord, onClearAll, onCl
 
             return (
               <SwipeToDelete key={`${rec.id}-${index}`} onDelete={() => {
-                triggerHaptic(100);
+                hapticMedium();
                 onDeleteRecord(rec.id);
               }}>
                 <div className="bg-surface/50 border border-surface-variant/50 dark:bg-white/5 dark:border-white/5 rounded-xl p-4 flex justify-between items-start gap-3 transition-all hover:bg-surface-variant/50">
@@ -141,7 +148,10 @@ export default function HistoryPanel({ records, onDeleteRecord, onClearAll, onCl
                   </div>
                   <div className="flex flex-col gap-1 items-end">
                     <button
-                      onClick={() => onToggleFavorite(rec.id)}
+                      onClick={() => {
+                        hapticSelection();
+                        onToggleFavorite(rec.id);
+                      }}
                       className={`p-2 min-w-11 min-h-11 flex items-center justify-center md:min-w-0 md:min-h-0 md:p-1.5 rounded-xl transition-all cursor-pointer active:scale-90 ${rec.isFavorite ? 'text-amber-500 hover:bg-amber-500/10' : 'text-secondary hover:text-amber-500 hover:bg-surface-variant'}`}
                       title={rec.isFavorite ? "Remover dos favoritos" : "Adicionar aos favoritos"}
                     >
@@ -149,7 +159,7 @@ export default function HistoryPanel({ records, onDeleteRecord, onClearAll, onCl
                     </button>
                     <button
                       onClick={() => {
-                        triggerHaptic(100);
+                        hapticMedium();
                         onDeleteRecord(rec.id);
                       }}
                       className="p-2 min-w-11 min-h-11 flex items-center justify-center md:min-w-0 md:min-h-0 md:p-1.5 rounded-xl text-secondary hover:text-error hover:bg-error/10 transition-all cursor-pointer active:scale-90"

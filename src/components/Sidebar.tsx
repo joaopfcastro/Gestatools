@@ -1,5 +1,6 @@
 import { TabType } from '../types';
 import Icon from './Icon';
+import { hapticSelection } from '../utils/haptics';
 
 interface SidebarProps {
   activeTab: TabType;
@@ -31,7 +32,10 @@ export default function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
           style={{ animationDelay: `${baseDelayOffset + index * 0.05}s` }}
         >
           <button
-            onClick={() => setActiveTab(item.id)}
+            onClick={() => {
+              hapticSelection();
+              setActiveTab(item.id);
+            }}
             className={`nav-btn w-full text-left rounded-xl cursor-pointer px-2.5 py-2.5 min-[1366px]:px-4 min-[1366px]:py-3 mb-1 inline-flex items-center gap-2 min-[1366px]:gap-3 text-xs sm:text-sm min-[1366px]:text-body-lg transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 dark:focus-visible:ring-offset-surface ${
               isActive
                 ? 'bg-primary text-white font-medium shadow-sm'
@@ -52,7 +56,7 @@ export default function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
   };
 
   return (
-    <nav className="app-sidebar glass-nav text-on-surface font-body-lg hidden md:flex flex-col h-[calc(100dvh-56px)] fixed left-0 top-[calc(48px+env(safe-area-inset-top))] md:top-[calc(56px+env(safe-area-inset-top))] overflow-y-auto z-40">
+    <nav className="app-sidebar glass-nav text-on-surface font-body-lg hidden md:flex flex-col h-full overflow-y-auto z-30 shrink-0 border-r border-surface-variant/40">
       <div className="p-4 min-[1366px]:p-6 mb-1 min-[1366px]:mb-2 pb-0">
         <h2 className="font-label-caps text-label-caps font-semibold text-on-surface-variant uppercase tracking-wider text-[11px] min-[1366px]:text-xs">
           Calculadoras

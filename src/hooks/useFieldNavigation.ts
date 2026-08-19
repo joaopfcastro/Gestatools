@@ -24,7 +24,7 @@ export function useFieldNavigation(fields: (RefObject<HTMLElement | null> | HTML
     for (let i = currentIndex + 1; i < elements.length; i++) {
       const el = elements[i];
       if (isFocusable(el)) {
-        el?.focus();
+        el?.focus({ preventScroll: true });
         if ('select' in el && typeof (el as HTMLInputElement).select === 'function') {
           (el as HTMLInputElement).select();
         }
@@ -39,7 +39,7 @@ export function useFieldNavigation(fields: (RefObject<HTMLElement | null> | HTML
     for (let i = currentIndex - 1; i >= 0; i--) {
       const el = elements[i];
       if (isFocusable(el)) {
-        el?.focus();
+        el?.focus({ preventScroll: true });
         if ('select' in el && typeof (el as HTMLInputElement).select === 'function') {
           (el as HTMLInputElement).select();
         }
@@ -52,7 +52,7 @@ export function useFieldNavigation(fields: (RefObject<HTMLElement | null> | HTML
   const focusFirstInvalid = useCallback((invalidElements: (HTMLElement | null)[]) => {
     for (const el of invalidElements) {
       if (isFocusable(el)) {
-        el?.focus();
+        el?.focus({ preventScroll: true });
         if ('select' in el && typeof (el as HTMLInputElement).select === 'function') {
           (el as HTMLInputElement).select();
         }

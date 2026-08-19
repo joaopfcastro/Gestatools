@@ -149,6 +149,7 @@
 
 ::-webkit-scrollbar {
   width: 6px;
+  height: 6px;
 }
 ::-webkit-scrollbar-track {
   background: transparent; 
@@ -301,18 +302,57 @@ body {
   display: none;
 }
 
+/* Internal Results Scroll Panel */
+.results-scroll-panel {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(142, 142, 147, 0.35) transparent;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+.results-scroll-panel::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.results-scroll-panel::-webkit-scrollbar-track {
+  background: transparent;
+  margin: 8px 0;
+}
+
+.results-scroll-panel::-webkit-scrollbar-thumb {
+  background: rgba(142, 142, 147, 0.35);
+  border-radius: 9999px;
+}
+
+.results-scroll-panel::-webkit-scrollbar-thumb:hover {
+  background: rgba(142, 142, 147, 0.55);
+}
+
+.dark .results-scroll-panel {
+  scrollbar-color: rgba(255, 255, 255, 0.25) transparent;
+}
+
+.dark .results-scroll-panel::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.dark .results-scroll-panel::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.45);
+}
+
 /* Animations */
 @keyframes slideInLeft {
-  from { opacity: 0; transform: translateX(-20px); }
+  from { opacity: 0; transform: translateX(-10px); }
   to { opacity: 1; transform: translateX(0); }
 }
 @keyframes scaleUpFadeIn {
-  from { opacity: 0; transform: scale(0.95); }
+  from { opacity: 0; transform: scale(0.97); }
   to { opacity: 1; transform: scale(1); }
 }
 @keyframes slideInRightSpring {
-  0% { opacity: 0; transform: translateX(40px); }
-  70% { transform: translateX(-5px); }
+  0% { opacity: 0; transform: translateX(10px); }
+  70% { transform: translateX(-2px); }
   100% { opacity: 1; transform: translateX(0); }
 }
 @keyframes pulseIcon {
@@ -331,11 +371,11 @@ body {
 }
 .animate-card {
   opacity: 0;
-  animation: scaleUpFadeIn 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  animation: scaleUpFadeIn 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 .animate-results {
   opacity: 0;
-  animation: slideInRightSpring 0.7s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  animation: slideInRightSpring 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
 }
 
 .pulse-hover:hover {
@@ -350,7 +390,7 @@ body {
   position: relative;
   z-index: 1;
 
-  margin-top: 1.25rem;
+  margin-top: 0.75rem;
   margin-right: 0;
   margin-bottom: 0;
   margin-left: 0;
@@ -367,6 +407,12 @@ body {
   box-shadow: none;
 }
 
+@media (min-width: 768px) {
+  .calculator-action-bar {
+    margin-top: 1.25rem;
+  }
+}
+
 .dark .calculator-action-bar {
   background: transparent;
   border: 0;
@@ -378,13 +424,11 @@ body {
 
 .calculator-form-panel {
   padding: 0.875rem;
-  padding-bottom: 4rem;
 }
 
 @media (min-width: 640px) {
   .calculator-form-panel {
     padding: 1.25rem;
-    padding-bottom: 4rem;
   }
 }
 
@@ -457,10 +501,18 @@ body {
 }
 
 html, body, #root {
-  height: var(--vv-height, 100dvh);
-  max-height: var(--vv-height, 100dvh);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  height: 100dvh;
   overflow: hidden;
-  overscroll-behavior-y: none;
+  overscroll-behavior: none;
+  touch-action: none;
+  -webkit-overflow-scrolling: auto;
 }
 
 :root {
@@ -483,6 +535,61 @@ html, body {
   padding: 0;
   overflow: hidden;
   overscroll-behavior: none;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+}
+
+/* Allow scrolling ONLY inside designated scrollable containers */
+.app-main, .overflow-y-auto, .overflow-auto {
+  touch-action: pan-y;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+}
+
+/* Typing mode / virtual keyboard adaptations to eliminate bottom void and excessive footer */
+[data-keyboard-open="true"] #bottom-navigation-bar,
+[data-keyboard-open="true"] .glass-nav-bottom {
+  height: 44px !important;
+  min-height: 44px !important;
+  max-height: 44px !important;
+  padding-bottom: 0px !important;
+  padding-top: 0px !important;
+}
+
+[data-keyboard-open="true"] .glass-nav-bottom .nav-btn {
+  height: 40px !important;
+  min-height: 40px !important;
+  padding-top: 0px !important;
+  padding-bottom: 0px !important;
+}
+
+[data-keyboard-open="true"] .glass-nav-bottom .icon-nav {
+  font-size: 18px !important;
+}
+
+[data-keyboard-open="true"] .glass-nav-bottom span {
+  font-size: 9.5px !important;
+}
+
+[data-keyboard-open="true"] .app-main {
+  padding-bottom: calc(44px + 12px) !important;
+}
+
+button, a, input, select, textarea {
+  touch-action: manipulation;
+}
+
+/* Standalone PWA adjustments */
+@media (display-mode: standalone) {
+  body {
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  input, textarea, [contenteditable="true"], .selectable-text {
+    user-select: text;
+    -webkit-user-select: text;
+  }
 }
 
 html {
@@ -536,22 +643,85 @@ body.dark, html.dark body {
   color: #9ca3af;
 }
 
+.app-main {
+  overflow-x: hidden !important;
+}
+
+.tab-content {
+  overflow-x: hidden !important;
+}
+
+.results-scroll-panel {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(142, 142, 147, 0.4) transparent;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  overscroll-behavior-y: contain;
+  touch-action: pan-y;
+}
+
+/* Parent scroll lock when active inside results modal on desktop/tablet */
+@media (min-width: 768px) {
+  body.results-scroll-locked {
+    overflow: hidden !important;
+  }
+  
+  .app-main.results-scroll-locked {
+    overflow-y: hidden !important;
+  }
+}
+
+.dark .results-scroll-panel {
+  scrollbar-color: rgba(255, 255, 255, 0.25) transparent;
+}
+
+.results-scroll-panel::-webkit-scrollbar {
+  width: 6px;
+}
+
+.results-scroll-panel::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.results-scroll-panel::-webkit-scrollbar-thumb {
+  background-color: rgba(142, 142, 147, 0.35);
+  border-radius: 9999px;
+}
+
+.dark .results-scroll-panel::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
 @media (min-width: 768px) {
   .app-sidebar {
     width: var(--sidebar-width-tablet);
-  }
-
-  .app-main {
-    margin-left: var(--sidebar-width-tablet);
+    min-width: var(--sidebar-width-tablet);
   }
 }
 
 @media (min-width: 1366px) {
   .app-sidebar {
     width: var(--sidebar-width-desktop);
-  }
-
-  .app-main {
-    margin-left: var(--sidebar-width-desktop);
+    min-width: var(--sidebar-width-desktop);
   }
 }
+
+/* Smooth View Transition for Theme switching */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.3s;
+  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.theme-transitioning,
+.theme-transitioning *,
+.theme-transitioning *::before,
+.theme-transitioning *::after {
+  transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              border-color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              color 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              fill 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  transition-delay: 0s !important;
+}
+

@@ -40,6 +40,35 @@ if (fs.existsSync(path.join(SOURCE_DIR, 'previews'))) {
   copyRecursive(path.join(SOURCE_DIR, 'previews'), path.join(ROOT_DIR, 'branding', 'previews'));
 }
 
+// 4. Generate standard iOS apple-touch-icon aliases in public/
+const iosAliases = [
+  ['public/apple-touch-icon.png', 'public/apple-touch-icon-precomposed.png'],
+  ['public/icons/gestatools-v2/icon-180.png', 'public/apple-touch-icon-180x180.png'],
+  ['public/icons/gestatools-v2/icon-180.png', 'public/apple-touch-icon-180x180-precomposed.png'],
+  ['public/icons/gestatools-v2/icon-167.png', 'public/apple-touch-icon-167x167.png'],
+  ['public/icons/gestatools-v2/icon-167.png', 'public/apple-touch-icon-167x167-precomposed.png'],
+  ['public/icons/gestatools-v2/icon-152.png', 'public/apple-touch-icon-152x152.png'],
+  ['public/icons/gestatools-v2/icon-152.png', 'public/apple-touch-icon-152x152-precomposed.png'],
+  ['public/icons/gestatools-v2/icon-128.png', 'public/apple-touch-icon-120x120.png'],
+  ['public/icons/gestatools-v2/icon-128.png', 'public/apple-touch-icon-120x120-precomposed.png'],
+  ['public/icons/gestatools-v2/icon-144.png', 'public/apple-touch-icon-144x144.png'],
+  ['public/icons/gestatools-v2/icon-144.png', 'public/apple-touch-icon-144x144-precomposed.png'],
+  ['public/icons/gestatools-v2/icon-72.png', 'public/apple-touch-icon-76x76.png'],
+  ['public/icons/gestatools-v2/icon-72.png', 'public/apple-touch-icon-76x76-precomposed.png'],
+  ['public/icons/gestatools-v2/icon-64.png', 'public/apple-touch-icon-57x57.png'],
+  ['public/icons/gestatools-v2/icon-64.png', 'public/apple-touch-icon-57x57-precomposed.png'],
+  ['public/icons/gestatools-v2/icon-192.png', 'public/apple-touch-icon-192x192.png'],
+  ['public/icons/gestatools-v2/icon-192.png', 'public/apple-touch-icon-192x192-precomposed.png'],
+];
+
+iosAliases.forEach(([src, dest]) => {
+  const srcPath = path.join(ROOT_DIR, src);
+  const destPath = path.join(ROOT_DIR, dest);
+  if (fs.existsSync(srcPath)) {
+    fs.copyFileSync(srcPath, destPath);
+  }
+});
+
 console.log('Rebuilding SHA256 checksums based on user assets...');
 
 const shaFile = path.join(ROOT_DIR, 'branding', 'approved-assets.sha256');

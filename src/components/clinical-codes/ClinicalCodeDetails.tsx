@@ -6,6 +6,7 @@ import {
   SigtapProcedureRecord,
 } from '../../types';
 import { copyCodeToClipboard } from '../../utils/clinicalCodes';
+import { hapticSuccess, hapticSelection, hapticLight } from '../../utils/haptics';
 import RelationTypeBadge from './RelationTypeBadge';
 import Icon from '../Icon';
 
@@ -39,6 +40,7 @@ export default function ClinicalCodeDetails({
   const handleCopy = async (text: string) => {
     const success = await copyCodeToClipboard(text);
     if (success) {
+      hapticSuccess();
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     }
@@ -72,7 +74,7 @@ export default function ClinicalCodeDetails({
   // 2. Details for CID selection
   if (mode === 'cid' && cid) {
     return (
-      <div className="glass-panel p-3.5 sm:p-5 min-[1024px]:p-6 rounded-[1.25rem] md:rounded-[2rem] space-y-4 animate-card border border-surface-variant shadow-xs">
+      <div className="glass-panel p-3.5 sm:p-5 md:p-6 rounded-[1.25rem] md:rounded-[2rem] space-y-4 animate-card border border-surface-variant shadow-xs md:max-h-[calc(100dvh-9.5rem)] min-[1366px]:max-h-[calc(100dvh-10.5rem)] md:overflow-y-auto overscroll-contain touch-pan-y results-scroll-panel">
         {/* Header bar */}
         {isMobile ? (
           <div className="space-y-2.5 pb-3 border-b border-surface-variant/60">
@@ -81,7 +83,10 @@ export default function ClinicalCodeDetails({
               {onBack && (
                 <button
                   type="button"
-                  onClick={onBack}
+                  onClick={() => {
+                    hapticLight();
+                    onBack();
+                  }}
                   className="inline-flex items-center gap-1 px-3 py-2 min-h-[44px] rounded-xl bg-surface-variant/80 hover:bg-surface-variant text-primary text-xs font-bold transition-colors cursor-pointer active:scale-95"
                   aria-label="Voltar para a lista de resultados"
                 >
@@ -168,7 +173,10 @@ export default function ClinicalCodeDetails({
                 <button
                   key={`${cid.code}-${proc.code}`}
                   type="button"
-                  onClick={() => onNavigateToProcedure(proc)}
+                  onClick={() => {
+                    hapticSelection();
+                    onNavigateToProcedure(proc);
+                  }}
                   className="w-full text-left p-3 rounded-xl bg-surface-variant/40 hover:bg-primary/10 border border-surface-variant/50 transition-all cursor-pointer space-y-1 group min-w-0"
                 >
                   <div className="flex items-center justify-between gap-2">
@@ -197,7 +205,7 @@ export default function ClinicalCodeDetails({
   // 3. Details for Procedure selection
   if (mode === 'procedure' && procedure) {
     return (
-      <div className="glass-panel p-3.5 sm:p-5 min-[1024px]:p-6 rounded-[1.25rem] md:rounded-[2rem] space-y-4 animate-card border border-surface-variant shadow-xs">
+      <div className="glass-panel p-3.5 sm:p-5 md:p-6 rounded-[1.25rem] md:rounded-[2rem] space-y-4 animate-card border border-surface-variant shadow-xs md:max-h-[calc(100dvh-9.5rem)] min-[1366px]:max-h-[calc(100dvh-10.5rem)] md:overflow-y-auto overscroll-contain touch-pan-y results-scroll-panel">
         {/* Header bar */}
         {isMobile ? (
           <div className="space-y-2.5 pb-3 border-b border-surface-variant/60">
@@ -206,7 +214,10 @@ export default function ClinicalCodeDetails({
               {onBack && (
                 <button
                   type="button"
-                  onClick={onBack}
+                  onClick={() => {
+                    hapticLight();
+                    onBack();
+                  }}
                   className="inline-flex items-center gap-1 px-3 py-2 min-h-[44px] rounded-xl bg-surface-variant/80 hover:bg-surface-variant text-primary text-xs font-bold transition-colors cursor-pointer active:scale-95"
                   aria-label="Voltar para a lista de resultados"
                 >
@@ -320,7 +331,10 @@ export default function ClinicalCodeDetails({
                 <button
                   key={`${procedure.code}-${c.code}`}
                   type="button"
-                  onClick={() => onNavigateToCid(c)}
+                  onClick={() => {
+                    hapticSelection();
+                    onNavigateToCid(c);
+                  }}
                   className="w-full text-left p-3 rounded-xl bg-surface-variant/40 hover:bg-primary/10 border border-surface-variant/50 transition-all cursor-pointer space-y-1 group min-w-0"
                 >
                   <div className="flex items-center justify-between gap-2">

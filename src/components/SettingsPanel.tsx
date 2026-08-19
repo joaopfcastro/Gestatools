@@ -1,13 +1,29 @@
+import { useEffect, useState } from 'react';
 import { AppSettings } from '../types';
 import Icon from './Icon';
+import BrandMark from './BrandMark';
+import { hapticSelection, hapticLight } from '../utils/haptics';
 
 interface SettingsPanelProps {
   settings: AppSettings;
   onChangeSettings: (settings: AppSettings) => void;
   onClose: () => void;
+  onOpenInstallModal?: () => void;
+  onOpenReferences?: () => void;
 }
 
-export default function SettingsPanel({ settings, onChangeSettings, onClose }: SettingsPanelProps) {
+export default function SettingsPanel({ settings, onChangeSettings, onClose, onOpenInstallModal, onOpenReferences }: SettingsPanelProps) {
+  const [isStandalone, setIsStandalone] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const standalone =
+        window.matchMedia('(display-mode: standalone)').matches ||
+        (window.navigator as any).standalone === true;
+      setIsStandalone(standalone);
+    }
+  }, []);
+
   return (
     <div className="flex flex-col h-full bg-transparent text-on-surface pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]">
       {/* Header */}
@@ -17,7 +33,10 @@ export default function SettingsPanel({ settings, onChangeSettings, onClose }: S
           <h2 className="font-title-md font-bold text-lg">Preferências e Referências</h2>
         </div>
         <button
-          onClick={onClose}
+          onClick={() => {
+            hapticLight();
+            onClose();
+          }}
           className="p-2 min-w-11 min-h-11 md:p-1.5 md:min-w-0 md:min-h-0 flex items-center justify-center rounded-full hover:bg-surface-variant text-secondary transition-colors cursor-pointer"
         >
           <Icon name="close" className="icon-inline" />
@@ -26,6 +45,55 @@ export default function SettingsPanel({ settings, onChangeSettings, onClose }: S
 
       {/* Settings list */}
       <div className="flex-grow overflow-y-auto p-5 flex flex-col gap-6">
+        {/* App Nativo / PWA section */}
+        <div className="flex flex-col gap-2.5">
+          <h3 className="text-xs font-bold uppercase tracking-wider text-secondary inline-flex items-center gap-1.5">
+            <Icon name="phone_iphone" className="icon-small" /> Aplicativo Nativo
+          </h3>
+          <div className="bg-surface/50 border border-surface-variant/50 dark:bg-white/5 dark:border-white/5 rounded-2xl p-4 flex flex-col gap-3.5 shadow-xs">
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3 min-w-0">
+                <BrandMark size={40} className="w-10 h-10 rounded-xl shadow-xs shrink-0" />
+                <div className="min-w-0">
+                  <span className="text-sm font-bold text-on-surface block truncate">GestaTools Mobile</span>
+                  <span className="text-xs text-secondary block truncate">
+                    {isStandalone ? 'App instalado' : 'Pronto para instalar'}
+                  </span>
+                </div>
+              </div>
+              <div className="shrink-0">
+                <span
+                  className={`whitespace-nowrap inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold tracking-wide leading-none ${
+                    isStandalone
+                      ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20'
+                      : 'bg-primary/10 text-primary border border-primary/20'
+                  }`}
+                >
+                  <span className={`w-2 h-2 rounded-full shrink-0 ${isStandalone ? 'bg-emerald-500 animate-pulse' : 'bg-primary'}`} />
+                  <span>{isStandalone ? 'Nativo Ativo' : 'PWA Pronto'}</span>
+                </span>
+              </div>
+            </div>
+
+            <p className="text-xs text-secondary leading-relaxed">
+              O GestaTools funciona em tela cheia sem as barras do navegador, com alta velocidade e suporte 100% offline.
+            </p>
+
+            {onOpenInstallModal && (
+              <button
+                type="button"
+                onClick={() => {
+                  hapticLight();
+                  onOpenInstallModal();
+                }}
+                className="w-full py-3 px-4 rounded-xl bg-primary/10 hover:bg-primary/15 active:scale-[0.98] text-primary text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer border border-primary/20"
+              >
+                <Icon name={isStandalone ? 'info' : 'install_mobile'} className="text-base" />
+                <span>{isStandalone ? 'Ver Informações do Aplicativo' : 'Como Instalar no Celular'}</span>
+              </button>
+            )}
+          </div>
+        </div>
         {/* Theme Preference */}
         <div className="flex flex-col gap-2.5">
           <h3 className="text-xs font-bold uppercase tracking-wider text-secondary inline-flex items-center gap-1.5">
@@ -38,25 +106,34 @@ export default function SettingsPanel({ settings, onChangeSettings, onClose }: S
             </div>
             <div className="flex bg-surface-variant/50 p-1 rounded-lg w-full sm:w-auto">
               <button
-                onClick={() => onChangeSettings({ ...settings, theme: 'light' })}
-                className={`flex-1 sm:flex-none px-3 py-1.5 text-xs font-medium rounded-md transition-all min-h-[44px] md:min-h-0 ${
-                  settings.theme === 'light' ? 'bg-surface text-primary shadow-sm' : 'text-secondary hover:text-on-surface'
+                onClick={() => {
+                  hapticSelection();
+                  onChangeSettings({ ...settings, theme: 'light' });
+                }}
+                className={`flex-1 sm:flex-none px-3 py-1.5 text-xs font-medium rounded-md transition-all min-h-[44px] md:min-h-0 cursor-pointer ${
+                  settings.theme === 'light' ? 'bg-surface text-primary shadow-sm font-semibold' : 'text-secondary hover:text-on-surface'
                 }`}
               >
                 Claro
               </button>
               <button
-                onClick={() => onChangeSettings({ ...settings, theme: 'dark' })}
-                className={`flex-1 sm:flex-none px-3 py-1.5 text-xs font-medium rounded-md transition-all min-h-[44px] md:min-h-0 ${
-                  settings.theme === 'dark' ? 'bg-surface text-primary shadow-sm' : 'text-secondary hover:text-on-surface'
+                onClick={() => {
+                  hapticSelection();
+                  onChangeSettings({ ...settings, theme: 'dark' });
+                }}
+                className={`flex-1 sm:flex-none px-3 py-1.5 text-xs font-medium rounded-md transition-all min-h-[44px] md:min-h-0 cursor-pointer ${
+                  settings.theme === 'dark' ? 'bg-surface text-primary shadow-sm font-semibold' : 'text-secondary hover:text-on-surface'
                 }`}
               >
                 Escuro
               </button>
               <button
-                onClick={() => onChangeSettings({ ...settings, theme: 'system' })}
-                className={`flex-1 sm:flex-none px-3 py-1.5 text-xs font-medium rounded-md transition-all min-h-[44px] md:min-h-0 ${
-                  settings.theme === 'system' ? 'bg-surface text-primary shadow-sm' : 'text-secondary hover:text-on-surface'
+                onClick={() => {
+                  hapticSelection();
+                  onChangeSettings({ ...settings, theme: 'system' });
+                }}
+                className={`flex-1 sm:flex-none px-3 py-1.5 text-xs font-medium rounded-md transition-all min-h-[44px] md:min-h-0 cursor-pointer ${
+                  settings.theme === 'system' ? 'bg-surface text-primary shadow-sm font-semibold' : 'text-secondary hover:text-on-surface'
                 }`}
               >
                 Sistema
@@ -131,9 +208,24 @@ export default function SettingsPanel({ settings, onChangeSettings, onClose }: S
 
         {/* Scientific References */}
         <div className="flex flex-col gap-2.5">
-          <h3 className="text-xs font-bold uppercase tracking-wider text-secondary inline-flex items-center gap-1.5">
-            <Icon name="menu_book" className="icon-small" /> Referências Científicas
-          </h3>
+          <div className="flex items-center justify-between">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-secondary inline-flex items-center gap-1.5">
+              <Icon name="menu_book" className="icon-small" /> Referências Científicas
+            </h3>
+            {onOpenReferences && (
+              <button
+                type="button"
+                onClick={() => {
+                  hapticLight();
+                  onOpenReferences();
+                }}
+                className="text-[11px] font-semibold text-primary hover:underline underline-offset-2 cursor-pointer inline-flex items-center gap-1"
+              >
+                <span>Ver modal</span>
+                <Icon name="open_in_new" className="text-[13px]" />
+              </button>
+            )}
+          </div>
           <div className="bg-surface/50 border border-surface-variant/50 dark:bg-white/5 dark:border-white/5 rounded-xl p-4 flex flex-col gap-3.5 text-xs leading-relaxed text-secondary">
             <div className="border-b border-surface-variant pb-2.5">
               <span className="font-semibold text-on-surface block mb-0.5">Fórmula de Hadlock (Peso Fetal)</span>
@@ -147,25 +239,34 @@ export default function SettingsPanel({ settings, onChangeSettings, onClose }: S
               <span className="font-semibold text-on-surface block mb-0.5">Avaliação de Líquido Amniótico (ILA)</span>
               Phelan JP, et al. Amniotic fluid volume assessment with the four-quadrant technique at 36-42 weeks' gestation. J Reprod Med. 1987 Jul;32(7):540-2.
             </div>
-            <div>
+            <div className="border-b border-surface-variant pb-2.5">
               <span className="font-semibold text-on-surface block mb-0.5">Idade Gestacional por CCN</span>
               Hadlock FP, et al. Fetal crown-rump length: relation to menstrual age and projection of expected date of confinement. Radiology. 1982.
+            </div>
+            <div>
+              <span className="font-semibold text-on-surface block mb-0.5">Tabela SIGTAP / DATASUS & CID-10</span>
+              Sistema de Gerenciamento da Tabela de Procedimentos, Medicamentos e OPM do SUS — Competência 07/2026.
             </div>
           </div>
         </div>
 
-        {/* Legal Disclaimer */}
+        {/* Legal Disclaimer & Institutional Info */}
         <div className="flex flex-col gap-2.5">
           <h3 className="text-xs font-bold uppercase tracking-wider text-secondary inline-flex items-center gap-1.5">
-            <Icon name="balance" className="icon-small" /> Aviso de Isenção de Responsabilidade
+            <Icon name="balance" className="icon-small" /> Apoio de Decisão Clínica
           </h3>
-          <div className="bg-error/5 border border-error/10 p-4 rounded-2xl text-xs leading-relaxed text-error inline-flex items-center gap-1.5">
-            <Icon name="info" className="shrink-0 text-[16px]" />
-            <p>
-              Esta ferramenta destina-se <strong>exclusivamente como apoio à decisão clínica por profissionais de saúde qualificados</strong>. 
-              As decisões médicas e condutas obstétricas devem ser individualizadas e baseadas na avaliação clínica soberana de cada caso. 
-              O desenvolvedor não se responsabiliza por quaisquer decisões tomadas isoladamente com base nestes cálculos.
-            </p>
+          <div className="bg-surface/50 border border-surface-variant/50 dark:bg-white/5 dark:border-white/5 rounded-2xl p-4 flex flex-col gap-3 shadow-xs">
+            <div className="bg-error/5 border border-error/10 p-3 rounded-xl text-xs leading-relaxed text-error flex items-start gap-2">
+              <Icon name="info" className="shrink-0 text-[16px] mt-0.5" />
+              <p>
+                Esta ferramenta destina-se <strong>exclusivamente a apoio de decisão clínica por profissionais de saúde qualificados</strong>. 
+                As decisões médicas e condutas obstétricas devem ser individualizadas e baseadas na avaliação clínica soberana de cada paciente.
+              </p>
+            </div>
+            <div className="pt-2 border-t border-surface-variant/40 flex flex-col sm:flex-row items-center justify-between text-[11px] text-secondary gap-1 text-center sm:text-left">
+              <span>© {new Date().getFullYear()} GestaTools</span>
+              <span>Profissionais de saúde</span>
+            </div>
           </div>
         </div>
       </div>

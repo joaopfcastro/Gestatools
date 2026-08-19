@@ -233,7 +233,7 @@ export default function ClinicalCodesPage() {
   const totalResults = mode === 'cid' ? cidResults.length : procedureResults.length;
 
   return (
-    <div ref={topRef} className="w-full max-w-6xl min-[1366px]:max-w-7xl mx-auto flex flex-col justify-start gap-3 min-[1024px]:gap-5 p-0 sm:p-2 min-[1366px]:p-4 h-auto min-w-0">
+    <div ref={topRef} className="w-full max-w-6xl min-[1366px]:max-w-7xl mx-auto flex flex-col justify-start gap-3 min-[1024px]:gap-5 p-0 sm:p-2 min-[1366px]:p-4 h-auto min-w-0 md:h-full md:min-h-0">
       {/* Top Header */}
       <div className="px-1 w-full min-w-0">
         <h1 className="text-xl md:text-2xl min-[1366px]:text-3xl font-bold text-on-surface leading-tight md:mb-1">
@@ -244,10 +244,10 @@ export default function ClinicalCodesPage() {
         </p>
       </div>
 
-      {/* Responsive View Switch (<1024px Mobile vs >=1024px Desktop) */}
-      <div className="w-full min-w-0">
-        {/* Mobile View (< 1024px) */}
-        <div className="block min-[1024px]:hidden w-full min-w-0">
+      {/* Responsive View Switch (<768px Mobile vs >=768px Desktop/Tablet) */}
+      <div className="w-full min-w-0 md:flex-1 md:min-h-0">
+        {/* Mobile View (< 768px) */}
+        <div className="block md:hidden w-full min-w-0">
           {mobileView === 'search' ? (
             <div className="glass-panel p-3.5 sm:p-5 rounded-[1.25rem] md:rounded-[2rem] border border-surface-variant shadow-xs min-w-0 space-y-3">
               <ClinicalCodeSearch
@@ -294,10 +294,10 @@ export default function ClinicalCodesPage() {
           )}
         </div>
 
-        {/* Desktop Layout (>= 1024px) */}
-        <div className="hidden min-[1024px]:grid grid-cols-[minmax(300px,0.85fr)_minmax(0,1.15fr)] min-[1366px]:grid-cols-[minmax(360px,0.9fr)_minmax(0,1.1fr)] gap-4 min-[1024px]:gap-6 min-[1366px]:gap-8 items-start w-full min-w-0">
+        {/* Desktop & Tablet Layout (>= 768px) */}
+        <div className="hidden md:grid md:grid-cols-[minmax(300px,0.85fr)_minmax(0,1.15fr)] min-[1366px]:grid-cols-[minmax(360px,0.9fr)_minmax(0,1.1fr)] gap-4 md:gap-6 min-[1366px]:gap-8 items-start w-full min-w-0 md:h-full md:min-h-0">
           {/* Left Column: Search & Results Panel */}
-          <div className="glass-panel p-5 min-[1024px]:p-6 rounded-[1.25rem] md:rounded-[2rem] border border-surface-variant shadow-xs min-w-0 w-full space-y-4">
+          <div className="glass-panel p-4 md:p-5 min-[1024px]:p-6 rounded-[1.25rem] md:rounded-[2rem] border border-surface-variant shadow-xs min-w-0 w-full space-y-4 md:max-h-[calc(100dvh-9.5rem)] min-[1366px]:max-h-[calc(100dvh-10.5rem)] md:overflow-y-auto overscroll-contain">
             <ClinicalCodeSearch
               mode={mode}
               onModeChange={handleModeChange}
@@ -328,7 +328,7 @@ export default function ClinicalCodesPage() {
           </div>
 
           {/* Right Column: Sticky Details Panel */}
-          <div className="min-w-0 w-full sticky top-[calc(64px+env(safe-area-inset-top))]">
+          <div className="min-w-0 w-full md:sticky md:top-0 md:h-full md:min-h-0">
             <ClinicalCodeDetails
               layout="desktop"
               mode={mode}

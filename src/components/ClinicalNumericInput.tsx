@@ -149,7 +149,7 @@ export const ClinicalNumericInput = forwardRef<HTMLInputElement, ClinicalNumeric
             enterKeyHint={enterKeyHint}
             aria-invalid={Boolean(error)}
             aria-describedby={ariaDescribedBy}
-            className={`ios-input w-full h-12 md:h-12 px-3.5 md:px-4 ${
+            className={`ios-input w-full h-11 sm:h-12 md:h-12 px-3.5 md:px-4 ${
               unit ? 'pr-12' : ''
             } rounded-xl text-[16px] font-medium text-on-surface transition-all ${
               error
